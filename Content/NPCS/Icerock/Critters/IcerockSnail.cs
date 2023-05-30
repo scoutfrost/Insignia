@@ -29,7 +29,7 @@ namespace Insignia.Content.NPCS.Icerock.Critters
 			NPC.value = 76f;
 			NPC.aiStyle = NPCAIStyleID.Snail;
 			NPC.HitSound = SoundID.Item50;
-
+			NPC.npcSlots = 0;
 			NPC.DeathSound = SoundID.NPCDeath1;
 			AIType = NPCID.MagmaSnail;
 			AnimationType = NPCID.MagmaSnail;

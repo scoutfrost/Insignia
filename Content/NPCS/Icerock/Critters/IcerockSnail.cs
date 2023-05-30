@@ -22,8 +22,8 @@ namespace Insignia.Content.NPCS.Icerock.Critters
 
 		public override void SetDefaults()
 		{
-			NPC.width = 23;
-			NPC.height = 40;
+			NPC.width = 20;
+			NPC.height = 30;
 			NPC.defense = 5;
 			NPC.lifeMax = 5;
 			NPC.value = 76f;
@@ -52,8 +52,14 @@ namespace Insignia.Content.NPCS.Icerock.Critters
 		}
 		public override void HitEffect(NPC.HitInfo hit)
 		{
+            if (NPC.life <= 0)
+            {
+                Gore.NewGore(NPC.GetSource_Death(), NPC.position, NPC.velocity, Mod.Find<ModGore>("IcerockSnailGore1").Type, 1f);
+                Gore.NewGore(NPC.GetSource_Death(), NPC.position, NPC.velocity, Mod.Find<ModGore>("IcerockSnailGore2").Type, 1f);
+                Gore.NewGore(NPC.GetSource_Death(), NPC.position, NPC.velocity, Mod.Find<ModGore>("IcerockSnailGor3").Type, 1f);
 
-			for (int i = 0; i < 10; i++)
+            }
+            for (int i = 0; i < 16; i++)
 			{
 
 				Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);

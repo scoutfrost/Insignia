@@ -12,7 +12,7 @@ using Insignia.Core.Particles;
 namespace Insignia
 {
 
-    //Test
+    //Test Mod
 	public class Insignia : Mod
 	{
         public override void Unload()

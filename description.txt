@@ -1,0 +1,5 @@
+The Insignia Mod is a small content mod that mostly derives around the Snow Biome.
+Adds a new Temperature System depending what biome you're in.
+Adds a boss called Tørgustus, a large boney creature thats been kept in the Icebergs for centuries.
+Adds unique items and weapons
+Adds new unique enemies

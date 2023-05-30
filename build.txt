@@ -1,0 +1,3 @@
+displayName = Insignia
+author = Magma!!
+version = 0.1

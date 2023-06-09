@@ -16,7 +16,6 @@ namespace Insignia
         public override void Unload()
         {
             ParticleSystem.Unload();
-            a
         }
     }
 }

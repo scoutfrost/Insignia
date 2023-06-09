@@ -11,13 +11,12 @@ using Insignia.Core.Particles;
 
 namespace Insignia
 {
-
-    //Test Mod
 	public class Insignia : Mod
 	{
         public override void Unload()
         {
             ParticleSystem.Unload();
+            a
         }
     }
 }

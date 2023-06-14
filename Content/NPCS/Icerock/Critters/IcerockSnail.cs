@@ -50,7 +50,7 @@ namespace Insignia.Content.NPCS.Icerock.Critters
 
 			});
 		}
-		public override void HitEffect(NPC.HitInfo hit)
+        public override void HitEffect(NPC.HitInfo hit)
 		{
             if (NPC.life <= 0)
             {
@@ -61,11 +61,8 @@ namespace Insignia.Content.NPCS.Icerock.Critters
             }
             for (int i = 0; i < 16; i++)
 			{
-
 				Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-
 				var d = Dust.NewDustPerfect(NPC.position, DustID.Ice, speed * 5, Scale: 2f);
-				;
 				d.noGravity = true;
 			}
 		}
@@ -73,16 +70,10 @@ namespace Insignia.Content.NPCS.Icerock.Critters
 		{
 			Lighting.AddLight(NPC.position, r: 0f, g: 0.2f, b: 0.6f);
 		}
-
-		public override void OnHitPlayer(Player target, Player.HurtInfo hurtInfo)
+        public override void OnHitPlayer(Player target, Player.HurtInfo hurtInfo)
 		{
-			// Here we can make things happen if this NPC hits a player via its hitbox (not projectiles it shoots, this is handled in the projectile code usually)
-			// Common use is applying buffs/debuffs:
-
 			int buffType = BuffID.Frozen;
-			// Alternatively, you can use a vanilla buff: int buffType = BuffID.Slow;
-
-			int timeToAdd = 2 * 60; //This makes it 5 seconds, one second is 60 ticks
+			int timeToAdd = 2 * 60;
 			target.AddBuff(buffType, timeToAdd);
 		}
 	}

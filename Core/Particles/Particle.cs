@@ -24,7 +24,6 @@ namespace Insignia.Core.Particles
         public Rectangle? Frame;
         public float? Opacity;
 
-
         public virtual void Update() { }
         public virtual bool Kill => false;
     }

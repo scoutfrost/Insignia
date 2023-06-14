@@ -21,10 +21,10 @@ namespace InsigniaMod.Core.Particles
             Color = color;
             Size = scale;
             TimeLeft = maxTime;
+            TextureName = "GenericGlowParticle";
         }
         public override void Update()
         {
-            TextureName = "GenericGlowParticle";
             Lighting.AddLight(Position, Color.R / 255, Color.G / 255, Color.B / 255);
             Velocity = Velocity.RotatedByRandom(MathHelper.ToRadians(5)) * 0.99f;
             Size *= 0.97f;

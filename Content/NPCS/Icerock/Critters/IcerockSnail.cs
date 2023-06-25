@@ -10,7 +10,6 @@ namespace Insignia.Content.NPCS.Icerock.Critters
 	{
 		public override void SetStaticDefaults()
 		{
-			//DisplayName.SetDefault("Icerock Snail");
 			Main.npcFrameCount[NPC.type] = Main.npcFrameCount[NPCID.MagmaSnail];
 
 			var value = new NPCID.Sets.NPCBestiaryDrawModifiers(0)

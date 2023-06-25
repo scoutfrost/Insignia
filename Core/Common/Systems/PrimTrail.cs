@@ -21,10 +21,8 @@ namespace Insignia.Core.Common.Systems
         public static BasicEffect BasicEffect { get; protected set; } = new(GD);
         public VertexPositionColorTexture[] Vertices { get; protected set; }
         public Color Color { get; protected set; }
-        public List<Vector2> Points { get; protected set; } = new();
-        public PrimitiveType Type { get; protected set; }
-        public int Width { get; protected set; }
-        public int Opacity { get; protected set; }
+        public Vector2[] Points { get; protected set; }
+        public float Width { get; protected set; }
         public virtual void Update() { }
         public virtual void SetShaders() { }
         public virtual void OnKill() { }
@@ -33,53 +31,43 @@ namespace Insignia.Core.Common.Systems
         public virtual bool ShouldBasicDraw => true;
         public void Draw()
         {
-            Vertices = new VertexPositionColorTexture[Points.Count];
+            Vertices = new VertexPositionColorTexture[Points.Length * 2];
             if (ShouldCustomDraw)
                 CustomDraw(GD);
 
             if (ShouldBasicDraw)
-                Vertices = GenerateVertices(Points, Width, Color);
-                
+                GenerateVertices(Points, Width, Color);   
             SetShaders();
 
             RasterizerState rasterizerState = new()
             {
                 CullMode = CullMode.None
             };
-
             BasicEffect.VertexColorEnabled = true;
             BasicEffect.World = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
             BasicEffect.View = Main.GameViewMatrix.TransformationMatrix;
-            var viewport = GD.Viewport;
+            Viewport viewport = GD.Viewport;
             BasicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, viewport.Width, viewport.Height, 0, -1, 1);
             GD.RasterizerState = rasterizerState;
             foreach (EffectPass pass in BasicEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                GD.DrawUserPrimitives(Type, Vertices, 0, Points.Count / 3);
+                GD.DrawUserPrimitives(PrimitiveType.TriangleStrip, Vertices, 0, Vertices.Length / 3);
             }
         }
-        //warning: bad code ahead - read at your own risk
-        private VertexPositionColorTexture[] GenerateVertices(List<Vector2> points, int width, Color color)//Vector2 pos, Color color)
+        private void GenerateVertices(Vector2[] points, float width, Color color)
         {
-            List<VertexPositionColorTexture> vertices = new();
-            //vertices[0] = new VertexPositionColorTexture(new Vector3(pos, 0), color, Vector2.One);
-            for (int i = 1; i < points.Count; i++)
+            for (int i = 0; i < points.Length; i += 2)
             {
-                Vector2 previous = points[i - 1];
                 Vector2 current = points[i];
-                Vector3 normal = new(Vector2.Normalize(current - previous).RotatedBy(MathHelper.PiOver2, current) * width / i, 0);
-                //float progress = i / points.Count;
-                //first triangle 
-                vertices[i] = new(normal, color, Vector2.One);
-                vertices[i + 1] = new(-normal, color, Vector2.One);
-                vertices[i + 2] = new(new(Vector2.Normalize(points[i + 1] - current).RotatedBy(MathHelper.PiOver2, current) * width / i, 0), color, Vector2.One);
-                //second triangle 
-                vertices[i + 3] = new(new(Vector2.Normalize(points[i + 1] - current).RotatedBy(-MathHelper.PiOver2, current) * width / i, 0), color, Vector2.One);
-                vertices[i + 4] = vertices[i + 2];
-                vertices[i + 5] = vertices[i + 1];
+                Vector2 next = points[i + 1];
+                float progress = 1 - (i / points.Length);
+                Vector3 normal = new((current.DirectionTo(next) * width).RotatedBy(MathHelper.PiOver2), 0);
+                normal *= progress;
+
+                Vertices[i] = new(new Vector3(current, 0) + normal, color, Vector2.One);
+                Vertices[i + 1] = new(new Vector3(current, 0) - normal, color, Vector2.One);
             }
-            return vertices.ToArray();
         }
     }
 }

@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Terraria;
+using Terraria.ModLoader;
+using Terraria.ID;
+
+namespace Insignia.Content.Items.Weapons.Sets.Glacial
+{
+    internal class GlacialBasher : ModItem
+    {
+        public override void SetDefaults()
+        {
+            Item.width = 20;
+            Item.height = 20;
+            Item.damage = 34;
+            Item.DamageType = DamageClass.Melee;
+            Item.rare = ItemRarityID.Green;
+
+			Item.useTime = 8; 
+			Item.useAnimation = 8; 
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.autoReuse = false;
+
+			Item.knockBack = 5f; 
+			Item.noMelee = true; 
+            Item.noUseGraphic = true;
+
+			Item.shoot = ModContent.ProjectileType<GlacialBasherHeld>();
+		}
+    }
+}

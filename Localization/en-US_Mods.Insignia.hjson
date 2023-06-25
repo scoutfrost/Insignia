@@ -1,1 +1,28 @@
+Mods: {
+	ExampleMod: {
+		Content: {
+			Items: {
+				Weapons: {
+					Sets: {
+						Glacial: {
+							GlacialBasher.DisplayName: Glacial Basher
+							GlacialBasherHeld.DisplayName: Glacial Basher
+						}
+					}
+				}
+			}
+
+			NPCS.Icerock.Critters.IcerockSnail.DisplayName: Icerock Snail
+		}
+	}
+}
+
+Projectiles.GlacialBasherHeld.DisplayName: Glacial Basher Held
 NPCs.IcerockSnail.DisplayName: Icerock Snail
+
+Items: {
+	GlacialBasher: {
+		Tooltip: ""
+		DisplayName: Glacial Basher
+	}
+}

@@ -11,12 +11,12 @@ namespace Insignia.Prim
 {
     internal class GenericPrimTrail : PrimTrail
     {
-        public GenericPrimTrail(Color color, List<Vector2> points, PrimitiveType type, int opacity)
+        public override bool ShouldBasicDraw => true;
+        public GenericPrimTrail(Color color, Vector2[] points, float width)
         {
             Color = color;
             Points = points;
-            Type = type;
-            Opacity = opacity;
+            Width = width;
         }
     }
 }

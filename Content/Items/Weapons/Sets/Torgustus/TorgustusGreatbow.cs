@@ -58,7 +58,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                     ParticleSystem.GenerateParticle(particle);
                 }
                 player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked = true;
-                //player.AddBuff(ModContent.BuffType<PoweredTorgustusBowCooldown>(), 1200, true, false);
+                player.AddBuff(ModContent.BuffType<PoweredTorgustusBowCooldown>(), 1200, true, false);
             }
             return player.ownedProjectileCounts[Mod.Find<ModProjectile>("TorgustusBowProj").Type] < 1;
         }
@@ -379,6 +379,11 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 hasRightClicked = false;
                 poweredShotCount = 0;
             }
+        }
+        public override void Unload()
+        {
+            poweredShotCount = 0;
+            hasRightClicked = false;
         }
     }
 }

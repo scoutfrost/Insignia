@@ -35,7 +35,7 @@ namespace Insignia.Core.Common.Systems
             if (ShouldCustomDraw)
                 CustomDraw(GD);
 
-            if (ShouldBasicDraw)
+            if (ShouldBasicDraw && Points != null)
                 GenerateVertices(Points, Width, Color);   
             SetShaders();
 
@@ -59,15 +59,27 @@ namespace Insignia.Core.Common.Systems
         {
             for (int i = 0; i < points.Length; i += 2)
             {
+                
                 Vector2 current = points[i];
                 Vector2 next = points[i + 1];
-                float progress = 1 - (i / points.Length);
+                float progress = 1 - ((float)i / points.Length);
                 Vector3 normal = new((current.DirectionTo(next) * width).RotatedBy(MathHelper.PiOver2), 0);
                 normal *= progress;
 
                 Vertices[i] = new(new Vector3(current, 0) + normal, color, Vector2.One);
                 Vertices[i + 1] = new(new Vector3(current, 0) - normal, color, Vector2.One);
+                
             }
+            /*for (int c = 1; c < points.Length; c++)
+            {
+                Vector2 prev = points[points.Length - c - 1];
+                Vector2 curr = points[^c];
+                float p = c / (float)points.Length;
+                p = 1 - p;
+                Vector2 normal = Vector2.Normalize(curr - prev).RotatedBy(MathHelper.PiOver2) * width;
+                Vertices[c * 2] = new VertexPositionColorTexture(new Vector3(curr + (p * normal), 0), color, Vector2.One);
+                Vertices[(c * 2) + 1] = new VertexPositionColorTexture(new Vector3(curr - (p * normal), 0), color, Vector2.One);
+            }*/
         }
     }
 }

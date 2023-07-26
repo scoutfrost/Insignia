@@ -17,12 +17,43 @@ Mods: {
 	}
 }
 
-Projectiles.GlacialBasherHeld.DisplayName: Glacial Basher Held
+Projectiles: {
+	GlacialBasherHeld.DisplayName: Glacial Basher Held
+	TorgustusArrow.DisplayName: Torgustus Arrow
+	TorgustusBowProj.DisplayName: Torgustus Bow Proj
+	TorgustusPortal.DisplayName: Torgustus Portal
+}
+
 NPCs.IcerockSnail.DisplayName: Icerock Snail
 
 Items: {
 	GlacialBasher: {
 		Tooltip: ""
 		DisplayName: Glacial Basher
+	}
+
+	PortalSpawnerItem: {
+		DisplayName: Portal Spawner Item
+		Tooltip:
+			'''
+			Spawns mysterious portals
+			Only two portals can be active at a time
+			'''
+	}
+
+	TorgustusGreatbow: {
+		DisplayName: Torgustus Greatbow
+		Tooltip:
+			'''
+			Right click to empower the bow for 4 shots
+			Arrows fired may be capable of inter- dimensional travel...
+			'''
+	}
+}
+
+Buffs: {
+	PoweredTorgustusBowCooldown: {
+		DisplayName: Powered Torgustus Bow Cooldown
+		Description: Your greatbow seems weaker...
 	}
 }

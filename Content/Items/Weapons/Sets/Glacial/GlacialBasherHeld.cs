@@ -16,7 +16,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 		public override string Texture => "Insignia/Content/Items/Weapons/Sets/Glacial/GlacialBasher";
 		public override void SetStaticDefaults()
 		{
-			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 300;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
 			ProjectileID.Sets.TrailingMode[Projectile.type] = 0; 
 		}
 		public override void SetDefaults()

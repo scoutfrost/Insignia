@@ -29,7 +29,7 @@ namespace Insignia.Core.Common.Systems
                 Particle.Position += Particle.Velocity;
                 Particle.TimeLeft--;
                 Particle.Angle += Particle.AngularVelocity;
-                if (particles[particle].TimeLeft <= 0 || particles.Count >= maxParticles || Particle.Kill || Particle.Size <= 0.01f)
+                if (particles[particle].TimeLeft <= 0 || particles.Count >= maxParticles || Particle.Kill || Particle.Size <= 0.005f)
                 {
                     particles.RemoveAt(particle);
                     particle--;
@@ -48,11 +48,11 @@ namespace Insignia.Core.Common.Systems
 
                 if (Particle.Opacity == null)
                     Particle.Opacity = 1;
-                float opacity = MathHelper.Clamp((float)Particle.Opacity, 0f, 1f);
+                float opacity = MathHelper.Clamp((float)Particle.Opacity, 0f, 255f);
 
                 Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
                     RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-                Main.EntitySpriteDraw(Particle.Texture, Particle.Position - Main.screenPosition, Particle.Texture.Bounds, Particle.Color * opacity,
+                Main.EntitySpriteDraw(Particle.Texture, Particle.Position - Main.screenPosition, Particle.Texture.Bounds, Particle.Color * (1 - opacity / 255),
                     Particle.Angle, Particle.Texture.Size() / 2, Particle.Size, SpriteEffects.None, default);
                 Main.spriteBatch.End();
             }

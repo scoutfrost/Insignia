@@ -8,6 +8,12 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assets\Misc\Ring.png" />
+    <None Remove="Content\Items\Weapons\Sets\Torgustus\PoweredTorgustusBowCooldown.png" />
+    <None Remove="Content\Items\Weapons\Sets\Torgustus\TorgustusPortal.png" />
+    <None Remove="Core\Particles\SparkleParticle.png" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
   </ItemGroup>
   <ItemGroup>

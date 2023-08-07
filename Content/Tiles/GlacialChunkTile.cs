@@ -27,10 +27,13 @@ namespace Insignia.Content.Tiles
 			num = fail ? 1 : 3;
 		}
 
-		public override void KillMultiTile(int i, int j, int frameX, int frameY)
-		{
+//# TO DO: FIX UP THE KILL SOUND (I THINK I GOTTA MAKE AN EntitySource_OnBreak
+
+		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+        {
             new SoundStyle($"{nameof(Insignia)}/Assets/Sounds/GlacialChunkKillSound");
 
         }
+       
     }
 }

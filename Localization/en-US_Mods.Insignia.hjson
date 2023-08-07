@@ -49,6 +49,16 @@ Items: {
 			Arrows fired may be capable of inter- dimensional travel...
 			'''
 	}
+
+	GlacialCrate: {
+		DisplayName: Glacial Crate
+		Tooltip: ""
+	}
+
+	GlacialChunkItem: {
+		DisplayName: Glacial Chunk Item
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -57,3 +67,5 @@ Buffs: {
 		Description: Your greatbow seems weaker...
 	}
 }
+
+Tiles.GlacialCrateTile.MapEntry: Glacial Crate Tile

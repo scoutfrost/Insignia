@@ -10,6 +10,11 @@ using Terraria.ModLoader;
 
 namespace Insignia.Helpers
 {
+    public static class Helper
+    {
+        public static string Empty = "Insignia/Assets/Textures/Empty";
+
+    }
     internal class ProjectileDrawHelper
     {
         public static void QuickDrawProjectile(Projectile Projectile, float? offsetX, float? offsetY, string texPath, Color drawColor, float scale)

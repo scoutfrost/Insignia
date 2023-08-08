@@ -61,7 +61,7 @@ namespace Insignia.Content.NPCS.Icerock.Critters
             for (int i = 0; i < 16; i++)
 			{
 				Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
-				var d = Dust.NewDustPerfect(NPC.position, DustID.Ice, speed * 5, Scale: 2f);
+				var d = Dust.NewDustPerfect(NPC.position, DustID.Stone, speed * 5, Scale: 2f);
 				d.noGravity = true;
 			}
 		}

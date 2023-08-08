@@ -24,7 +24,11 @@ Projectiles: {
 	TorgustusPortal.DisplayName: Torgustus Portal
 }
 
-NPCs.IcerockSnail.DisplayName: Icerock Snail
+NPCs: {
+	IcerockSnail.DisplayName: Icerock Snail
+	IcerockSlime1.DisplayName: Icerock Slime1
+	IcerockSlime2.DisplayName: Icerock Slime2
+}
 
 Items: {
 	GlacialBasher: {

@@ -11,7 +11,7 @@ namespace Insignia.Content.Items.Misc
     public class GlacialChunkItem: ModItem
     {
 
-        public override string Texture => Helper.Empty;
+  //      public override string Texture => Helper.Empty;
 
         public override void SetStaticDefaults()
         {

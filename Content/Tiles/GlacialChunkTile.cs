@@ -1,8 +1,10 @@
 
 using Insignia;
+using Insignia.Core.Common.Systems;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -17,7 +19,8 @@ namespace Insignia.Content.Tiles
 			Main.tileBlockLight[Type] = true;
 
 			DustType = DustID.Ice;
-			HitSound = new SoundStyle($"{nameof(Insignia)}/Assets/Sounds/GlacialChunkSound");
+			HitSound = Soundd.GlacialChunkSound;
+
 
 			AddMapEntry(new Color(20, 80, 200));
 		}
@@ -31,9 +34,11 @@ namespace Insignia.Content.Tiles
 
 		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
         {
-            new SoundStyle($"{nameof(Insignia)}/Assets/Sounds/GlacialChunkKillSound");
+            var entitySource = new EntitySource_TileBreak(i, j);
+
+        SoundEngine.PlaySound(Soundd.GlacialChunkKillSound);
 
         }
-       
+
     }
 }

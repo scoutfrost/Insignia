@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +8,7 @@ using Insignia.Core.Particles;
 
 using Terraria;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace Insignia.Core.Common.Systems
 {
@@ -15,10 +16,13 @@ namespace Insignia.Core.Common.Systems
     {
         public static List<Particle> particles = new List<Particle>();
         private static readonly int maxParticles = 500;
-        public static void GenerateParticle(Particle particle)
+        public static void GenerateParticle(params Particle[] p)
         {
-            if (particle != null)
-                particles.Add(particle);
+            foreach (Particle particle in p)
+            {
+                if (particle != null)
+                    particles.Add(particle);
+            }
         }
         public static void UpdateParticles()
         {
@@ -44,17 +48,23 @@ namespace Insignia.Core.Common.Systems
                     continue;
 
                 string texturePath = (Particle.GetType().Namespace + "." + Particle.TextureName).Replace('.', '/');
-                Particle.Texture = ModContent.Request<Texture2D>(texturePath, ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+                Particle.Texture = ModContent.Request<Texture2D>(texturePath, AssetRequestMode.ImmediateLoad).Value;
 
-                if (Particle.Opacity == null)
-                    Particle.Opacity = 1;
-                float opacity = MathHelper.Clamp((float)Particle.Opacity, 0f, 255f);
-
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
-                    RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-                Main.EntitySpriteDraw(Particle.Texture, Particle.Position - Main.screenPosition, Particle.Texture.Bounds, Particle.Color * (1 - opacity / 255),
-                    Particle.Angle, Particle.Texture.Size() / 2, Particle.Size, SpriteEffects.None, default);
-                Main.spriteBatch.End();
+                if (Particle.Alpha == null)
+                    Particle.Alpha = 0;
+                float alpha = MathHelper.Clamp((float)Particle.Alpha, 0f, 255f);
+                if (!Particle.ShouldCustomDraw)
+                {
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
+                        RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+                    Main.EntitySpriteDraw(Particle.Texture, Particle.Position - Main.screenPosition, Particle.Texture.Bounds, Particle.Color * (1 - alpha / 255),
+                        Particle.Angle, Particle.Texture.Size() / 2, Particle.Size, SpriteEffects.None, default);
+                    Main.spriteBatch.End();
+                }
+                else
+                {
+                    Particle.CustomDraw(Main.spriteBatch);
+                }
             }
         }
         public static void AnimateFromVerticalSpritesheet(Particle particle, int numberOfFrames, int animSpeed = 5, int? animTimer = null)

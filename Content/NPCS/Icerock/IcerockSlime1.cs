@@ -39,7 +39,7 @@ namespace Insignia.Content.NPCS.Icerock
             NPC.value = Item.buyPrice(0, 0, 5, 44);
             NPC.aiStyle = 1;
             NPC.HitSound = SoundID.DD2_CrystalCartImpact;
-            NPC.DeathSound = Soundd.GlacialChunkKillSound;
+            NPC.DeathSound = Sound.GlacialChunkKillSound;
             NPC.aiStyle = NPCAIStyleID.Slime;
             AIType = NPCID.IlluminantSlime;
             AnimationType = NPCID.GreenSlime;

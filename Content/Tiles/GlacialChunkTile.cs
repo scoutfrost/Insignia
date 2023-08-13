@@ -19,7 +19,7 @@ namespace Insignia.Content.Tiles
 			Main.tileBlockLight[Type] = true;
 
 			DustType = DustID.Ice;
-			HitSound = Soundd.GlacialChunkSound;
+			HitSound = Sound.GlacialChunkSound;
 
 
 			AddMapEntry(new Color(20, 80, 200));
@@ -36,9 +36,8 @@ namespace Insignia.Content.Tiles
         {
             var entitySource = new EntitySource_TileBreak(i, j);
 
-        SoundEngine.PlaySound(Soundd.GlacialChunkKillSound);
+        SoundEngine.PlaySound(Sound.GlacialChunkKillSound);
 
         }
-
     }
 }

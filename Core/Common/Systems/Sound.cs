@@ -10,32 +10,15 @@ using Terraria.ID;
 
 namespace Insignia.Core.Common.Systems
 {
- 
-    public class Soundd : ModSystem
+    public class Sound : ModSystem
     {
         public static readonly SoundStyle GlacialChunkSound;
         public static readonly SoundStyle GlacialChunkKillSound;
-       
-
-
-        
-        
-        static Soundd()
+    
+        static Sound()
         {
             GlacialChunkSound = new SoundStyle("Insignia/Assets/Sounds/GlacialChunkSound", (SoundType)0);
             GlacialChunkKillSound = new SoundStyle("Insignia/Assets/Sounds/GlacialChunkKillSound", (SoundType)0);
-
-
-
-
-
         }
     }
-
-
-
-
-
-
-
 }

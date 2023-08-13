@@ -24,7 +24,6 @@ namespace Insignia.Core.Particles
         public Rectangle? Frame;
         public int? Alpha;
         public bool ShouldCustomDraw { get; private set; }
-        
         public virtual void CustomDraw(SpriteBatch sb) { ShouldCustomDraw = true; }
         public virtual void Update() { }
         public virtual bool Kill => false;

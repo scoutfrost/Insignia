@@ -6,7 +6,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace Insignia
+namespace Insignia.Core.Particles
 {
 	public class VelocityBasedParticle : Particle
 	{
@@ -34,13 +34,13 @@ namespace Insignia
         {
             //string texturePath = (this.GetType().Namespace + "." + TextureName).Replace('.', '/');
             //Texture = ModContent.Request<Texture2D>(texturePath, AssetRequestMode.ImmediateLoad).Value;
-
             float alpha = MathHelper.Clamp((float)Alpha, 0f, 255f);
 
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
                 RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 			Main.EntitySpriteDraw(Texture, Position - Main.screenPosition, null, Color * (1 - alpha / 255), Angle, Texture.Size() / 2, scale, SpriteEffects.None);
 			sb.End();
+            base.CustomDraw(Main.spriteBatch);
         }
     }
 }

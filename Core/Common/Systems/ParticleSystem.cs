@@ -52,7 +52,7 @@ namespace Insignia.Core.Common.Systems
 
                 if (Particle.Alpha == null)
                     Particle.Alpha = 0;
-                float alpha = MathHelper.Clamp((float)Particle.Alpha, 0f, 255f);
+                int alpha = MathHelper.Clamp(Particle.Alpha, 0f, 255f);
                 if (!Particle.ShouldCustomDraw)
                 {
                     Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,

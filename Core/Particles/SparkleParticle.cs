@@ -11,7 +11,7 @@ namespace Insignia.Core.Particles
 {
     internal class SparkleParticle : Particle
     {
-        public SparkleParticle(Color color, float scale, Vector2 position, Vector2 velocity, float opacity, int maxTime = 60)
+        public SparkleParticle(Color color, float scale, Vector2 position, Vector2 velocity, int alpha, int maxTime = 60)
         {
             Color = color;
             Size = scale;
@@ -19,7 +19,7 @@ namespace Insignia.Core.Particles
             Velocity = velocity;
             TimeLeft = maxTime;
             TextureName = "SparkleParticle";
-            Opacity = opacity;
+            Alpha = alpha;
         }
         public override void Update()
         {

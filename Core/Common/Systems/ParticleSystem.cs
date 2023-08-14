@@ -5,7 +5,6 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Insignia.Core.Particles;
-
 using Terraria;
 using Terraria.ModLoader;
 using ReLogic.Content;
@@ -53,7 +52,7 @@ namespace Insignia.Core.Common.Systems
                 if (Particle.Alpha == null)
                     Particle.Alpha = 0;
                 int alpha = (int)MathHelper.Clamp((float)Particle.Alpha, 0f, 255f);
-                if (!Particle.ShouldCustomDraw)
+                if (Particle.ShouldCustomDraw == false)
                 {
                     Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
                         RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
@@ -83,3 +82,4 @@ namespace Insignia.Core.Common.Systems
         }
     }
 }
+

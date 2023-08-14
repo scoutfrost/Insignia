@@ -31,25 +31,48 @@ namespace Insignia.Biomes
 		List<Point> rooms = new();
 		public void ArcticBiomeGen(GenerationProgress progress, GameConfiguration config)
 		{
-            #region finding startpos
-            bool hasFoundStartPos = false;
-            Point startingPos = new(0, 0);
+
+			
+			//WorldUtils.Gen(startingPos, new Shapes.HalfCircle(WorldGen.genRand.Next(10, 45)), new Actions.Clear());
+			//WorldGen.digTunnel(startingPos.X, startingPos.Y, WorldGen.genRand.Next(1, 5), 10, WorldGen.genRand.Next(5, 10), 5);
+		}
+
+		public static bool JustPressed(Keys key)
+		{
+			return Main.keyState.IsKeyDown(key) && !Main.oldKeyState.IsKeyDown(key);
+		}
+		public override void PostUpdateWorld()
+		{
+			if (JustPressed(Keys.D1))
+				TestMethod((int)Main.MouseWorld.X / 16, (int)Main.MouseWorld.Y / 16);
+				//TestMethod2((int)Main.MouseWorld.X / 16, (int)Main.MouseWorld.Y / 16);
+		}
+		private void TestMethod2(int x, int y)
+        {
+			Main.NewText(Main.maxTilesX);
+			Main.NewText(Main.maxTilesY);
+        }
+		private void TestMethod(int x1, int y1)
+		{
+			#region finding startpos
+			bool hasFoundStartPos = false;
+			Point startingPos = new(0, 0);
 			int attempts = 0;
-            for (int i = 0; i < Main.maxTilesX; i++)
-            {
+			for (int i = 0; i < Main.maxTilesX; i++)
+			{
 				if (hasFoundStartPos)
 				{
 					break;
 				}
-                for (int y = 0; y < Main.maxTilesY; y++)
-                {
+				for (int y = 0; y < Main.maxTilesY; y++)
+				{
 					if (Main.tile[i, y].TileType == TileID.SnowBlock || Main.tile[i, y].TileType == TileID.IceBlock)
 					{
-                        Dictionary<ushort, int> dictionary = new Dictionary<ushort, int>();
-                        WorldUtils.Gen(new Point(i, y), new Shapes.Rectangle(40, 40), new Actions.TileScanner(TileID.SnowBlock, TileID.IceBlock).Output(dictionary));
-                        int blockCount = dictionary[TileID.SnowBlock] + dictionary[TileID.IceBlock];
+						Dictionary<ushort, int> dictionary = new Dictionary<ushort, int>();
+						WorldUtils.Gen(new Point(i, y), new Shapes.Rectangle(40, 40), new Actions.TileScanner(TileID.SnowBlock, TileID.IceBlock).Output(dictionary));
+						int blockCount = dictionary[TileID.SnowBlock] + dictionary[TileID.IceBlock];
 
-                        if (blockCount >= 40 * 40 / 1.5f || attempts >= 50)
+						if (blockCount >= 40 * 40 / 1.5f || attempts >= 50)
 						{
 							if (y < Main.worldSurface + WorldGen.genRand.Next(-40, 40))
 							{
@@ -63,31 +86,69 @@ namespace Insignia.Biomes
 							attempts++;
 						}
 					}
-                } 
-            }
-            #endregion
-            #region room gen
-            for (int i = 0; i < WorldGen.genRand.Next(3, 7); i++)
+				}
+			}
+			#endregion
+			#region room gen
+			//for (int i = 0; i < WorldGen.genRand.Next(3, 7); i++)
+			//{
+			int maxDist = 5;
+			int rand = WorldGen.genRand.Next(10, 20);
+			Point[] keyPoints = new Point[rand];
+			for (int j = 0; j < rand; j++)
+            {
+				int randCoord = WorldGen.genRand.Next(5, 25);
+				if (Main.tile[startingPos + new Point(randCoord, randCoord)].TileType == TileID.SnowBlock)
+				{
+					keyPoints[j] = startingPos + new Point(randCoord, randCoord);
+					WorldGen.TileRunner(keyPoints[j].X, keyPoints[j].Y, 5, 5, TileID.Adamantite);
+				}
+				else
+				{
+					j--;
+				}
+            }					
+			for (int x = 0; x < Main.maxTilesX; x++)
+            {
+				for (int y = 0; y < Main.maxTilesY; y++)
+				{
+					if (Main.tile[x, y].TileType == TileID.SnowBlock)
+                    {
+						for (int k = 0; k < keyPoints.Length; k++)
+						{
+							if (Vector2.Distance(new Vector2(x, y), keyPoints[k].ToVector2()) <= maxDist)
+                            {
+								WorldGen.PlaceTile(x, y, TileID.AncientObsidianBrick);
+                            }
+						}
+                    }
+				}
+			}
+				//int rand = WorldGen.genRand.Next(0, 3);
+				//Point spaceBetweenRooms = new(i * WorldGen.genRand.Next(45, 55), WorldGen.genRand.Next(-10, 10));
+
+			//}
+			/*for (int i = 0; i < WorldGen.genRand.Next(3, 7); i++)
 			{
 				int rand = WorldGen.genRand.Next(0, 3);
-                Point spaceBetweenRooms = new(i * WorldGen.genRand.Next(45, 55), WorldGen.genRand.Next(-10, 10));
+				Point spaceBetweenRooms = new(i * WorldGen.genRand.Next(45, 55), WorldGen.genRand.Next(-10, 10));
 
-                int sizeDiff = WorldGen.genRand.Next(5, 10);
+				int sizeDiff = WorldGen.genRand.Next(5, 10);
 				Point sizeDiffPoint = new Point(sizeDiff, -sizeDiff);
-                switch (rand)
+				switch (rand)
 				{
-                    case (int)RoomShape.halfCircle:
+					case (int)RoomShape.halfCircle:
 						int domeSize = WorldGen.genRand.Next(10, 45);
-                        WorldUtils.Gen(startingPos + spaceBetweenRooms - sizeDiffPoint, new Shapes.HalfCircle(domeSize + sizeDiff), Actions.Chain(new GenAction[]
+						WorldUtils.Gen(startingPos + spaceBetweenRooms - sizeDiffPoint, new Shapes.HalfCircle(domeSize + sizeDiff), Actions.Chain(new GenAction[]
 						{
-                            new Modifiers.Dither(0.4f),
-                            new Actions.ClearTile()
+							new Modifiers.Dither(0.4f),
+							new Actions.ClearTile()
 						}));
-                        WorldUtils.Gen(startingPos + spaceBetweenRooms, new Shapes.HalfCircle(domeSize - sizeDiff), new Actions.Clear());
-                        break;
+						WorldUtils.Gen(startingPos + spaceBetweenRooms, new Shapes.HalfCircle(domeSize - sizeDiff), new Actions.Clear());
+						break;
 					case (int)RoomShape.tunnelRoom:
 						Vector2 size = new(WorldGen.genRand.Next(15, 25), WorldGen.genRand.Next(20, 40));
-                        WorldUtils.Gen(startingPos + spaceBetweenRooms - new Point(0, (int)size.Y / 2), new Shapes.Rectangle((int)size.X + sizeDiff, (int)size.Y + sizeDiff), Actions.Chain(new GenAction[]
+						WorldUtils.Gen(startingPos + spaceBetweenRooms - new Point(0, (int)size.Y / 2), new Shapes.Rectangle((int)size.X + sizeDiff, (int)size.Y + sizeDiff), Actions.Chain(new GenAction[]
 						{
 							new Modifiers.Dither(0.4f),
 							new Actions.ClearTile()
@@ -95,36 +156,18 @@ namespace Insignia.Biomes
 						WorldUtils.Gen(startingPos + spaceBetweenRooms - new Point(0, (int)size.Y / 2) - sizeDiffPoint, new Shapes.Rectangle((int)size.X - sizeDiff, (int)size.Y - sizeDiff), new Actions.Clear());
 						break;
 					case (int)RoomShape.cavern:
-						int cavernX = WorldGen.genRand.Next(15,50);
-                        WorldUtils.Gen(startingPos + spaceBetweenRooms - sizeDiffPoint, new Shapes.Circle(cavernX + sizeDiff, (cavernX + sizeDiff) / 2), Actions.Chain(new GenAction[]
-                        {
-                            new Modifiers.Dither(0.4f),
-                            new Actions.ClearTile()
-                        }));
-                        WorldUtils.Gen(startingPos + spaceBetweenRooms, new Shapes.Circle(cavernX - sizeDiff, (cavernX - sizeDiff) / 2), new Actions.Clear());
-                        break;
+						int cavernX = WorldGen.genRand.Next(15, 50);
+						WorldUtils.Gen(startingPos + spaceBetweenRooms - sizeDiffPoint, new Shapes.Circle(cavernX + sizeDiff, (cavernX + sizeDiff) / 2), Actions.Chain(new GenAction[]
+						{
+							new Modifiers.Dither(0.4f),
+							new Actions.ClearTile()
+						}));
+						WorldUtils.Gen(startingPos + spaceBetweenRooms, new Shapes.Circle(cavernX - sizeDiff, (cavernX - sizeDiff) / 2), new Actions.Clear());
+						break;
 				}//TODO: make a method that i can call for every case taking some params like a random int for room size and a shape type
-			}
-            #endregion
-            //WorldUtils.Gen(startingPos, new Shapes.HalfCircle(WorldGen.genRand.Next(10, 45)), new Actions.Clear());
-            //WorldGen.digTunnel(startingPos.X, startingPos.Y, WorldGen.genRand.Next(1, 5), 10, WorldGen.genRand.Next(5, 10), 5);
-        }
-
-        public static bool JustPressed(Keys key)
-		{
-			return Main.keyState.IsKeyDown(key) && !Main.oldKeyState.IsKeyDown(key);
+			}*/
+			#endregion
 		}
-		public override void PostUpdateWorld()
-		{
-			if (JustPressed(Keys.D1))
-				TestMethod((int)Main.MouseWorld.X / 16, (int)Main.MouseWorld.Y / 16);
-		}
-
-		private void TestMethod(int x, int y1)
-		{
-			
-            
-        }
 	}
 
     /*public class Elipse : GenShape

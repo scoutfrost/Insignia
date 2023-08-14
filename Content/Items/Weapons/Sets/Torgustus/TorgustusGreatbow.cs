@@ -60,6 +60,17 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked = true;
                 player.AddBuff(ModContent.BuffType<PoweredTorgustusBowCooldown>(), 1200, true, false);
             }
+            if (player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked)
+            {
+                player.GetModPlayer<TorgustusBowPlayer>().poweredShotCount++;
+            }
+            if (player.GetModPlayer<TorgustusBowPlayer>().poweredShotCount >= 5)
+            {
+                player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked = false;
+                player.GetModPlayer<TorgustusBowPlayer>().poweredShotCount = 0;
+            }
+            Main.NewText(player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked);
+            Main.NewText(player.GetModPlayer<TorgustusBowPlayer>().poweredShotCount);
             return player.ownedProjectileCounts[Mod.Find<ModProjectile>("TorgustusBowProj").Type] < 1;
         }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -67,6 +78,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             if (Main.myPlayer == player.whoAmI && player.altFunctionUse != 2) {
                 Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<TorgustusBowProj>(), damage, knockback, player.whoAmI);
             }
+            
             return false;
         }
     }
@@ -93,7 +105,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         public override void OnSpawn(IEntitySource source)
         {
             rightClicked = player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked;
-            player.GetModPlayer<TorgustusBowPlayer>().poweredShotCount++;
         }
         public override bool? CanDamage() => false;
         public override void AI()
@@ -148,12 +159,14 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 {
                     if (strongArrow != null)
                     {
+                        int strongArrowDrawPos = 10 / 6 - Projectile.frame * 2;
                         strongArrow.rotation = Projectile.rotation;
-                        strongArrow.Center = Projectile.Center + new Vector2(10 * player.direction ,0);
+                        strongArrow.Center = Projectile.Center + new Vector2(strongArrowDrawPos * player.direction ,0);
                     }
                 }
 
-                if (rightClicked && player.channel && strongArrowTimer == frameDelay * 3) {
+                if (rightClicked && player.channel && strongArrowTimer == frameDelay * 3) 
+                {
                     for (int i = 0; i < 40; i++)
                     {
                         GenericGlowParticle particle = new(player.Center, Main.rand.NextVector2Unit() * 1.2f, Color.MistyRose, 0.4f, 120);
@@ -208,7 +221,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             if (!rightClicked) {
                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.DirectionTo(Main.MouseWorld) * 12, type, damage, 1, Projectile.owner, 0, 0);
             }
-
+            
             player.GetModPlayer<TorgustusBowPlayer>().arrowType = type;
         }
     }
@@ -231,7 +244,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Projectile.aiStyle = -1;
         }
         Vector2 mouse;
-
         Player player => Main.player[Projectile.owner];
         public override void OnSpawn(IEntitySource source)
         {
@@ -299,8 +311,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Vector2 hitLine = Projectile.Center + Projectile.rotation.ToRotationVector2() * hitLength;
             //Dust.NewDustPerfect(hitLine, DustID.Adamantite, Vector2.Zero, 0, Color.AliceBlue, 1);
 
-            Vector2 drawPos = collidingWithPortal ? new(85, 34) : new(-39, -30);
-            Vector2 drawingVectors = -Main.screenPosition + drawPos.RotatedBy(Projectile.rotation) + new Vector2(0, player.gfxOffY);
+            Vector2 drawPos = collidingWithPortal ? new(85, 34) : new(-30, -30);
+            Vector2 drawingVectors = -Main.screenPosition + drawPos.RotatedBy(Projectile.rotation) - new Vector2(0, player.gfxOffY);
 
             var portal = portals.Where(proj => proj.active && Collision.CheckAABBvLineCollision(proj.Center, proj.Hitbox.Size(), Projectile.Center, hitLine, 8, ref collisionPoint));
             foreach (var proj in portal)
@@ -347,7 +359,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         }
         public override void Kill(int timeLeft)
         {
-            if (Projectile.velocity.Length() > 5)
+            if (Projectile.velocity.Length() > 10)
             {
                 for (int i = 0; i < 10; i++)
                 {
@@ -356,11 +368,18 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                     Dust dust = Dust.NewDustPerfect(Projectile.Center + offset, DustID.RainbowTorch, dustVel * Projectile.velocity.Length() / 4, 0, Color.White, 2);
                     dust.noGravity = true;
                 }
+                for (int i = 0; i < 3; i++)
+                {
+                    VelocityBasedParticle velParticle = new(3, Color.FloralWhite, (Projectile.velocity / 4).RotatedBy(MathHelper.ToRadians(-10)).RotatedBy(MathHelper.ToRadians(10 * i)), Projectile.Center, Vector2.One, 50, 0.94f);
+                    SparkleParticle particle = new(Color.FloralWhite, 1, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) * i / 10, 100);
+                    ParticleSystem.GenerateParticle(particle, velParticle);
+                }
             }
-            VelocityBasedParticle velParticle = new(5, Color.FloralWhite, Projectile.velocity, Projectile.Center, Projectile.velocity.ToRotation(), Vector2.One, 0);
-            Main.NewText(velParticle.ShouldCustomDraw);
-            SparkleParticle particle = new(Color.FloralWhite, 1, Projectile.Center, Vector2.One.RotatedByRandom(MathHelper.TwoPi), 100);
-            ParticleSystem.GenerateParticle(particle, velParticle);
+            for (int i = 0; i < 3; i++)
+            {
+                SparkleParticle particle = new(Color.FloralWhite, 1, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) * i / 10, 100);
+                ParticleSystem.GenerateParticle(particle);
+            }
         }
     }
     public class PoweredTorgustusBowCooldown : ModBuff
@@ -375,17 +394,5 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         public int poweredShotCount;
         public int arrowType;
         public bool hasRightClicked;
-        public override void ResetEffects()
-        {
-            if (poweredShotCount >= 5) {
-                hasRightClicked = false;
-                poweredShotCount = 0;
-            }
-        }
-        public override void Unload()
-        {
-            poweredShotCount = 0;
-            hasRightClicked = false;
-        }
     }
 }

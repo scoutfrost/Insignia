@@ -22,10 +22,11 @@ namespace Insignia.Core.Particles
         public float Size;
         public int TimeLeft;
         public Rectangle? Frame;
-        public int? Alpha;
-        public bool ShouldCustomDraw { get; private set; }
-        public virtual void CustomDraw(SpriteBatch sb) { ShouldCustomDraw = true; }
+        
+        public virtual void CustomDraw(SpriteBatch sb) { }
         public virtual void Update() { }
+        public virtual bool ShouldCustomDraw => false;
         public virtual bool Kill => false;
     }
 }
+

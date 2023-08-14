@@ -357,9 +357,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                     dust.noGravity = true;
                 }
             }
-            VelocityBasedParticle velParticle = new(5, Color.FloralWhite, Projectile.velocity, Projectile.Center, Projectile.velocity.ToRotation(), Vector2.One, 0);
-            Main.NewText(velParticle.ShouldCustomDraw);
-            SparkleParticle particle = new(Color.FloralWhite, 1, Projectile.Center, Vector2.One.RotatedByRandom(MathHelper.TwoPi), 100);
+            VelocityBasedParticle velParticle = new(3, Color.FloralWhite, Projectile.velocity / 8, Projectile.Center, Vector2.One, 50, 0.94f);
+            SparkleParticle particle = new(Color.FloralWhite, 1, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) / 10, 100);
             ParticleSystem.GenerateParticle(particle, velParticle);
         }
     }

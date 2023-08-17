@@ -9,6 +9,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Misc\Ring.png" />
+    <None Remove="Content\Items\Weapons\Sets\Glacial\SwingPoints.png" />
+    <None Remove="Content\Items\Weapons\Sets\Glacial\TestProj.png" />
     <None Remove="Content\Items\Weapons\Sets\Torgustus\PoweredTorgustusBowCooldown.png" />
     <None Remove="Content\Items\Weapons\Sets\Torgustus\TorgustusPortal.png" />
     <None Remove="Core\Particles\SparkleParticle.png" />

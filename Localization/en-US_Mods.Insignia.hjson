@@ -22,6 +22,7 @@ Projectiles: {
 	TorgustusArrow.DisplayName: Torgustus Arrow
 	TorgustusBowProj.DisplayName: Torgustus Bow Proj
 	TorgustusPortal.DisplayName: Torgustus Portal
+	TestProj.DisplayName: Test Proj
 }
 
 NPCs: {

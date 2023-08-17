@@ -28,7 +28,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 			Item.noMelee = true; 
             Item.noUseGraphic = true;
 
-			Item.shoot = ModContent.ProjectileType<GlacialBasherHeld>();
+			Item.shoot = ModContent.ProjectileType<TestProj>();
 		}
     }
 }

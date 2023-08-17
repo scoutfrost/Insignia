@@ -69,8 +69,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked = false;
                 player.GetModPlayer<TorgustusBowPlayer>().poweredShotCount = 0;
             }
-            Main.NewText(player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked);
-            Main.NewText(player.GetModPlayer<TorgustusBowPlayer>().poweredShotCount);
             return player.ownedProjectileCounts[Mod.Find<ModProjectile>("TorgustusBowProj").Type] < 1;
         }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -312,7 +310,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             //Dust.NewDustPerfect(hitLine, DustID.Adamantite, Vector2.Zero, 0, Color.AliceBlue, 1);
 
             Vector2 drawPos = collidingWithPortal ? new(85, 34) : new(-30, -30);
-            Vector2 drawingVectors = -Main.screenPosition + drawPos.RotatedBy(Projectile.rotation) - new Vector2(0, player.gfxOffY);
+            Vector2 drawingVectors = -Main.screenPosition + drawPos.RotatedBy(Projectile.rotation) + new Vector2(0, player.gfxOffY);
 
             var portal = portals.Where(proj => proj.active && Collision.CheckAABBvLineCollision(proj.Center, proj.Hitbox.Size(), Projectile.Center, hitLine, 8, ref collisionPoint));
             foreach (var proj in portal)

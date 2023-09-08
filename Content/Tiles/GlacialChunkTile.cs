@@ -19,7 +19,7 @@ namespace Insignia.Content.Tiles
 			Main.tileBlockLight[Type] = true;
 
 			DustType = DustID.Ice;
-			HitSound = Sound.GlacialChunkSound;
+			HitSound = SoundSystem.GlacialChunkSound;
 
 
 			AddMapEntry(new Color(20, 80, 200));
@@ -29,15 +29,22 @@ namespace Insignia.Content.Tiles
 		{
 			num = fail ? 1 : 3;
 		}
-
-//# TO DO: FIX UP THE KILL SOUND (I THINK I GOTTA MAKE AN EntitySource_OnBreak
-
-		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+        public override bool KillSound(int i, int j, bool fail)
         {
-            var entitySource = new EntitySource_TileBreak(i, j);
+            
+        }
 
-        SoundEngine.PlaySound(Sound.GlacialChunkKillSound);
+        //# TO DO: FIX UP THE KILL SOUND (I THINK I GOTTA MAKE AN EntitySource_OnBreak
+
+        public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+		{
+			var entitySource = new EntitySource_TileBreak(i, j);
+
+			if (fail == true)
+			{
+				SoundEngine.PlaySound(SoundID.MaxMana);
+			}
+		}
 
         }
     }
-}

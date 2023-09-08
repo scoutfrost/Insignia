@@ -39,7 +39,7 @@ namespace Insignia.Content.NPCS.Icerock
             NPC.value = Item.buyPrice(0, 0, 5, 44);
             NPC.aiStyle = 1;
             NPC.HitSound = SoundID.DD2_CrystalCartImpact;
-            NPC.DeathSound = Sound.GlacialChunkKillSound;
+            NPC.DeathSound = SoundSystem.GlacialChunkKillSound;
             NPC.aiStyle = NPCAIStyleID.Slime;
             AIType = NPCID.IlluminantSlime;
             AnimationType = NPCID.GreenSlime;
@@ -84,12 +84,7 @@ namespace Insignia.Content.NPCS.Icerock
 
           
         }
-        public override void OnSpawn(IEntitySource source)
-        {
-            SoundEngine.PlaySound(SoundID.Item9);
-
-        }
-       
+    
         
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
         {

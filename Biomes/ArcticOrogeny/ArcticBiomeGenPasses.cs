@@ -11,8 +11,9 @@ using System;
 using Insignia.Content.Tiles;
 using Insignia.Core.Common.Systems;
 
-namespace Insignia.Biomes
+namespace Insignia.Biomes.ArcticOrogeny
 {
+<<<<<<< Updated upstream
 	internal class ArcticBiomeGeneration : ModSystem
 	{
 		public override void ModifyWorldGenTasks(List<GenPass> tasks, ref double totalWeight)
@@ -169,6 +170,126 @@ namespace Insignia.Biomes
 			// clearing area around initial points
 
 			for (int x = 0; x < Main.maxTilesX; x++) // so true
+=======
+    internal class ArcticBiomeGeneration : ModSystem
+    {
+        public override void ModifyWorldGenTasks(List<GenPass> tasks, ref double totalWeight)
+        {
+            int genIndex = tasks.FindIndex(genpass => genpass.Name.Equals("Dungeon"));
+            if (genIndex != -1)
+            {
+                tasks.Insert(genIndex - 1, new PassLegacy("Arctic Biome Gen", ArcticBiomeGen));
+            }
+        }
+
+        public enum RoomShape
+        {
+            halfCircle,
+            tunnelRoom,
+            cavern
+        }
+        List<Point> rooms = new();
+        public void ArcticBiomeGen(GenerationProgress progress, GameConfiguration config)
+        {
+
+
+            //WorldUtils.Gen(startingPos, new Shapes.HalfCircle(WorldGen.genRand.Next(10, 45)), new Actions.Clear());
+            //WorldGen.digTunnel(startingPos.X, startingPos.Y, WorldGen.genRand.Next(1, 5), 10, WorldGen.genRand.Next(5, 10), 5);
+        }
+
+        public static bool JustPressed(Keys key)
+        {
+            return Main.keyState.IsKeyDown(key) && !Main.oldKeyState.IsKeyDown(key);
+        }
+        public override void PostUpdateWorld()
+        {
+            if (JustPressed(Keys.D1))
+                TestMethod((int)Main.MouseWorld.X / 16, (int)Main.MouseWorld.Y / 16);
+            //TestMethod2((int)Main.MouseWorld.X / 16, (int)Main.MouseWorld.Y / 16);
+        }
+        private void TestMethod2(int x, int y)
+        {
+            Main.NewText(Main.maxTilesX);
+            Main.NewText(Main.maxTilesY);
+        }
+        private void TestMethod(int x1, int y1)
+        {
+            #region finding startpos
+            bool hasFoundStartPos = false;
+            Point startingPos = new(0, 0);
+            int attempts = 0;
+            for (int i = 0; i < Main.maxTilesX; i++)
+            {
+                if (hasFoundStartPos)
+                {
+                    break;
+                }
+                for (int y = 0; y < Main.maxTilesY; y++)
+                {
+                    if (Main.tile[i, y].TileType == TileID.SnowBlock || Main.tile[i, y].TileType == TileID.IceBlock)
+                    {
+                        Dictionary<ushort, int> dictionary = new Dictionary<ushort, int>();
+                        WorldUtils.Gen(new Point(i, y), new Shapes.Rectangle(40, 40), new Actions.TileScanner(TileID.SnowBlock, TileID.IceBlock).Output(dictionary));
+                        int blockCount = dictionary[TileID.SnowBlock] + dictionary[TileID.IceBlock];
+
+                        if (blockCount >= 40 * 40 / 1.5f || attempts >= 50)
+                        {
+                            if (y < Main.worldSurface + WorldGen.genRand.Next(-40, 40))
+                            {
+                                startingPos = new(i + WorldGen.genRand.Next(70, 140), y);
+                                hasFoundStartPos = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            attempts++;
+                        }
+                    }
+                }
+            }
+            #endregion
+            #region room gen
+            //for (int i = 0; i < WorldGen.genRand.Next(3, 7); i++)
+            //{
+            int maxDist = 5;
+            int rand = WorldGen.genRand.Next(10, 20);
+            Point[] keyPoints = new Point[rand];
+            for (int j = 0; j < rand; j++)
+            {
+                int randCoord = WorldGen.genRand.Next(5, 25);
+                if (Main.tile[startingPos + new Point(randCoord, randCoord)].TileType == TileID.SnowBlock)
+                {
+                    keyPoints[j] = startingPos + new Point(randCoord, randCoord);
+                    WorldGen.TileRunner(keyPoints[j].X, keyPoints[j].Y, 5, 5, TileID.Adamantite);
+                }
+                else
+                {
+                    j--;
+                }
+            }
+            for (int x = 0; x < Main.maxTilesX; x++)
+            {
+                for (int y = 0; y < Main.maxTilesY; y++)
+                {
+                    if (Main.tile[x, y].TileType == TileID.SnowBlock)
+                    {
+                        for (int k = 0; k < keyPoints.Length; k++)
+                        {
+                            if (Vector2.Distance(new Vector2(x, y), keyPoints[k].ToVector2()) <= maxDist)
+                            {
+                                WorldGen.PlaceTile(x, y, TileID.AncientObsidianBrick);
+                            }
+                        }
+                    }
+                }
+            }
+            //int rand = WorldGen.genRand.Next(0, 3);
+            //Point spaceBetweenRooms = new(i * WorldGen.genRand.Next(45, 55), WorldGen.genRand.Next(-10, 10));
+
+            //}
+            /*for (int i = 0; i < WorldGen.genRand.Next(3, 7); i++)
+>>>>>>> Stashed changes
 			{
 				for (int y = 0; y < Main.maxTilesY; y++)
 				{
@@ -176,6 +297,7 @@ namespace Insignia.Biomes
 					{
 						for (int k = 0; k < keyPoints.Count; k++)
 						{
+<<<<<<< Updated upstream
 							//WorldGen.PlaceTile(tempArray[k].X, tempArray[k].Y, TileID.Adamantite, false, true);
 							if ((int)Vector2.Distance(new Vector2(x, y), tempArrayKeys[k].ToVector2()) > tempArrayValues[k] && (int)Vector2.Distance(new Vector2(x, y), tempArrayKeys[k].ToVector2()) < tempArrayValues[k] + 10)
 							{
@@ -187,6 +309,64 @@ namespace Insignia.Biomes
 							}
 						}
 					}
+=======
+							new Modifiers.Dither(0.4f),
+							new Actions.ClearTile()
+						}));
+						WorldUtils.Gen(startingPos + spaceBetweenRooms, new Shapes.HalfCircle(domeSize - sizeDiff), new Actions.Clear());
+						break;
+					case (int)RoomShape.tunnelRoom:
+						Vector2 size = new(WorldGen.genRand.Next(15, 25), WorldGen.genRand.Next(20, 40));
+						WorldUtils.Gen(startingPos + spaceBetweenRooms - new Point(0, (int)size.Y / 2), new Shapes.Rectangle((int)size.X + sizeDiff, (int)size.Y + sizeDiff), Actions.Chain(new GenAction[]
+						{
+							new Modifiers.Dither(0.4f),
+							new Actions.ClearTile()
+						}));
+						WorldUtils.Gen(startingPos + spaceBetweenRooms - new Point(0, (int)size.Y / 2) - sizeDiffPoint, new Shapes.Rectangle((int)size.X - sizeDiff, (int)size.Y - sizeDiff), new Actions.Clear());
+						break;
+					case (int)RoomShape.cavern:
+						int cavernX = WorldGen.genRand.Next(15, 50);
+						WorldUtils.Gen(startingPos + spaceBetweenRooms - sizeDiffPoint, new Shapes.Circle(cavernX + sizeDiff, (cavernX + sizeDiff) / 2), Actions.Chain(new GenAction[]
+						{
+							new Modifiers.Dither(0.4f),
+							new Actions.ClearTile()
+						}));
+						WorldUtils.Gen(startingPos + spaceBetweenRooms, new Shapes.Circle(cavernX - sizeDiff, (cavernX - sizeDiff) / 2), new Actions.Clear());
+						break;
+				}//TODO: make a method that i can call for every case taking some params like a random int for room size and a shape type
+			}*/
+            #endregion
+        }
+    }
+
+    /*public class Elipse : GenShape
+    {
+    ignore this stuff
+		Point focalPoint1;
+		Point focalPoint2;
+		int radius;
+		int f1Length;
+		int f2Length;
+		public Elipse(Point f1, Point f2, int radius)
+		{
+			focalPoint1 = f1;
+			focalPoint2 = f2;
+			this.radius = radius;
+			f1Length = radius / 2;
+			f2Length = radius / 2;
+		}
+        public override bool Perform(Point origin, GenAction action)
+        {
+			bool isDone = false;
+			bool takeAbs = false;
+			while (!isDone)
+			{
+				f1Length++;
+				f2Length--;
+				if (Math.Abs(f2Length) >= radius - Math.Abs((focalPoint1 - focalPoint2).ToVector2().Length()))
+				{
+					takeAbs = true;
+>>>>>>> Stashed changes
 				}
 			}
 			for (int i = 0; i < keyPoints.Count; i++)

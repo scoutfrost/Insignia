@@ -12,7 +12,7 @@ namespace Insignia.Helpers
     {
         public static Vector2 Slerp(Vector2 start, Vector2 end, float t)
         {
-            return MathHelper.Lerp(start.ToRotation(), end.ToRotation(), t).ToRotationVector2();
+            return new Vector2((float)Math.Cos(t), (float)Math.Sin(t));
         }
     }
 }

@@ -72,7 +72,7 @@ namespace Insignia.Core.Common.Systems
                         {
                             for (int k = 0; k < pointCount / coordsForColorData.Count - 1; k++)
                             {
-                                returnPoints.Add(EasingFunctions.Slerp(coordsForColorData[i], coordsForColorData[i + 1], k));
+                                returnPoints.Add(EasingFunctions.Slerp(coordsForColorData[i], coordsForColorData[i + 1], k / pointCount / coordsForColorData.Count));
                             }
                         }
                         return returnPoints;

@@ -36,7 +36,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 		List<Vector2> keypoints = new();
         public override void OnSpawn(IEntitySource source)
         {
-			ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Lerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
+			ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints", 200);
 			keypoints = keyFrameHandler.GetPoints();
 
 			Main.NewText(keypoints.Count + "real");
@@ -44,14 +44,13 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         public override void AI()
         {
 			Player player = Main.player[Projectile.owner];
-			//Main.NewText(keypoints.Count);
-			while (i < keypoints.Count * 2 - 1)
+			Main.NewText(keypoints.Count);
+			while (i < keypoints.Count - 1)
 			{
 				i++;
-				if (i % 2 == 0)
-				{
-					Projectile.Center = player.Center + (keypoints[i / 2]);
-				}
+				Projectile.Center = player.Center + new Vector2(keypoints[i].X, keypoints[i].Y * 20);
+                Main.NewText(keypoints[i]);
+				break;
 			}
 		}
     }

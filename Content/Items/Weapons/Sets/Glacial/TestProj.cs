@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,28 +30,26 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 			Projectile.hostile = false; 
 			Projectile.DamageType = DamageClass.Melee; 
 			Projectile.light = 0.5f;
-			Projectile.timeLeft = 100;
+			Projectile.timeLeft = 360;
+			Projectile.penetrate = -1;
+			Projectile.tileCollide = false;
 		}
 		int i = 0;
 		List<Vector2> keypoints = new();
         public override void OnSpawn(IEntitySource source)
         {
 			ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints", 200);
-			keypoints = keyFrameHandler.GetPoints();
-
-			Main.NewText(keypoints.Count + "real");
+			keypoints = keyFrameHandler.GetPoints(40);
 		}
         public override void AI()
         {
-			Player player = Main.player[Projectile.owner];
-			Main.NewText(keypoints.Count);
-			while (i < keypoints.Count - 1)
-			{
-				i++;
-				Projectile.Center = player.Center + new Vector2(keypoints[i].X, keypoints[i].Y * 20);
-                Main.NewText(keypoints[i]);
-				break;
-			}
-		}
+            Player player = Main.player[Projectile.owner];
+            if (i < keypoints.Count - 1)  {
+                i++;
+                Projectile.rotation = player.Center.DirectionTo(player.Center + keypoints[i]).ToRotation() + MathHelper.PiOver4;
+            }
+            Projectile.Center = player.Center + keypoints[i];
+        }
     }
 }
+

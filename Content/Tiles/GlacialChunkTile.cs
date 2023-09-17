@@ -22,21 +22,21 @@ namespace Insignia.Content.Tiles
 			HitSound = SoundSystem.GlacialChunkSound;
 
 
-			AddMapEntry(new Color(20, 80, 200));
+			AddMapEntry(new Color(30, 100, 150));
 		}
 
 		public override void NumDust(int i, int j, bool fail, ref int num)
 		{
 			num = fail ? 1 : 3;
 		}
-        public override bool KillSound(int i, int j, bool fail)
-        {
-            
-        }
+		/* public override bool KillSound(int i, int j, bool fail)
+		 {
 
-        //# TO DO: FIX UP THE KILL SOUND (I THINK I GOTTA MAKE AN EntitySource_OnBreak
+		 }*/
 
-        public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+		//# TO DO: FIX UP THE KILL SOUND (I THINK I GOTTA MAKE AN EntitySource_OnBreak
+
+		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
 		{
 			var entitySource = new EntitySource_TileBreak(i, j);
 
@@ -45,6 +45,5 @@ namespace Insignia.Content.Tiles
 				SoundEngine.PlaySound(SoundID.MaxMana);
 			}
 		}
-
-        }
-    }
+	}
+}

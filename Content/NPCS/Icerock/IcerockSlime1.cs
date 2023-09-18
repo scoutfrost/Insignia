@@ -41,7 +41,7 @@ namespace Insignia.Content.NPCS.Icerock
             NPC.HitSound = SoundID.DD2_CrystalCartImpact;
             NPC.DeathSound = SoundSystem.GlacialChunkKillSound;
             NPC.aiStyle = NPCAIStyleID.Slime;
-            AIType = NPCID.IlluminantSlime;
+            AIType = NPCID.BlueSlime;
             AnimationType = NPCID.BlueSlime;
             NPC.netAlways = true;
             NPC.netUpdate = true;
@@ -49,13 +49,7 @@ namespace Insignia.Content.NPCS.Icerock
 
         }
 
-        public override void FindFrame(int frameHeight)
-        {
-            NPC.frameCounter++;
-            if (NPC.frameCounter >= 20)
-                NPC.frameCounter = 0;
-            NPC.frame.Y = (int)NPC.frameCounter / 10 * frameHeight;
-        }
+       
         public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
 
@@ -90,6 +84,7 @@ namespace Insignia.Content.NPCS.Icerock
 
             });
         }
+     
         public override bool CheckDead()
         {
             for (int i = 0; i < Main.rand.Next(1, 1); i++)

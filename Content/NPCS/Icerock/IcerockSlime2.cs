@@ -18,7 +18,7 @@ namespace Insignia.Content.NPCS.Icerock
 
         public override void SetStaticDefaults()
         {
-            Main.npcFrameCount[NPC.type] = Main.npcFrameCount[2];
+            Main.npcFrameCount[NPC.type] = 2;
             NPCID.Sets.TrailCacheLength[NPC.type] = 3;
             NPCID.Sets.TrailingMode[NPC.type] = 0;
             var value = new NPCID.Sets.NPCBestiaryDrawModifiers(0)

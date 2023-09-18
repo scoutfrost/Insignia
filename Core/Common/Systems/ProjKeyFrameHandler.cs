@@ -25,7 +25,7 @@ namespace Insignia.Core.Common.Systems
 
         /// <param name="keyFrameInterpolationCurve">The method of interpolating new points between the provided points.</param>
         /// <param name="texPath">The path to the texture with the keypoints on it.</param>
-        /// <param name="totalPointCount">The total amount of points you want to be returned.</param>
+        /// <param name="totalPointCount">The total amount of points to be returned.</param>
         /// <param name="CustomInterpolationFunc">Only set this to something if you have chosen KeyFrameInterpolationCurve.Custom.</param>
         public ProjKeyFrameHandler(KeyFrameInterpolationCurve keyFrameInterpolationCurve, string texPath, int totalPointCount = 30, CustomFunction CustomInterpolationFunc = null)
         {
@@ -81,21 +81,23 @@ namespace Insignia.Core.Common.Systems
                 case KeyFrameInterpolationCurve.Slerp:
                     if (coordsForColorData.Count != 1)
                     {
-                        for (int i = 0; i < coordsForColorData.Count - 1; i++)
+                        for (int i = 0; i < coordsForColorData.Count - 1; i += 1)
                         {
                             for (float k = 0; k <= pointCount / coordsForColorData.Count; k++)
                             {
-                                Vector2 center = new(coordsForColorData[i].X, (coordsForColorData[i + 1].Y - coordsForColorData[i].Y) / 2);
+                                Vector2 center = new((coordsForColorData[0].X + coordsForColorData[0].X) / 2, (coordsForColorData[coordsForColorData.Count - 1].Y + coordsForColorData[coordsForColorData.Count - 1].Y) / 2);
                                 float maxRotation = (coordsForColorData[i + 1] - center).ToRotation() - (coordsForColorData[i] - center).ToRotation();
+                                //Main.NewText(maxRotation + " rot");
                                 returnPoints.Add(EasingFunctions.Slerp(coordsForColorData[i], coordsForColorData[i + 1], k / (pointCount / coordsForColorData.Count) * maxRotation, radius));
+
+                                //Dust d = Dust.NewDustPerfect(Main.LocalPlayer.Center + coordsForColorData[i], DustID.AmberBolt);
+                                //d.noGravity = true;
+                                //Main.NewText(center + " cecnrntbr");
+                                //Main.NewText(k / (pointCount / coordsForColorData.Count) * maxRotation);
                             }
-                        }
-                        
-                        for (int i = 0; i < coordsForColorData.Count - 1; i++)
-                        {
-                            Main.NewText(coordsForColorData[i]);
+                            Main.NewText(coordsForColorData[i] + i.ToString());
                             Main.NewText(coordsForColorData[i + 1]);
-                        }    
+                        }
                         return returnPoints;
                     }
                     return null;

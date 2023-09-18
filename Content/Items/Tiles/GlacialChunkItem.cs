@@ -15,17 +15,15 @@ namespace Insignia.Content.Items.Misc
 
         public override void SetStaticDefaults()
         {
-         
-
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 10;
         }
 
         public override void SetDefaults()
         {
-         Item.DefaultToPlaceableTile(ModContent.TileType<Tiles.GlacialChunkTile>());
+            Item.DefaultToPlaceableTile(ModContent.TileType<Tiles.GlacialChunkTile>());
             Item.width = 12; //The hitbox dimensions are intentionally smaller so that it looks nicer when fished up on a bobber
             Item.height = 12;
-            Item.maxStack = 99;
+            Item.maxStack = 9999;
             Item.rare = ItemRarityID.Blue;
             Item.value = Item.sellPrice(0, 3);
         }

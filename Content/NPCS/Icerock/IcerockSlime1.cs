@@ -19,7 +19,7 @@ namespace Insignia.Content.NPCS.Icerock
 
         public override void SetStaticDefaults()
         {
-            Main.npcFrameCount[NPC.type] = Main.npcFrameCount[NPCID.BlueSlime];
+            Main.npcFrameCount[NPC.type] = Main.npcFrameCount[2];
             NPCID.Sets.TrailCacheLength[NPC.type] = 3;
             NPCID.Sets.TrailingMode[NPC.type] = 0;
             var value = new NPCID.Sets.NPCBestiaryDrawModifiers(0)
@@ -34,7 +34,7 @@ namespace Insignia.Content.NPCS.Icerock
         {
             NPC.width = 24;
             NPC.height = 20;
-            NPC.damage = 9;
+            NPC.damage = 12;
             NPC.lifeMax = 62;
             NPC.value = Item.buyPrice(0, 0, 5, 44);
             NPC.aiStyle = 1;
@@ -42,7 +42,7 @@ namespace Insignia.Content.NPCS.Icerock
             NPC.DeathSound = SoundSystem.GlacialChunkKillSound;
             NPC.aiStyle = NPCAIStyleID.Slime;
             AIType = NPCID.IlluminantSlime;
-            AnimationType = NPCID.BlueSlime;
+            AnimationType = NPCID.GreenSlime;
             NPC.netAlways = true;
             NPC.netUpdate = true;
             NPC.defense = 3;
@@ -72,6 +72,7 @@ namespace Insignia.Content.NPCS.Icerock
 
         public override void AI()
         {
+            Lighting.AddLight(NPC.position, r: 0.1f, g: 0.15f, b: 0.3f); ;
 
             NPC.TargetClosest(true);
 
@@ -87,10 +88,14 @@ namespace Insignia.Content.NPCS.Icerock
         
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
         {
+            // We can use AddRange instead of calling Add multiple times in order to add multiple items at once
             bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[] {
+				// Sets the spawning conditions of this NPC that is listed in the bestiary.
                    BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Snow,
                 BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Times.DayTime,
-                new FlavorTextBestiaryInfoElement("Tough as nails, these slimes have been bouncing around the Arctic Orogeny for decades, getting frozen with ice and hard rubble"),
+
+				// Sets the description of this NPC that is listed in the bestiary.
+				new FlavorTextBestiaryInfoElement("Tough as nails, these slimes have been bouncing around the Arctic Orogeny for decades, getting frozen with ice and hard rubble"),
 
 
             });
@@ -107,25 +112,27 @@ namespace Insignia.Content.NPCS.Icerock
         {
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<GlacialChunkItem>(), 2, 2, 3));
             npcLoot.Add(ItemDropRule.Common(ItemID.IceBlock, 3, 2, 4));
+            npcLoot.Add(ItemDropRule.Common(ItemID.Gel, 1, 2, 4));
 
         }
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-            if (NPC.life <= 0 && Main.netMode != NetmodeID.Server)
+            if (NPC.life <= 0)
             {
-                Gore.NewGore(NPC.GetSource_Death(), NPC.Left, NPC.velocity, Mod.Find<ModGore>("IcerockSlimeGore1").Type, 1.2f);
-                Gore.NewGore(NPC.GetSource_Death(), NPC.position, NPC.velocity, Mod.Find<ModGore>("IcerockSlimeGore2").Type, 1.2f);
-                Gore.NewGore(NPC.GetSource_Death(), NPC.Right, NPC.velocity, Mod.Find<ModGore>("IcerockSlimeGore3").Type, 1.2f);
-                Gore.NewGore(NPC.GetSource_Death(), NPC.Top, NPC.velocity, Mod.Find<ModGore>("IcerockSlimeGore3").Type, 1.2f);
-
+                Gore.NewGore(NPC.GetSource_Death(), NPC.position, NPC.velocity, Mod.Find<ModGore>("IcerockSlimeGore1").Type, 1f);
+                Gore.NewGore(NPC.GetSource_Death(), NPC.position, NPC.velocity, Mod.Find<ModGore>("IcerockSlimeGore2").Type, 1f);
+                Gore.NewGore(NPC.GetSource_Death(), NPC.position, NPC.velocity, Mod.Find<ModGore>("IcerockSlimeGore3").Type, 1f);
 
             }
             for (int i = 0; i < 23; i++)
             {
 
-                Dust.NewDust(NPC.position, NPC.width, NPC.height, DustID.Stone, 2.5f * hit.HitDirection, -2.5f, 0, Color.White, 0.6f);
+                Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
 
+                var d = Dust.NewDustPerfect(NPC.position, DustID.Ice, speed * 5, Scale: 1f);
+                ;
+                d.noGravity = true;
             }
         }
     }

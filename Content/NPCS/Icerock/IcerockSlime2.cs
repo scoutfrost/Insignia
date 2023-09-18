@@ -33,7 +33,7 @@ namespace Insignia.Content.NPCS.Icerock
         {
             NPC.width = 24;
             NPC.height = 20;
-            NPC.damage = 12;
+            NPC.damage = 11;
             NPC.lifeMax = 62;
             NPC.value = Item.buyPrice(0, 0, 5, 44);
             NPC.aiStyle = 1;
@@ -43,24 +43,18 @@ namespace Insignia.Content.NPCS.Icerock
             AnimationType = NPCID.GreenSlime;
             NPC.netAlways = true;
             NPC.netUpdate = true;
-            NPC.defense = 3;
+            NPC.defense = 1;
 
         }
         public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Color color = GetAlpha(Color.LightBlue) ?? Color.LightYellow;
+            Color color = GetAlpha(Color.LightBlue) ?? Color.LightBlue;
 
             if (NPC.IsABestiaryIconDummy)
-                color = Color.LightYellow;
+                color = Color.LightBlue;
 
         }
-        public override float SpawnChance(NPCSpawnInfo spawnInfo)
-        {
-            if (spawnInfo.Player.ZoneSnow)
-                return SpawnCondition.Overworld.Chance * 0.16f;
-
-            return base.SpawnChance(spawnInfo);
-        }
+    
         private int dustTimer;
 
         public override void AI()
@@ -75,8 +69,8 @@ namespace Insignia.Content.NPCS.Icerock
 
             NPC.velocity *= 1.013f;
             NPC.spriteDirection = NPC.direction;
-
-            if (dustTimer >= 30)
+            
+            if (dustTimer >= 40)
 
 
             {
@@ -99,20 +93,7 @@ namespace Insignia.Content.NPCS.Icerock
                 NPC.frameCounter = 0;
             NPC.frame.Y = (int)NPC.frameCounter / 10 * frameHeight;
         }
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
-        {
-            // We can use AddRange instead of calling Add multiple times in order to add multiple items at once
-            bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[] {
-				// Sets the spawning conditions of this NPC that is listed in the bestiary.
-                   BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Snow,
-                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Times.DayTime,
-
-				// Sets the description of this NPC that is listed in the bestiary.
-				new FlavorTextBestiaryInfoElement("Tough as nails, these slimes have been bouncing around the Arctic Orogeny for decades, getting frozen with ice and hard rubble"),
-
-
-            });
-        }
+      
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
@@ -128,11 +109,8 @@ namespace Insignia.Content.NPCS.Icerock
             for (int i = 0; i < 23; i++)
             {
 
-                Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
+                Dust.NewDust(NPC.position, NPC.width, NPC.height, DustID.Ice, 2.5f * hit.HitDirection, -2.5f, 0, Color.White, 0.6f);
 
-                var d = Dust.NewDustPerfect(NPC.position, DustID.Ice, speed * 5, Scale: 1f);
-                ;
-                d.noGravity = true;
             }
         }
     }

@@ -14,6 +14,7 @@ namespace Insignia.Content.Tiles
 	{
 		public override void SetStaticDefaults()
 		{
+
 			Main.tileSolid[Type] = true;
 			Main.tileMergeDirt[Type] = false;
 			Main.tileBlockLight[Type] = true;
@@ -29,22 +30,19 @@ namespace Insignia.Content.Tiles
 		{
 			num = fail ? 1 : 3;
 		}
-        public override bool KillSound(int i, int j, bool fail)
-        {
-            
-        }
 
-        //# TO DO: FIX UP THE KILL SOUND (I THINK I GOTTA MAKE AN EntitySource_OnBreak
 
-        public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+		//# TO DO: FIX UP THE KILL SOUND (I THINK I GOTTA MAKE AN EntitySource_OnBreak
+
+		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
 		{
-			var entitySource = new EntitySource_TileBreak(i, j);
+			Tile tile = Framing.GetTileSafely(i, j);
 
-			if (fail == true)
+			if (!fail)
 			{
-				SoundEngine.PlaySound(SoundID.MaxMana);
-			}
-		}
+				SoundEngine.PlaySound(SoundSystem.GlacialChunkKillSound);
 
+            }
         }
-    }
+	}
+}

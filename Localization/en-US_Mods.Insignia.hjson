@@ -1,5 +1,5 @@
 Mods: {
-	ExampleMod: {
+	Insignia: {
 		Content: {
 			Items: {
 				Weapons: {
@@ -23,6 +23,7 @@ Projectiles: {
 	TorgustusBowProj.DisplayName: Torgustus Bow Proj
 	TorgustusPortal.DisplayName: Torgustus Portal
 	TestProj.DisplayName: Test Proj
+	TundraThrowingKnifeProjectile.DisplayName: Tundra Throwing Knife Projectile
 }
 
 NPCs: {
@@ -61,7 +62,12 @@ Items: {
 	}
 
 	GlacialChunkItem: {
-		DisplayName: Glacial Chunk Item
+		DisplayName: Glacial Chunk
+		Tooltip: ""
+	}
+
+	TundraThrowingKnife: {
+		DisplayName: Glacial Knife
 		Tooltip: ""
 	}
 }
@@ -73,4 +79,7 @@ Buffs: {
 	}
 }
 
-Tiles.GlacialCrateTile.MapEntry: Glacial Crate Tile
+Tiles: {
+	GlacialCrateTile.MapEntry: Glacial Crate
+	BigGlacialChunkMultitile.MapEntry: Large Glacial Chunk
+}

@@ -11,8 +11,10 @@
     <None Remove="Assets\Misc\Ring.png" />
     <None Remove="Content\Items\Weapons\Sets\Glacial\SwingPoints.png" />
     <None Remove="Content\Items\Weapons\Sets\Glacial\TestProj.png" />
+    <None Remove="Content\Items\Weapons\Sets\Glacial\TundraThrowingKnife.png" />
     <None Remove="Content\Items\Weapons\Sets\Torgustus\PoweredTorgustusBowCooldown.png" />
     <None Remove="Content\Items\Weapons\Sets\Torgustus\TorgustusPortal.png" />
+    <None Remove="Content\Projectiles\Glacial\TundraThrowingKnifeProjectile.png" />
     <None Remove="Core\Particles\SparkleParticle.png" />
   </ItemGroup>
   <ItemGroup>
@@ -22,6 +24,5 @@
     <Folder Include="Content\Armor\" />
     <Folder Include="Content\Items\Weapons\Sets\Blackice\" />
     <Folder Include="Content\Items\Weapons\Sets\Icerock\" />
-    <Folder Include="Content\Projectiles\" />
   </ItemGroup>
 </Project>

@@ -18,7 +18,7 @@ namespace Insignia
         public const string AssetPath = $"{nameof(Insignia)}/Assets/";
 
         public static float ModTime { get; internal set; }
-        public static object MessageType { get; internal set; }
+        public static object MessageType { get; internal set; } 
 
         internal static object GetLegacySoundSlot(object custom, string v)
         {

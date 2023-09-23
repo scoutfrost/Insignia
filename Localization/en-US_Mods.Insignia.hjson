@@ -82,4 +82,5 @@ Buffs: {
 Tiles: {
 	GlacialCrateTile.MapEntry: Glacial Crate
 	BigGlacialChunkMultitile.MapEntry: Large Glacial Chunk
+	ArcticTreeMultiTile.MapEntry: Arctic Tree Multi Tile
 }

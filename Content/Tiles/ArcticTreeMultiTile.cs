@@ -20,7 +20,8 @@ namespace Insignia.Content.Tiles
             Main.tileFrameImportant[Type] = true;
             Main.tileNoAttach[Type] = true;
             Main.tileCut[Type] = false;
-            Main.tileLavaDeath[Type] = true;    
+            Main.tileLavaDeath[Type] = true;
+            HitSound = SoundSystem.TreeHurt;
             DustType = DustID.Ice;
             TileObjectData.newTile.CopyFrom(TileObjectData.Style2xX);
             TileObjectData.newTile.Height = 12;
@@ -39,9 +40,13 @@ namespace Insignia.Content.Tiles
         }
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
+            Tile tile = Framing.GetTileSafely(i, j);
+
+          
             if (Main.netMode != NetmodeID.Server)
             {
-                SoundEngine.PlaySound(SoundSystem.GlacialChunkKillSound with { Volume = 1.5f, Pitch = -0.2f });
+                SoundEngine.PlaySound(SoundSystem.TreeKill);
+
             }
         }
     }

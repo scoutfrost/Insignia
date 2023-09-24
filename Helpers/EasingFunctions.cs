@@ -17,23 +17,15 @@ namespace Insignia.Helpers
             //return Utils.AngleLerp(start.ToRotation(), end.ToRotation(), t).ToRotationVector2(); 
             // return new((float)Math.Cos(t), (float)Math.Sin(t)); //* radius; 
         }
-        public static Vector2[] Bezier(Vector2[] controlPoints, float t)
+        public static Vector2 Bezier(Vector2[] controlPoints, float t)
         {
-            //Vector2 q1 = Vector2.Lerp(a, b, ammount);
-            //Vector2 q2 = Vector2.Lerp(b, c, ammount);
-            //return Vector2.Lerp(q1, q2, ammount);
-            Vector2[] temp = new Vector2[controlPoints.Length - 1];
-            int sum = 0;
-
-            for (int j = 0; j < temp.Length; j++) {
-                sum += j;
-            }
-            
-            for (int i = 0; i < sum; i++)
+            //my own implementation of a bezier that takes any number of points
+            Vector2[] temp = controlPoints;
+            while (temp.Length > 1)
             {
                 temp = BezierCalculation(temp, t);
             }
-            return temp;
+            return temp[0];
             
         }
         private static Vector2[] BezierCalculation(Vector2[] c, float t)
@@ -47,3 +39,4 @@ namespace Insignia.Helpers
         }
     }
 }
+

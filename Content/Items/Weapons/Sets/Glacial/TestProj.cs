@@ -11,64 +11,49 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Insignia.Core.Common.Systems;
 using Terraria.DataStructures;
+using Microsoft.CodeAnalysis;
 
-namespace Insignia.Content.Items.Weapons.Sets.Glacial
+namespace Insignia.Content.Items.Weapons.Sets.Torgustus
 {
-    internal class TestProj : ModProjectile
+    public class BloodIceSpear : ModProjectile
     {
-		public override string Texture => "Insignia/Content/Items/Weapons/Sets/Glacial/GlacialBasher";
-		public override void SetStaticDefaults()
-		{
-			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
-			ProjectileID.Sets.TrailingMode[Projectile.type] = 0; 
-		}
-		public override void SetDefaults()
-		{
-			Projectile.width = 30;
-			Projectile.height = 30; 
-			Projectile.friendly = true; 
-			Projectile.hostile = false; 
-			Projectile.DamageType = DamageClass.Melee; 
-			Projectile.light = 0.5f;
-			Projectile.timeLeft = 360;
-			Projectile.penetrate = -1;
-			Projectile.tileCollide = false;
-		}
-		int i = 0;
-		List<Vector2> keypoints = new();
-		Vector2 mouse;
+        public override void SetDefaults()
+        {
+            Projectile.width = 30;
+            Projectile.height = 30;
+            Projectile.friendly = true;
+            Projectile.hostile = false;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.timeLeft = 360;
+            Projectile.penetrate = -1;
+            Projectile.tileCollide = false;
+        }
+        int i = 0;
+        List<Vector2> keypoints = new();
+        Vector2 mouse;
+        ProjKeyFrameHandler keyFrameHandler;
         public override void OnSpawn(IEntitySource source)
         {
-			ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
-			keypoints = keyFrameHandler.GetPoints(40);
-			mouse = Main.MouseWorld;
-		}
-		float rot;
-		public override void AI()
+            Player player = Main.player[Projectile.owner];
+            keyFrameHandler = new(KeyFrameInterpolationCurve.Bezier, "Insignia/Content/Items/Weapons/Sets/Torgustus/SwingPointsParabola");
+            mouse = Main.MouseWorld;
+            keypoints = keyFrameHandler.GetPoints(35);
+
+            if (player.direction == -1)
+            {
+                keypoints = keyFrameHandler.GetPoints(45);
+                i = keypoints.Count;
+            }
+        }
+        //float rot;
+        public override void AI()
         {
             Player player = Main.player[Projectile.owner];
-            if (i < keypoints.Count - 1) {
-                i++;
-				if (player.direction == 1)
-				{
-					rot = MathHelper.PiOver4;
-					//Main.NewText(player.direction);
-				}
-				else if (player.direction == -1)
-				{
-					rot = 0;
-				}
+            keyFrameHandler.SetAiDefaults(Projectile, player, mouse);
 
-				Projectile.rotation = player.Center.DirectionTo(player.Center + keypoints[i]).ToRotation() + rot + player.Center.DirectionTo(mouse).ToRotation();
+            Projectile.Center = keyFrameHandler.CalculateSwordSwingPoints(Projectile, mouse, player, keypoints, ref i);
 
-			}
-            else {
-				Projectile.Kill();
-            }
-			Dust d = Dust.NewDustPerfect(Main.LocalPlayer.Center + (keypoints[i].RotatedBy(player.Center.DirectionTo(mouse).ToRotation()) * player.direction), DustID.Adamantite, Vector2.Zero);
-			d.noGravity = true;
-			Projectile.Center = player.Center + (keypoints[i].RotatedBy(player.Center.DirectionTo(mouse).ToRotation()));
+            player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.Pi - player.velocity.ToRotation() + MathHelper.PiOver4 * player.direction);
         }
     }
 }
-

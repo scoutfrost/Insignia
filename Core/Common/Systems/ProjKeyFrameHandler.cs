@@ -63,13 +63,22 @@ namespace Insignia.Core.Common.Systems
 
             switch (keyFrameInterpolationCurve)
             {
-                //TODO: implement rest of curves and stuff
-                default://case KeyFrameInterpolationCurve.Lerp:
+                //might implement lagrange polynomial later but nrn
+                case KeyFrameInterpolationCurve.Bezier:
+                    if (coordsForColorData.Count != 1)
+                    {
+                        for (float k = 0; k <= pointCount; k++)
+                        {
+                            returnPoints.Add(EasingFunctions.Bezier(coordsForColorData.ToArray(), k / pointCount));
+                        }
+                        return returnPoints;
+                    }
+                    return null;
+                case KeyFrameInterpolationCurve.Lerp:
                     if (coordsForColorData.Count != 1)
                     {
                         for (int i = 0; i < coordsForColorData.Count - 1; i++)
                         {
-                            // Main.NewText("wow");
                             for (float k = 0; k <= pointCount / coordsForColorData.Count; k++)
                             {
                                 returnPoints.Add(Vector2.Lerp(coordsForColorData[i], coordsForColorData[i + 1], k / (pointCount / coordsForColorData.Count)));
@@ -81,22 +90,17 @@ namespace Insignia.Core.Common.Systems
                 case KeyFrameInterpolationCurve.Slerp:
                     if (coordsForColorData.Count != 1)
                     {
-                        for (int i = 0; i < coordsForColorData.Count - 1; i += 1)
+                        for (int i = 0; i < coordsForColorData.Count - 1; i++)
                         {
                             for (float k = 0; k <= pointCount / coordsForColorData.Count; k++)
                             {
-                                Vector2 center = new((coordsForColorData[0].X + coordsForColorData[0].X) / 2, (coordsForColorData[coordsForColorData.Count - 1].Y + coordsForColorData[coordsForColorData.Count - 1].Y) / 2);
-                                float maxRotation = (coordsForColorData[i + 1] - center).ToRotation() - (coordsForColorData[i] - center).ToRotation();
-                                //Main.NewText(maxRotation + " rot");
-                                returnPoints.Add(EasingFunctions.Slerp(coordsForColorData[i], coordsForColorData[i + 1], k / (pointCount / coordsForColorData.Count) * maxRotation, radius));
+                                //NO ACTUAL WAY I SPENT 2 DAYS DEBUGGING AND GOING INSANE OVER ME SWAPPING TWO NUMBERS
+                                //anyway heres the normal code that shouldve worked all along
 
-                                //Dust d = Dust.NewDustPerfect(Main.LocalPlayer.Center + coordsForColorData[i], DustID.AmberBolt);
-                                //d.noGravity = true;
-                                //Main.NewText(center + " cecnrntbr");
-                                //Main.NewText(k / (pointCount / coordsForColorData.Count) * maxRotation);
+                                Vector2 center = new((coordsForColorData[coordsForColorData.Count - 1].X + coordsForColorData[0].X) / 2, (coordsForColorData[coordsForColorData.Count - 1].Y + coordsForColorData[0].Y) / 2); //average of the two points 
+                                float maxRotation = center.AngleTo(coordsForColorData[i + 1]) - center.AngleTo(coordsForColorData[i]);
+                                returnPoints.Add(EasingFunctions.Slerp(coordsForColorData[i], coordsForColorData[i + 1], k / (pointCount / coordsForColorData.Count) * maxRotation, center ,radius));
                             }
-                            Main.NewText(coordsForColorData[i] + i.ToString());
-                            Main.NewText(coordsForColorData[i + 1]);
                         }
                         return returnPoints;
                     }
@@ -106,7 +110,6 @@ namespace Insignia.Core.Common.Systems
                     {
                         for (int i = 0; i < coordsForColorData.Count - 1; i++)
                         {
-                            // Main.NewText("wow");
                             for (float k = 0; k < pointCount / coordsForColorData.Count; k++)
                             {
                                 returnPoints.Add(Customfunc(coordsForColorData[i], coordsForColorData[i + 1], k / pointCount / coordsForColorData.Count));
@@ -115,7 +118,58 @@ namespace Insignia.Core.Common.Systems
                         return returnPoints;
                     }
                     return null;
+                case KeyFrameInterpolationCurve.CompleteCustom:
+                    if (coordsForColorData.Count != 1)
+                        Customfunc(default, default, default);
+                    return null;
+                default:
+                    return null;
             }
+        }
+        /// <summary>
+        /// Calculates the correct position of the projectile based on the parameters. To use, set the projectile's center to what this function returns.
+        /// </summary>
+        /// <param name="projectile">The projectile.</param>
+        /// <param name="mouse">Make sure to only capture Main.Mouseworld as a variable when the projectile spawns in OnSpawn, dont use Main.Mouseworld in the AI hook.</param>
+        /// <param name="owner">The projectile's owner.</param>
+        /// <param name="points">The returned keypoints from GetPoints().</param>
+        /// <param name="i">A timer. Set this to zero if the player is facing right, keypoints.Count - 1 if facing left. Set this in OnSpawn.</param>
+        /// <returns>The projectile's center with the right movement applied from the points.</returns>
+        public Vector2 CalculateSwordSwingPoints(Projectile projectile, Vector2 mouse, Player owner, List<Vector2> points, ref int i)
+        {
+            if (i < points.Count - 1 && owner.direction == 1)
+            {
+                i++;
+                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + MathHelper.PiOver4 - owner.velocity.ToRotation() + owner.Center.DirectionTo(mouse).ToRotation();
+
+            }
+            else if (i >= 0 && owner.direction == -1)
+            {
+                i--;
+                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() - MathHelper.PiOver4 + MathHelper.Pi - owner.velocity.ToRotation() + owner.Center.DirectionTo(mouse).ToRotation();
+            }
+            else
+            {
+               projectile.Kill();
+            }
+
+            return owner.Center + points[i].RotatedBy(owner.Center.DirectionTo(mouse).ToRotation());
+        }
+        /// <summary>
+        /// Sets common variables that most held projectiles have. Call this in AI.
+        /// </summary>
+        /// <param name="projectile">The projectile.</param>
+        /// <param name="owner">The projectile's owner.</param>
+        /// <param name="mouse">Make sure to only capture Main.Mouseworld as a variable when the projectile spawns in OnSpawn, dont use Main.Mouseworld in the AI hook.</param>
+        public void SetAiDefaults(Projectile projectile, Player owner, Vector2 mouse)
+        {
+            //cool that i dont have to make these ref 
+            projectile.direction = owner.direction;
+            projectile.spriteDirection = projectile.direction;
+            owner.direction = Math.Sign(owner.DirectionTo(mouse).X);
+            owner.heldProj = projectile.whoAmI;
+            owner.itemTime = 2;
+            owner.itemAnimation = 2;
         }
     }
     //long ahh name
@@ -124,6 +178,7 @@ namespace Insignia.Core.Common.Systems
         Lerp,
         Slerp,
         Bezier,
-        Custom
+        Custom,
+        CompleteCustom
     }
 }

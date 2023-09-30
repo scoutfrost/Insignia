@@ -126,6 +126,19 @@ namespace Insignia.Core.Common.Systems
                     return null;
             }
         }
+        public delegate Vector2 DesiredChange(Vector2 point, int i);
+        /// <summary>
+        /// Change all points in a certain way, implemented by desiredchange.
+        /// </summary>
+        /// <param name="points">The returned keypoints from GetPoints().</param>
+        /// <param name="desiredChange">How you would like to change the points.</param>
+        public void ChangePoints(ref List<Vector2> points, DesiredChange desiredChange)
+        {
+            for (int i = 0; i < points.Count; i++)
+            {
+                points[i] = desiredChange(points[i], i);
+            }
+        }
         /// <summary>
         /// Calculates the correct position of the projectile based on the parameters. To use, set the projectile's center to what this function returns.
         /// </summary>
@@ -135,18 +148,18 @@ namespace Insignia.Core.Common.Systems
         /// <param name="points">The returned keypoints from GetPoints().</param>
         /// <param name="i">A timer. Set this to zero if the player is facing right, keypoints.Count - 1 if facing left. Set this in OnSpawn.</param>
         /// <returns>The projectile's center with the right movement applied from the points.</returns>
-        public Vector2 CalculateSwordSwingPoints(Projectile projectile, Vector2 mouse, Player owner, List<Vector2> points, ref int i)
+        public Vector2 CalculateSwordSwingPointsAndApplyRotation(Projectile projectile, Vector2 mouse, Player owner, List<Vector2> points, ref int i, float rotOffset = 0)
         {
             if (i < points.Count - 1 && owner.direction == 1)
             {
                 i++;
-                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + MathHelper.PiOver4 - owner.velocity.ToRotation() + owner.Center.DirectionTo(mouse).ToRotation();
+                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + MathHelper.PiOver4 + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
 
             }
-            else if (i >= 0 && owner.direction == -1)
+            else if (i > 0 && owner.direction == -1)
             {
                 i--;
-                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() - MathHelper.PiOver4 + MathHelper.Pi - owner.velocity.ToRotation() + owner.Center.DirectionTo(mouse).ToRotation();
+                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() - MathHelper.PiOver4 + MathHelper.Pi + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
             }
             else
             {

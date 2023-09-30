@@ -66,4 +66,3 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         }
     }
 }
-

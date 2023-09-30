@@ -13,9 +13,9 @@ using Insignia.Core.Common.Systems;
 using Terraria.DataStructures;
 using Microsoft.CodeAnalysis;
 
-namespace Insignia.Content.Items.Weapons.Sets.Torgustus
+namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
-    public class BloodIceSpear : ModProjectile
+    public class TestProj : ModProjectile
     {
         public override void SetDefaults()
         {
@@ -31,12 +31,17 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         int i = 0;
         List<Vector2> keypoints = new();
         Vector2 mouse;
+        Vector2 vectorToMouse;
+        Vector2 mousew;
         ProjKeyFrameHandler keyFrameHandler;
         public override void OnSpawn(IEntitySource source)
         {
             Player player = Main.player[Projectile.owner];
-            keyFrameHandler = new(KeyFrameInterpolationCurve.Bezier, "Insignia/Content/Items/Weapons/Sets/Torgustus/SwingPointsParabola");
-            mouse = Main.MouseWorld;
+
+            keyFrameHandler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
+            mousew = Main.MouseWorld;
+            vectorToMouse = player.Center.DirectionTo(mousew);
+            keyFrameHandler.SetAiDefaults(Projectile, player, mousew);
             keypoints = keyFrameHandler.GetPoints(35);
 
             if (player.direction == -1)
@@ -49,11 +54,16 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
+
+            mouse = player.Center + vectorToMouse;
+
+            //Dust.NewDustPerfect(mouse, DustID.Adamantite, Vector2.Zero);
+
             keyFrameHandler.SetAiDefaults(Projectile, player, mouse);
+            Projectile.Center = keyFrameHandler.CalculateSwordSwingPointsAndApplyRotation(Projectile, mouse, player, keypoints, ref i);
 
-            Projectile.Center = keyFrameHandler.CalculateSwordSwingPoints(Projectile, mouse, player, keypoints, ref i);
-
-            player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.Pi - player.velocity.ToRotation() + MathHelper.PiOver4 * player.direction);
+            player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.Pi + MathHelper.PiOver4 * player.direction);
         }
     }
 }
+

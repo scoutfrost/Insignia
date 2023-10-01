@@ -38,31 +38,38 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         {
             Player player = Main.player[Projectile.owner];
 
-            keyFrameHandler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
+            keyFrameHandler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints", 20);
             mousew = Main.MouseWorld;
             vectorToMouse = player.Center.DirectionTo(mousew);
             keyFrameHandler.SetAiDefaults(Projectile, player, mousew);
-            keypoints = keyFrameHandler.GetPoints(35);
+            keypoints = keyFrameHandler.GetPoints(45);
 
-            if (player.direction == -1)
+            if ((player.direction == -1 && !upswing) || (player.direction == 1 && upswing))
             {
-                keypoints = keyFrameHandler.GetPoints(45);
-                i = keypoints.Count;
+                keypoints = keyFrameHandler.GetPoints(55);
+                i = keypoints.Count - 1;
             }
         }
+        bool upswing = false;
         //float rot;
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
-
             mouse = player.Center + vectorToMouse;
-
-            //Dust.NewDustPerfect(mouse, DustID.Adamantite, Vector2.Zero);
-
             keyFrameHandler.SetAiDefaults(Projectile, player, mouse);
-            Projectile.Center = keyFrameHandler.CalculateSwordSwingPointsAndApplyRotation(Projectile, mouse, player, keypoints, ref i);
+
+            if (player.GetModPlayer<TestProjPlayer>().SwingCount % 2 != 0)
+                upswing = true;
+            else
+                upswing = false;
+            
+            Projectile.Center = keyFrameHandler.CalculateSwordSwingPointsAndApplyRotation(Projectile, mouse, player, keypoints, ref i, new Vector2(-5, -5), upswing);
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.Pi + MathHelper.PiOver4 * player.direction);
         }
+    }
+    public class TestProjPlayer : ModPlayer
+    {
+        public int SwingCount = 0;
     }
 }

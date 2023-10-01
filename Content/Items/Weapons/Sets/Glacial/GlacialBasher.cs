@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
+using Terraria.DataStructures;
+using Microsoft.Xna.Framework;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -30,5 +32,10 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
 			Item.shoot = ModContent.ProjectileType<TestProj>();
 		}
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            player.GetModPlayer<TestProjPlayer>().SwingCount++;
+            return true;
+        }
     }
 }

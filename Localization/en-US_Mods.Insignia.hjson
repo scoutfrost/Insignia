@@ -24,6 +24,7 @@ Projectiles: {
 	TorgustusPortal.DisplayName: Torgustus Portal
 	TestProj.DisplayName: Test Proj
 	TundraThrowingKnifeProjectile.DisplayName: Tundra Throwing Knife Projectile
+	BloodIceSpear.DisplayName: Blood Ice Spear
 }
 
 NPCs: {
@@ -83,4 +84,5 @@ Tiles: {
 	GlacialCrateTile.MapEntry: Glacial Crate
 	BigGlacialChunkMultitile.MapEntry: Large Glacial Chunk
 	ArcticTreeMultiTile.MapEntry: Arctic Tree Multi Tile
+	SkullAmbientTile.MapEntry: Skull Ambient Tile
 }

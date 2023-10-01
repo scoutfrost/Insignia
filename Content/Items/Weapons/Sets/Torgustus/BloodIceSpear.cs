@@ -64,7 +64,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
 
             keyFrameHandler.SetAiDefaults(Projectile, player, mouse);
 
-            Projectile.Center = keyFrameHandler.CalculateSwordSwingPointsAndApplyRotation(Projectile, mouse, player, keypoints, ref i, MathHelper.ToRadians(21)) + new Vector2(-40, -12).RotatedBy(player.Center.DirectionTo(mouse).ToRotation());
+            Projectile.Center = keyFrameHandler.CalculateSwordSwingPointsAndApplyRotation(Projectile, mouse, player, keypoints, ref i, Vector2.Zero, false, MathHelper.ToRadians(21)) + new Vector2(-40, -12).RotatedBy(player.Center.DirectionTo(mouse).ToRotation());
             Projectile.rotation = MathHelper.Clamp(Projectile.rotation, vectorToMouse.RotatedBy(MathHelper.ToRadians(70)).ToRotation(), vectorToMouse.RotatedBy(MathHelper.ToRadians(-90)).ToRotation());
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.Pi + MathHelper.ToRadians(-21) + MathHelper.PiOver4 * player.direction);

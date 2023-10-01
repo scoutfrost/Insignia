@@ -55,10 +55,10 @@ namespace Insignia.Biomes
 		}
 		private void TestMethod2(int x, int y)
 		{
-			ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Lerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
-			keypoints = keyFrameHandler.GetPoints();
+			//ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Lerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
+			//keypoints = keyFrameHandler.GetPoints();
 
-			Main.NewText(keypoints.Count + "real");
+			//Main.NewText(keypoints.Count + "real");
 		}
 		private void TestMethod(int x1, int y1)
 		{

@@ -148,25 +148,36 @@ namespace Insignia.Core.Common.Systems
         /// <param name="points">The returned keypoints from GetPoints().</param>
         /// <param name="i">A timer. Set this to zero if the player is facing right, keypoints.Count - 1 if facing left. Set this in OnSpawn.</param>
         /// <returns>The projectile's center with the right movement applied from the points.</returns>
-        public Vector2 CalculateSwordSwingPointsAndApplyRotation(Projectile projectile, Vector2 mouse, Player owner, List<Vector2> points, ref int i, float rotOffset = 0)
+        public Vector2 CalculateSwordSwingPointsAndApplyRotation(Projectile projectile, Vector2 mouse, Player owner, List<Vector2> points, ref int i, Vector2 projOffset = default, bool upswing = false, float rotOffset = 0)
         {
-            if (i < points.Count - 1 && owner.direction == 1)
+            if (projOffset == default)
             {
-                i++;
-                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + MathHelper.PiOver4 + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
+                projOffset = Vector2.Zero;
+            }
+            if ((owner.direction == 1 && !upswing) || owner.direction == -1 && !upswing)
+            {
+                if (i < points.Count - 1)
+                {
+                    i++;
+                    projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + MathHelper.PiOver4 + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
+                    Main.NewText("Aaaaaaaaaaaa");
+                }
+                else
+                {
+                    projectile.Kill(); 
+                    Main.NewText("nnnnnnnnnnnnnnnnnnnnnnnn");
+                }
+            }
+            if ((owner.direction == 1 && upswing) || (owner.direction == -1 && ! upswing))
+            {
+                if (i > 0)
+                {
+                    i--;
+                    projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() - MathHelper.PiOver4 + MathHelper.Pi + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
+                }
+            }
 
-            }
-            else if (i > 0 && owner.direction == -1)
-            {
-                i--;
-                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() - MathHelper.PiOver4 + MathHelper.Pi + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
-            }
-            else
-            {
-               projectile.Kill();
-            }
-
-            return owner.Center + points[i].RotatedBy(owner.Center.DirectionTo(mouse).ToRotation());
+            return owner.Center + points[i].RotatedBy(owner.Center.DirectionTo(mouse).ToRotation()) + projOffset;
         }
         /// <summary>
         /// Sets common variables that most held projectiles have. Call this in AI.

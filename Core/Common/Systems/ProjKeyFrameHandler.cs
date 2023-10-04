@@ -147,6 +147,9 @@ namespace Insignia.Core.Common.Systems
         /// <param name="owner">The projectile's owner.</param>
         /// <param name="points">The returned keypoints from GetPoints().</param>
         /// <param name="i">A timer. Set this to zero if the player is facing right, keypoints.Count - 1 if facing left. Set this in OnSpawn.</param>
+        /// <param name="projOffset">A vector2 offset for the position of the projectile.</param>
+        /// <param name="upswing">Use in conjunction with a modplayer variable. Whether the projectile swings up or not.</param>
+        /// <param name="rotOffset">A float offset for the rotation of the projectile, measured in radians</param>
         /// <returns>The projectile's center with the right movement applied from the points.</returns>
         public Vector2 CalculateSwordSwingPointsAndApplyRotation(Projectile projectile, Vector2 mouse, Player owner, List<Vector2> points, ref int i, Vector2 projOffset = default, bool upswing = false, float rotOffset = 0)
         {
@@ -154,26 +157,33 @@ namespace Insignia.Core.Common.Systems
             {
                 projOffset = Vector2.Zero;
             }
-            if ((owner.direction == 1 && !upswing) || owner.direction == -1 && !upswing)
+            if (upswing)
+            {
+                rotOffset -= MathHelper.PiOver2 * owner.direction;
+            }
+
+            if ((owner.direction == 1 && !upswing) || owner.direction == -1 && upswing)
             {
                 if (i < points.Count - 1)
                 {
                     i++;
                     projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + MathHelper.PiOver4 + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
-                    Main.NewText("Aaaaaaaaaaaa");
                 }
                 else
                 {
-                    projectile.Kill(); 
-                    Main.NewText("nnnnnnnnnnnnnnnnnnnnnnnn");
+                    projectile.Kill();
                 }
             }
-            if ((owner.direction == 1 && upswing) || (owner.direction == -1 && ! upswing))
+            else
             {
                 if (i > 0)
                 {
                     i--;
                     projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() - MathHelper.PiOver4 + MathHelper.Pi + owner.Center.DirectionTo(mouse).ToRotation() + rotOffset;
+                }
+                else
+                {
+                    projectile.Kill();
                 }
             }
 
@@ -206,3 +216,4 @@ namespace Insignia.Core.Common.Systems
         CompleteCustom
     }
 }
+

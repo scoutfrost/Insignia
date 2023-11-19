@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Insignia.Core.Common.Systems;
 using Terraria.DataStructures;
 using Microsoft.CodeAnalysis;
+using Insignia.Content.NPCS.Icerock;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {

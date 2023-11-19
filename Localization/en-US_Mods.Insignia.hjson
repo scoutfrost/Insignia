@@ -31,6 +31,7 @@ NPCs: {
 	IcerockSnail.DisplayName: Icerock Snail
 	IcerockSlime1.DisplayName: Icerock Slime1
 	IcerockSlime2.DisplayName: Icerock Slime2
+	TestNPC.DisplayName: Test N P C
 }
 
 Items: {

@@ -15,13 +15,13 @@ using Microsoft.CodeAnalysis;
 
 namespace Insignia.Core.Common.Systems
 {
-    public struct Limb
+    public class Limb
     {
         public float[] lengthOfLimbSegments;//maybe could combine lengths and textures into one dictionary? the textures would be the keys and the lengths the values
         public Texture2D[] limbSegmentTextures;
         public Vector2 endPos;
         public Vector2 attachedJointPos;
-        public Point destinationTile;
+        public Vector2 destinationTile;
         public bool bendsFowards = true;
 
         public Limb(Vector2 attachedJoint, Vector2 endPos, Texture2D[] limbTextures, float[] lengthOfLimbSegments)
@@ -45,39 +45,46 @@ namespace Insignia.Core.Common.Systems
             for (int i = 0; i < WhichLegsMoveInSuccession[0].Count; i++)
             {
                 Limb limb = WhichLegsMoveInSuccession[0][i];
-                limb.destinationTile = GetDestinationTile(limb);
+                limb.destinationTile = GetDestinationTile(ref limb);
+                Main.player[0].Center = limb.destinationTile;
+                Main.NewText(limb.destinationTile);
             }
         }
         public override void AI()
         {
             SafeAI();
-            //Main.NewText("bbbb");
             int next = i + 1;
-            if (next > WhichLegsMoveInSuccession.Count)
+            if (next >= WhichLegsMoveInSuccession.Count)
                 next = 0;
+            //Main.NewText("bbbb");
 
-            if (i > WhichLegsMoveInSuccession.Count - 1)
-                i = 0;
+            //if (i >= WhichLegsMoveInSuccession.Count)
+            //i = 0;
 
             for (int j = 0; j < WhichLegsMoveInSuccession[i].Count; j++)
             {
                 Limb limb = WhichLegsMoveInSuccession[i][j];
-                if (limb.destinationTile == (limb.endPos).ToPoint() && j == WhichLegsMoveInSuccession[i].Count - 1)
+                //Main.NewText(limb.destinationTile);
+                if (limb.destinationTile == limb.endPos && j == WhichLegsMoveInSuccession[i].Count - 1)
                 {
                     for (int k = 0; k < WhichLegsMoveInSuccession[next].Count; k++)
                     {
                         Limb nextMovingLimb = WhichLegsMoveInSuccession[next][k];
-                        nextMovingLimb.destinationTile = GetDestinationTile(nextMovingLimb);
+                        nextMovingLimb.destinationTile = GetDestinationTile(ref nextMovingLimb);
                     }
                     i++;
+                    if (i >= WhichLegsMoveInSuccession.Count)
+                        i = 0;
                 }
                 LegMovement(ref limb, limb.destinationTile);
             }
+            Main.NewText(i);
+            //Main.NewText(next);
         }
         //hardcoded but uhhh ummm
         //i'll cross that bridge when i get to it
 
-        //VERY placeholder drawing- TODO: need to implement post/predraw for limbs drawing behind npc + more flexibility for implemented class
+        //VERY placeholder drawing- TODO: implement post/predraw for limbs drawing behind npc + more flexibility for implemented class
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             if (SafePreDraw(spriteBatch, screenPos, drawColor))
@@ -114,16 +121,20 @@ namespace Insignia.Core.Common.Systems
         public abstract void SafeOnSpawn(IEntitySource entitySource);
         public abstract void SafeAI();
         public virtual bool SafePreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) { return true; }
-
-        public virtual void LegMovement(ref Limb limb, Point targetTile) { }
-        public virtual Point GetDestinationTile(Limb limb) { return default; }
+        public virtual void LegMovement(ref Limb limb, Vector2 targetTile) { }
+        public virtual Vector2 GetDestinationTile(ref Limb limb) { return default; }
         //public virtual bool CustomDrawLimbs(SpriteBatch sb) { return false; }
 
-        protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos)
+        /// <param name="limbLength1">The length of the first limb segment.</param>
+        /// <param name="limbLength2">The length of the second limb segment.</param>
+        /// <param name="joint">Where the limb attatches to the object.</param>
+        /// <param name="footpos">The end position of the limb- ie. a hand or a foot's position </param>
+        /// <returns>Returns the correct rotations of the limbs in an array</returns>
+        protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos) //not sure why i named it footpos instead of endpos lol
         {
             float maxLimbDist = limbLength1 + limbLength2;
 
-            float length = MathHelper.Clamp(Vector2.Distance(joint, footpos), Math.Abs(limbLength1 - limbLength2), maxLimbDist - 0.1f);
+            float length = MathHelper.Clamp(Vector2.Distance(joint, footpos), Math.Abs(limbLength1 - limbLength2), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
             footpos = joint + joint.DirectionTo(footpos) * length;
 
             float a = joint.Distance(footpos);

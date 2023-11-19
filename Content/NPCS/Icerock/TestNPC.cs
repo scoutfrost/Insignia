@@ -52,39 +52,46 @@ namespace Insignia.Content.NPCS.Icerock
         }
         public override void SafeAI()
         {
+            NPC.velocity = NPC.Center.DirectionTo(Main.MouseWorld) * 10;
             for (int i = 0; i < Limbs.Count; i++)
             {
                 Limb l = Limbs[i];
                 l.attachedJointPos = NPC.Center;
 
-                //Dust d = Dust.NewDustPerfect(l.attachedJointPos, DustID.Adamantite, Vector2.Zero);
-                //d.noGravity = true;
+                Dust d = Dust.NewDustPerfect(l.attachedJointPos, DustID.Adamantite, Vector2.Zero);
+                d.noGravity = true;
+
+                Dust d1 = Dust.NewDustPerfect(l.destinationTile, DustID.Adamantite, Vector2.Zero);
+                d1.noGravity = true;
+
             }
-            NPC.Center = Main.MouseWorld;
+            //NPC.Center = Main.MouseWorld;
         }
-        public override Point GetDestinationTile(Limb limb)
+        public override Vector2 GetDestinationTile(ref Limb limb)
         {
             Dust d = Dust.NewDustPerfect(limb.endPos + new Vector2(20, 0), DustID.SparksMech, Vector2.Zero);
             d.noGravity = true;
             Main.NewText("AAAAA");
-            return (limb.endPos + new Vector2(20, 0)).ToPoint();
+            return limb.endPos + new Vector2(200, 0) * NPC.velocity;
         }
         float t = 0;
-        public override void LegMovement(ref Limb limb, Point targetTile)
+        //TODO: restrict end pos 
+        public override void LegMovement(ref Limb limb, Vector2 targetTile)
         {
+            //Main.NewText(limb.destinationTile);
             //Main.NewText("CRAXWAXAXAXWXWAX");
-            Dust d = Dust.NewDustPerfect(targetTile.ToVector2(), DustID.Adamantite, Vector2.Zero);
+            Dust d = Dust.NewDustPerfect(targetTile, DustID.Adamantite, Vector2.Zero);
             d.noGravity = true;
             t += 0.01f;
-            if (t >= 1)
-                t = 0;
             if (limb.endPos.Distance(NPC.Center) > 50)
             {
-                limb.endPos = Vector2.Lerp(limb.endPos, targetTile.ToVector2(), t);
-                Main.NewText("CRAXWAXAXAXWXWAX");
+                limb.endPos = Vector2.Lerp(limb.endPos, targetTile, t);
+                //Main.NewText("CRAXWAXAXAXWXWAX");
             }
-            Main.NewText(limb.endPos);
-            Main.NewText(t);
+            if (t >= 1)
+                t = 0;
+            //Main.NewText(limb.endPos);
+            //Main.NewText(t);
             Dust dust = Dust.NewDustPerfect(limb.endPos, DustID.Adamantite, Vector2.Zero);
             dust.noGravity = true;
         }

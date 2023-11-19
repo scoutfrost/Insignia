@@ -24,52 +24,88 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Melee;
-            Projectile.timeLeft = 360;
+            Projectile.timeLeft = 3600;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
+            Projectile.ownerHitCheck = true;
         }
-        int i = 0;
-        List<Vector2> keypoints = new();
-        Vector2 mouse;
-        Vector2 vectorToMouse;
-        Vector2 mousew;
-        ProjKeyFrameHandler keyFrameHandler;
+        Chain chain;
+        public static Texture2D texture;
+        public override bool? CanDamage()
+        {
+            return false;
+        }
+        public override void Load()
+        {
+            texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow", ReLogic.Content.AssetRequestMode.ImmediateLoad);
+        }
+        public override void Unload()
+        {
+            texture = null;
+        }
         public override void OnSpawn(IEntitySource source)
         {
-            Player player = Main.player[Projectile.owner];
-
-            keyFrameHandler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints", 20);
-            mousew = Main.MouseWorld;
-            vectorToMouse = player.Center.DirectionTo(mousew);
-            keyFrameHandler.SetAiDefaults(Projectile, player, mousew);
-            keypoints = keyFrameHandler.GetPoints(45);
-
-            if ((player.direction == -1 && !upswing) || (player.direction == 1 && upswing))
-            {
-                keypoints = keyFrameHandler.GetPoints(55);
-                i = keypoints.Count - 1;
-            }
+            NPC.NewNPC(Projectile.GetSource_FromThis(), (int)Main.MouseWorld.X, (int)Main.MouseWorld.Y, ModContent.NPCType<TestNPC>());
+            /*Player player = Main.player[Projectile.owner];
+            ChainCaller chaincaller = new();
+            chain = new(player.Center, player.Center + new Vector2(-1, 10), 10, 15, default, new Vector2(0, 0.2f), true, true, false);
+            chaincaller.Create(chain);*/
         }
-        bool upswing = false;
-        //float rot;
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
-            mouse = player.Center + vectorToMouse;
-            keyFrameHandler.SetAiDefaults(Projectile, player, mouse);
-
-            if (player.GetModPlayer<TestProjPlayer>().SwingCount % 2 != 0)
-                upswing = true;
-            else
-                upswing = false;
-            
-            Projectile.Center = keyFrameHandler.CalculateSwordSwingPointsAndApplyRotation(Projectile, mouse, player, keypoints, ref i, new Vector2(-5, -5), upswing);
-
-            player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.Pi + MathHelper.PiOver4 * player.direction);
+            //chain.points[1].pos = player.Center;
         }
-    }
-    public class TestProjPlayer : ModPlayer
-    {
-        public int SwingCount = 0;
+        public override void PostDraw(Color lightColor)
+        {
+            Player player = Main.player[Projectile.owner];
+
+            float limb1Length = 60;
+            float limb2Length = 100;
+            int leftOrRight = -1;
+            Vector2 joint1 = Projectile.Center;
+
+            Vector2 joint2 = Projectile.Center + Projectile.Center.DirectionTo(Main.MouseWorld) * Vector2.Distance(joint1, Main.MouseWorld);
+            float[] rotations = TwoJoint2LimbIKSolver(limb1Length, limb2Length, joint1, ref joint2);
+
+            Main.EntitySpriteDraw(texture, joint1 - Main.screenPosition, texture.Bounds, lightColor,
+                             rotations[0] * leftOrRight + joint1.DirectionTo(joint2).ToRotation(), texture.Size() / 2, new Vector2(limb1Length / 20, 1), SpriteEffects.None, default);
+
+            Main.EntitySpriteDraw(texture, joint2 - Main.screenPosition, texture.Bounds, lightColor,
+                            -rotations[1] * leftOrRight + joint2.DirectionTo(joint1).ToRotation(), texture.Size() / 2, new Vector2(limb2Length / 20, 1), SpriteEffects.None, default);
+        }
+        public float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos)
+        {
+            float maxLimbDist = limbLength1 + limbLength2;
+
+            float length = MathHelper.Clamp(Vector2.Distance(joint, footpos), Math.Abs(limbLength1 - limbLength2), maxLimbDist - 0.1f);
+            footpos = joint + joint.DirectionTo(footpos) * length;
+
+            float a = joint.Distance(footpos);
+
+            if (a <= Math.Abs(limbLength1 - limbLength2))
+                a = Math.Abs(limbLength1 - limbLength2);
+
+            float rotation1 = (float)Math.Acos((limbLength1 * limbLength1 + a * a - limbLength2 * limbLength2) / (2 * limbLength1 * a));
+            float rotation2 = (float)Math.Acos((-limbLength1 * limbLength1 + a * a + limbLength2 * limbLength2) / (2 * limbLength2 * a));
+
+            return new float[2] { rotation1, rotation2 };
+        }
+
+        /*float length = MathHelper.Clamp(Vector2.Distance(joint1 + joint1.DirectionTo(joint2), Main.MouseWorld), Math.Abs(limb1Length - limb2Length), maxLimbDist - 0.1f);
+        joint2 = Projectile.Center + Projectile.Center.DirectionTo(Main.MouseWorld) * length;
+
+        float a = joint1.Distance(joint2);
+
+        if (a <= Math.Abs(limb1Length - limb2Length))
+            a = Math.Abs(limb1Length - limb2Length);
+
+        //Dust d = Dust.NewDustPerfect(joint2, DustID.Adamantite, Vector2.Zero);
+        //d.noGravity = true;
+
+
+        float rotation1 = (float)Math.Acos((limb1Length * limb1Length + a * a - limb2Length * limb2Length) / (2 * limb1Length * a));
+        float rotation2 = (float)Math.Acos((-limb1Length * limb1Length + a * a + limb2Length * limb2Length) / (2 * limb2Length * a));*/
     }
 }
+

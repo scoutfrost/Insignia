@@ -77,7 +77,7 @@ namespace Insignia.Biomes
 				{
 					if (Main.tile[i, y].TileType == TileID.SnowBlock || Main.tile[i, y].TileType == TileID.IceBlock)
 					{
-						Dictionary<ushort, int> dictionary = new Dictionary<ushort, int>();
+						Dictionary<ushort, int> dictionary = new();
 						WorldUtils.Gen(new Point(i, y), new Shapes.Rectangle(40, 40), new Actions.TileScanner(TileID.SnowBlock, TileID.IceBlock).Output(dictionary));
 						int blockCount = dictionary[TileID.SnowBlock] + dictionary[TileID.IceBlock];
 

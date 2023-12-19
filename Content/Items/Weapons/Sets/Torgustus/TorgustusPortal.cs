@@ -74,7 +74,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, Color.Orange, 1);
             return false;
         }
-        public override void Kill(int timeLeft)
+        public override void OnKill(int timeLeft)
         {
             player.GetModPlayer<TorgustusPortalPlayer>().portalsActive.Remove(Projectile);
         }

@@ -17,16 +17,12 @@ namespace Insignia.Core.Common.Systems
         public static readonly SoundStyle TreeHurt;
         public static readonly SoundStyle TreeKill;
 
-
-
         static SoundSystem()
         {
-            GlacialChunkSound = new SoundStyle("Insignia/Assets/Sounds/GlacialChunkSound", (SoundType)0);
-            GlacialChunkKillSound = new SoundStyle("Insignia/Assets/Sounds/GlacialChunkKillSound", (SoundType)0);
-            TreeHurt = new SoundStyle("Insignia/Assets/Sounds/TreeHurt", (SoundType)0);
-            TreeKill= new SoundStyle("Insignia/Assets/Sounds/TreeKill", (SoundType)0);
-
-
+            GlacialChunkSound = new SoundStyle("Insignia/Assets/Sounds/GlacialChunkSound", 0);
+            GlacialChunkKillSound = new SoundStyle("Insignia/Assets/Sounds/GlacialChunkKillSound", 0);
+            TreeHurt = new SoundStyle("Insignia/Assets/Sounds/TreeHurt", 0);
+            TreeKill = new SoundStyle("Insignia/Assets/Sounds/TreeKill", 0);
         }
     }
 }

@@ -7,11 +7,6 @@ namespace Insignia.Content.Projectiles.Glacial
 {
     public class TundraThrowingKnifeProjectile : ModProjectile
     {
-        public override void SetStaticDefaults()
-        {
-
-        }
-
         public override void SetDefaults()
         {
             Projectile.width = 6;
@@ -31,23 +26,15 @@ namespace Insignia.Content.Projectiles.Glacial
         }
         public override void AI()
         {
-
-            
             Lighting.AddLight(Projectile.position, r: 0.1f, g: 0.3f, b: 0.9f);
-
         }
-        public override void Kill(int timeleft)
-
+        public override void OnKill(int timeleft)
         {
-
-
             for (int i = 0; i < 10; i++)
                 Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.Ice, 0f, 0f, 0, default, 1f);
             SoundEngine.PlaySound(SoundID.Item50, Projectile.position);
-
         }
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-
         {
             target.AddBuff(BuffID.Frostburn, 180);
         }

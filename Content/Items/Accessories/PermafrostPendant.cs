@@ -69,10 +69,8 @@ namespace Insignia.Content.Items.Accessories
 
             if (timer++ >= 120)
                 shouldDamage = true;
-        }
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            target.velocity 
+
+
         }
         public override bool? CanDamage()
         {

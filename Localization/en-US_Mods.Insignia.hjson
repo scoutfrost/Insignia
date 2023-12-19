@@ -25,6 +25,8 @@ Projectiles: {
 	TestProj.DisplayName: Test Proj
 	TundraThrowingKnifeProjectile.DisplayName: Tundra Throwing Knife Projectile
 	BloodIceSpear.DisplayName: Blood Ice Spear
+	PermafrostPendantExplosion.DisplayName: Permafrost Pendant Explosion
+	CrystalScytheProjectile.DisplayName: Crystal Scythe Projectile
 }
 
 NPCs: {
@@ -70,6 +72,16 @@ Items: {
 
 	TundraThrowingKnife: {
 		DisplayName: Glacial Knife
+		Tooltip: ""
+	}
+
+	PermafrostPendant: {
+		DisplayName: Permafrost Pendant
+		Tooltip: ""
+	}
+
+	CrystalScythe: {
+		DisplayName: Crystal Scythe
 		Tooltip: ""
 	}
 }

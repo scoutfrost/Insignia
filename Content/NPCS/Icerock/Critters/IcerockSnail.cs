@@ -12,7 +12,7 @@ namespace Insignia.Content.NPCS.Icerock.Critters
 		{
 			Main.npcFrameCount[NPC.type] = Main.npcFrameCount[NPCID.MagmaSnail];
 
-			var value = new NPCID.Sets.NPCBestiaryDrawModifiers(0)
+			var value = new NPCID.Sets.NPCBestiaryDrawModifiers()
 			{ // Influences how the NPC looks in the Bestiary
 				Velocity = 1f // Draws the NPC in the bestiary as if its walking +1 tiles in the x direction
 			};

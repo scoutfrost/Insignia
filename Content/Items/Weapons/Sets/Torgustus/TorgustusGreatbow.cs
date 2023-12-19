@@ -251,7 +251,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         public override void AI()
         {
             if (Projectile.ai[1] == 1) { // aka checking if its been through a portal
-                Projectile.velocity *= 1f;
+                Projectile.velocity *= 1.03f;
             }
             if (Projectile.velocity.Length() < 25) {
                 Projectile.velocity *= 0.97f;
@@ -355,7 +355,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 Color.LightGoldenrodYellow * 0.7f, Projectile.rotation, telegraphTexture.Size(), scale, SpriteEffects.None, default);
             return false;
         }
-        public override void Kill(int timeLeft)
+        public override void OnKill(int timeLeft)
         {
             if (Projectile.velocity.Length() > 10)
             {

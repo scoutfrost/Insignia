@@ -57,7 +57,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Player player = Main.player[Projectile.owner];
             //chain.points[1].pos = player.Center;
         }
-        public override void PostDraw(Color lightColor)
+        /*public override void PostDraw(Color lightColor)
         {
             Player player = Main.player[Projectile.owner];
 
@@ -74,7 +74,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
             Main.EntitySpriteDraw(texture, joint2 - Main.screenPosition, texture.Bounds, lightColor,
                             -rotations[1] * leftOrRight + joint2.DirectionTo(joint1).ToRotation(), texture.Size() / 2, new Vector2(limb2Length / 20, 1), SpriteEffects.None, default);
-        }
+        }*/
         public float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos)
         {
             float maxLimbDist = limbLength1 + limbLength2;

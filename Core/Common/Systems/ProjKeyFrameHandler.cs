@@ -16,7 +16,7 @@ namespace Insignia.Core.Common.Systems
     {
         public delegate Vector2 CustomFunction(Vector2 start, Vector2 end, float t);
 
-        CustomFunction Customfunc;
+        CustomFunction Customfunc; 
 
         KeyFrameInterpolationCurve keyFrameInterpolationCurve;
         static string texturePath;
@@ -136,7 +136,7 @@ namespace Insignia.Core.Common.Systems
         {
             for (int i = 0; i < points.Count; i++)
             {
-                points[i] = desiredChange(points[i], i);
+                points[i] = desiredChange(points[i], i); 
             }
         }
         /// <summary>

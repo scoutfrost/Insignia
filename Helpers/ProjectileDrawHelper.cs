@@ -13,6 +13,19 @@ namespace Insignia.Helpers
     public static class Helper
     {
         public static string Empty = "Insignia/Assets/Textures/Empty";
+        public static float Pythagoras(float a = default, float b = default, float c = default)
+        {
+            if (c == default)
+                return (float)Math.Sqrt(a * a + b * b);
+            
+            if (a == default)
+                return (float)Math.Sqrt(c * c - b * b);
+            
+            if (b == default)
+                return (float)Math.Sqrt(c * c - a * a);
+            
+            return default;
+        }
     }
     internal static class ProjectileDrawHelper
     {

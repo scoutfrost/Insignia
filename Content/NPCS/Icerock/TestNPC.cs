@@ -17,7 +17,7 @@ namespace Insignia.Content.NPCS.Icerock
 {
 	public class TestNPC : ProcedurallyAnimatedNPC
 	{
-        public override string Texture => "Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow";
+        public override string Texture => Helpers.Helper.Empty;
         public override void SetDefaults()
         {
             NPC.width = 36;
@@ -44,7 +44,11 @@ namespace Insignia.Content.NPCS.Icerock
             for (int i = 0; i < 2; i++)
             {
                 Limb limb = new(NPC.Center, NPC.Center + new Vector2(0, 10), new Texture2D[2] {texture, texture}, new float[2] { 20, 20 });
-                limb.endPos = NPC.Center + new Vector2(0, 10);
+
+                float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
+                float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
+                //limb.endPos = limb.attachedJointPos + limb.attachedJointPos.DirectionTo(limb.endPos) * length;
+
                 Limbs.Add(limb);
                 WhichLegsMoveInSuccession.Add(new List<Limb>());
                 WhichLegsMoveInSuccession[i].Add(limb);
@@ -52,7 +56,8 @@ namespace Insignia.Content.NPCS.Icerock
         }
         public override void SafeAI()
         {
-            NPC.velocity = NPC.Center.DirectionTo(Main.MouseWorld) * 10;
+            //NPC.velocity = (Main.MouseWorld - NPC.Center).SafeNormalize(Vector2.Zero) * 10;
+            NPC.Center = Main.MouseWorld;
             for (int i = 0; i < Limbs.Count; i++)
             {
                 Limb l = Limbs[i];
@@ -61,39 +66,44 @@ namespace Insignia.Content.NPCS.Icerock
                 Dust d = Dust.NewDustPerfect(l.attachedJointPos, DustID.Adamantite, Vector2.Zero);
                 d.noGravity = true;
 
-                Dust d1 = Dust.NewDustPerfect(l.destinationTile, DustID.Adamantite, Vector2.Zero);
+                Dust d1 = Dust.NewDustPerfect(l.destinationTile, DustID.AmberBolt, Vector2.Zero);
                 d1.noGravity = true;
 
+                Dust d2 = Dust.NewDustPerfect(l.endPos, DustID.ArgonMoss, Vector2.Zero);
+                d2.noGravity = true;
             }
             //NPC.Center = Main.MouseWorld;
         }
-        public override Vector2 GetDestinationTile(ref Limb limb)
+        public override Vector2 GetDestinationTile(Limb limb)
         {
-            Dust d = Dust.NewDustPerfect(limb.endPos + new Vector2(20, 0), DustID.SparksMech, Vector2.Zero);
-            d.noGravity = true;
-            Main.NewText("AAAAA");
-            return limb.endPos + new Vector2(200, 0) * NPC.velocity;
+            //Vector2 vel = NPC.position - NPC.oldPosition;
+
+            float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1] - 0.01f;
+
+            return limb.endPos + new Vector2(Helpers.Helper.Pythagoras(default, distanceFromGround, maxLimbDist), 0);// * vel;
         }
         float t = 0;
-        //TODO: restrict end pos 
+        float distanceFromGround = 20;
         public override void LegMovement(ref Limb limb, Vector2 targetTile)
         {
-            //Main.NewText(limb.destinationTile);
-            //Main.NewText("CRAXWAXAXAXWXWAX");
-            Dust d = Dust.NewDustPerfect(targetTile, DustID.Adamantite, Vector2.Zero);
-            d.noGravity = true;
+            float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1] - 0.01f; //subtracting by 0.01 to avoid NaN errors
+           
+
+           
             t += 0.01f;
-            if (limb.endPos.Distance(NPC.Center) > 50)
+            if (limb.endPos.Distance(NPC.Center) >= maxLimbDist)
             {
                 limb.endPos = Vector2.Lerp(limb.endPos, targetTile, t);
-                //Main.NewText("CRAXWAXAXAXWXWAX");
             }
+
+            //limb.endPos *= length;
             if (t >= 1)
                 t = 0;
+
             //Main.NewText(limb.endPos);
             //Main.NewText(t);
-            Dust dust = Dust.NewDustPerfect(limb.endPos, DustID.Adamantite, Vector2.Zero);
-            dust.noGravity = true;
+            //Main.NewText(limb.destinationTile);
+            //Main.NewText("CRAXWAXAXAXWXWAX");
         }
     }
 }

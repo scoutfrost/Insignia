@@ -45,7 +45,7 @@ namespace Insignia.Core.Common.Systems
             for (int i = 0; i < WhichLegsMoveInSuccession[0].Count; i++)
             {
                 Limb limb = WhichLegsMoveInSuccession[0][i];
-                limb.destinationTile = GetDestinationTile(ref limb);
+                limb.destinationTile = GetDestinationTile(limb);
                 Main.player[0].Center = limb.destinationTile;
                 Main.NewText(limb.destinationTile);
             }
@@ -65,12 +65,12 @@ namespace Insignia.Core.Common.Systems
             {
                 Limb limb = WhichLegsMoveInSuccession[i][j];
                 //Main.NewText(limb.destinationTile);
-                if (limb.destinationTile == limb.endPos && j == WhichLegsMoveInSuccession[i].Count - 1)
+                if (limb.destinationTile == limb.endPos)
                 {
                     for (int k = 0; k < WhichLegsMoveInSuccession[next].Count; k++)
                     {
                         Limb nextMovingLimb = WhichLegsMoveInSuccession[next][k];
-                        nextMovingLimb.destinationTile = GetDestinationTile(ref nextMovingLimb);
+                        nextMovingLimb.destinationTile = GetDestinationTile(nextMovingLimb);
                     }
                     i++;
                     if (i >= WhichLegsMoveInSuccession.Count)
@@ -92,6 +92,10 @@ namespace Insignia.Core.Common.Systems
                 for (int i = 0; i < Limbs.Count; i++)
                 {
                     Limb limb = Limbs[i];
+
+                    float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
+                    float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
+                    
 
                     int leftOrRight = 1;
                     if (!limb.bendsFowards)
@@ -118,11 +122,20 @@ namespace Insignia.Core.Common.Systems
             SafePreDraw(spriteBatch, screenPos, drawColor);
             return false;
         }
+        public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+        {
+            for (int i = 0; i < Limbs.Count; i++)
+            {
+                Limb limb = Limbs[i]; float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
+                float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); 
+                limb.endPos = limb.attachedJointPos + limb.attachedJointPos.DirectionTo(limb.endPos) * length;
+            }
+        }
         public abstract void SafeOnSpawn(IEntitySource entitySource);
         public abstract void SafeAI();
         public virtual bool SafePreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) { return true; }
         public virtual void LegMovement(ref Limb limb, Vector2 targetTile) { }
-        public virtual Vector2 GetDestinationTile(ref Limb limb) { return default; }
+        public virtual Vector2 GetDestinationTile(Limb limb) { return default; }
         //public virtual bool CustomDrawLimbs(SpriteBatch sb) { return false; }
 
         /// <param name="limbLength1">The length of the first limb segment.</param>
@@ -132,9 +145,9 @@ namespace Insignia.Core.Common.Systems
         /// <returns>Returns the correct rotations of the limbs in an array</returns>
         protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos) //not sure why i named it footpos instead of endpos lol
         {
-            float maxLimbDist = limbLength1 + limbLength2;
+            float maxLimbDist = limbLength1 + limbLength2 - 0.01f; //subtracting by 0.01 to avoid NaN errors
 
-            float length = MathHelper.Clamp(Vector2.Distance(joint, footpos), Math.Abs(limbLength1 - limbLength2), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
+            float length = MathHelper.Clamp(Vector2.Distance(joint, footpos), Math.Abs(limbLength1 - limbLength2), maxLimbDist); 
             footpos = joint + joint.DirectionTo(footpos) * length;
 
             float a = joint.Distance(footpos);
@@ -147,5 +160,17 @@ namespace Insignia.Core.Common.Systems
 
             return new float[2] { rotation1, rotation2 };
         }
+        /*protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, Vector2 footpos) //not sure why i named it footpos instead of endpos lol
+        {
+            float a = joint.Distance(footpos);
+
+            if (a <= Math.Abs(limbLength1 - limbLength2))
+                a = Math.Abs(limbLength1 - limbLength2);
+
+            float rotation1 = (float)Math.Acos((limbLength1 * limbLength1 + a * a - limbLength2 * limbLength2) / (2 * limbLength1 * a));
+            float rotation2 = (float)Math.Acos((-limbLength1 * limbLength1 + a * a + limbLength2 * limbLength2) / (2 * limbLength2 * a));
+
+            return new float[2] { rotation1, rotation2 };
+        }*/
     }
 }

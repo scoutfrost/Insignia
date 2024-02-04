@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using Terraria;
-using Insignia.Core.Particles;
-using ReLogic.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Insignia.Core.Particles
 {
@@ -23,10 +16,14 @@ namespace Insignia.Core.Particles
         public int TimeLeft;
         public Rectangle? Frame;
         public int? Alpha;
-        public virtual void CustomDraw(SpriteBatch sb) { }
-        public virtual void Update() { }
+
+        public virtual void CustomDraw(SpriteBatch sb)
+        { }
+
+        public virtual void Update()
+        { }
+
         public virtual bool ShouldCustomDraw => false;
         public virtual bool Kill => false;
     }
 }
-

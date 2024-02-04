@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.GameContent.ItemDropRules;
-using Terraria.ID;
-using Terraria.ModLoader;
-using Terraria.GameContent.Bestiary;
-using Terraria.ModLoader.Utilities;
-using Terraria.DataStructures;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Terraria;
 
 namespace Insignia.Core.Common.Systems
 {
@@ -23,12 +12,22 @@ namespace Insignia.Core.Common.Systems
         public Color Color { get; protected set; }
         public Vector2[] Points { get; protected set; }
         public float Width { get; protected set; }
-        public virtual void Update() { }
-        public virtual void SetShaders() { }
-        public virtual void OnKill() { }
-        public virtual void CustomDraw(GraphicsDevice graphicsDevice) { }
+
+        public virtual void Update()
+        { }
+
+        public virtual void SetShaders()
+        { }
+
+        public virtual void OnKill()
+        { }
+
+        public virtual void CustomDraw(GraphicsDevice graphicsDevice)
+        { }
+
         public virtual bool ShouldCustomDraw => false;
         public virtual bool ShouldBasicDraw => true;
+
         public void Draw()
         {
             Vertices = new VertexPositionColorTexture[Points.Length * 2];
@@ -36,7 +35,7 @@ namespace Insignia.Core.Common.Systems
                 CustomDraw(GD);
 
             if (ShouldBasicDraw && Points != null)
-                GenerateVertices(Points, Width, Color);   
+                GenerateVertices(Points, Width, Color);
             SetShaders();
 
             RasterizerState rasterizerState = new()
@@ -55,7 +54,7 @@ namespace Insignia.Core.Common.Systems
                 GD.DrawUserPrimitives(PrimitiveType.TriangleStrip, Vertices, 0, Vertices.Length / 3);
             }
         }
-       
+
         private void GenerateVertices(Vector2[] points, float width, Color color)
         {
             int max = points.Length;
@@ -72,7 +71,6 @@ namespace Insignia.Core.Common.Systems
 
                 Vertices[i] = new(new Vector3(current, 0) + normal, color, Vector2.One);
                 Vertices[i + 1] = new(new Vector3(current, 0) - normal, color, Vector2.One);
-                
             }
         }
     }

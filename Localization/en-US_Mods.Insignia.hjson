@@ -27,6 +27,8 @@ Projectiles: {
 	BloodIceSpear.DisplayName: Blood Ice Spear
 	PermafrostPendantExplosion.DisplayName: Permafrost Pendant Explosion
 	CrystalScytheProjectile.DisplayName: Crystal Scythe Projectile
+	CryshotProj.DisplayName: Cryshot Proj
+	CyroProj.DisplayName: Cyro Proj
 }
 
 NPCs: {
@@ -34,6 +36,7 @@ NPCs: {
 	IcerockSlime1.DisplayName: Icerock Slime1
 	IcerockSlime2.DisplayName: Icerock Slime2
 	TestNPC.DisplayName: Test N P C
+	AuratailEel.DisplayName: Auratail Eel
 }
 
 Items: {
@@ -82,6 +85,11 @@ Items: {
 
 	CrystalScythe: {
 		DisplayName: Crystal Scythe
+		Tooltip: ""
+	}
+
+	Cryobite: {
+		DisplayName: Cryobite
 		Tooltip: ""
 	}
 }

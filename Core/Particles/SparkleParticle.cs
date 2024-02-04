@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using Terraria;
 
 namespace Insignia.Core.Particles
@@ -21,11 +15,12 @@ namespace Insignia.Core.Particles
             TextureName = "SparkleParticle";
             Alpha = alpha;
         }
+
         public override void Update()
         {
             Lighting.AddLight(Position, Color.R / 255, Color.G / 255, Color.B / 255);
             Velocity = Velocity.RotatedByRandom(MathHelper.ToRadians(2)) * 0.99f;
-            Size *= 0.97f;
+            Size *= 0.90f;
             AngularVelocity = Velocity.ToRotation();
         }
     }

@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.ID;
-using Insignia.Prim;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Insignia.Core.Common.Systems;
+using System;
+using System.Collections.Generic;
+using Terraria;
 using Terraria.DataStructures;
-using Microsoft.CodeAnalysis;
+using Terraria.ModLoader;
 
 namespace Insignia.Core.Common.Systems
 {
@@ -32,13 +25,14 @@ namespace Insignia.Core.Common.Systems
             limbSegmentTextures = limbTextures;
             destinationTile = new();
         }
-        
     }
-	public abstract class ProcedurallyAnimatedNPC : ModNPC
-	{
-        int i = 0;
+
+    public abstract class ProcedurallyAnimatedNPC : ModNPC
+    {
+        private int i = 0;
         protected List<List<Limb>> WhichLegsMoveInSuccession = new();
         protected List<Limb> Limbs = new();
+
         public override void OnSpawn(IEntitySource source)
         {
             SafeOnSpawn(source);
@@ -50,6 +44,7 @@ namespace Insignia.Core.Common.Systems
                 Main.NewText(limb.destinationTile);
             }
         }
+
         public override void AI()
         {
             SafeAI();
@@ -81,6 +76,7 @@ namespace Insignia.Core.Common.Systems
             Main.NewText(i);
             //Main.NewText(next);
         }
+
         //hardcoded but uhhh ummm
         //i'll cross that bridge when i get to it
 
@@ -95,7 +91,6 @@ namespace Insignia.Core.Common.Systems
 
                     float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
                     float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
-                    
 
                     int leftOrRight = 1;
                     if (!limb.bendsFowards)
@@ -122,20 +117,30 @@ namespace Insignia.Core.Common.Systems
             SafePreDraw(spriteBatch, screenPos, drawColor);
             return false;
         }
+
         public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             for (int i = 0; i < Limbs.Count; i++)
             {
                 Limb limb = Limbs[i]; float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
-                float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); 
+                float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f);
                 limb.endPos = limb.attachedJointPos + limb.attachedJointPos.DirectionTo(limb.endPos) * length;
             }
         }
+
         public abstract void SafeOnSpawn(IEntitySource entitySource);
+
         public abstract void SafeAI();
-        public virtual bool SafePreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) { return true; }
-        public virtual void LegMovement(ref Limb limb, Vector2 targetTile) { }
-        public virtual Vector2 GetDestinationTile(Limb limb) { return default; }
+
+        public virtual bool SafePreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+        { return true; }
+
+        public virtual void LegMovement(ref Limb limb, Vector2 targetTile)
+        { }
+
+        public virtual Vector2 GetDestinationTile(Limb limb)
+        { return default; }
+
         //public virtual bool CustomDrawLimbs(SpriteBatch sb) { return false; }
 
         /// <param name="limbLength1">The length of the first limb segment.</param>
@@ -147,7 +152,7 @@ namespace Insignia.Core.Common.Systems
         {
             float maxLimbDist = limbLength1 + limbLength2 - 0.01f; //subtracting by 0.01 to avoid NaN errors
 
-            float length = MathHelper.Clamp(Vector2.Distance(joint, footpos), Math.Abs(limbLength1 - limbLength2), maxLimbDist); 
+            float length = MathHelper.Clamp(Vector2.Distance(joint, footpos), Math.Abs(limbLength1 - limbLength2), maxLimbDist);
             footpos = joint + joint.DirectionTo(footpos) * length;
 
             float a = joint.Distance(footpos);
@@ -160,6 +165,7 @@ namespace Insignia.Core.Common.Systems
 
             return new float[2] { rotation1, rotation2 };
         }
+
         /*protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, Vector2 footpos) //not sure why i named it footpos instead of endpos lol
         {
             float a = joint.Distance(footpos);

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.ModLoader;
-using Terraria.ID;
 using Terraria.DataStructures;
-using Microsoft.Xna.Framework;
+using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -21,17 +16,18 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Item.DamageType = DamageClass.Melee;
             Item.rare = ItemRarityID.Green;
 
-			Item.useTime = 8; 
-			Item.useAnimation = 8; 
-			Item.useStyle = ItemUseStyleID.Shoot;
-			Item.autoReuse = false;
+            Item.useTime = 8;
+            Item.useAnimation = 8;
+            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.autoReuse = false;
 
-			Item.knockBack = 5f; 
-			Item.noMelee = true; 
+            Item.knockBack = 5f;
+            Item.noMelee = true;
             Item.noUseGraphic = true;
 
-			Item.shoot = ModContent.ProjectileType<TestProj>();
-		}
+            Item.shoot = ModContent.ProjectileType<TestProj>();
+        }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             //player.GetModPlayer<TestProjPlayer>().SwingCount++;

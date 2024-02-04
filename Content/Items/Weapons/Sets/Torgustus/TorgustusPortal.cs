@@ -1,17 +1,10 @@
-﻿using Terraria.Audio;
-using Terraria.ID;
-using Terraria.ModLoader;
-using Terraria;
+﻿using Insignia.Helpers;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using System.Collections.Generic;
-using Terraria.DataStructures;
-using System;
-using Microsoft.Xna.Framework.Input;
 using System.Linq;
-using Insignia.Helpers;
-using Insignia.Content.Items.Weapons.Sets.Torgustus;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.ModLoader;
 
 namespace Insignia.Content.Items.Weapons.Sets.Torgustus
 {
@@ -28,13 +21,17 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Projectile.aiStyle = -1;
             Projectile.scale = 1;
         }
+
         public override bool? CanDamage() => false;
+
         public override void OnSpawn(IEntitySource source)
         {
             Projectile.Center = Main.MouseWorld;
         }
-        Player player => Main.player[Projectile.owner];
-        Projectile otherPortal;
+
+        private Player player => Main.player[Projectile.owner];
+        private Projectile otherPortal;
+
         public override void AI()
         {
             Projectile.velocity = Vector2.Zero;
@@ -48,10 +45,12 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             if (portals.Count > 1)
             {
                 int index = player.GetModPlayer<TorgustusPortalPlayer>().portalsActive.IndexOf(Projectile);
-                if (portals[index] == portals.FirstOrDefault()) {
+                if (portals[index] == portals.FirstOrDefault())
+                {
                     otherPortal = portals[index + 1];
                 }
-                else {
+                else
+                {
                     otherPortal = portals[index - 1];
                 }
                 //if (portals.any())
@@ -69,16 +68,19 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 }
             }
         }
+
         public override bool PreDraw(ref Color lightColor)
         {
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, Color.Orange, 1);
             return false;
         }
+
         public override void OnKill(int timeLeft)
         {
             player.GetModPlayer<TorgustusPortalPlayer>().portalsActive.Remove(Projectile);
         }
     }
+
     public class TorgustusPortalPlayer : ModPlayer
     {
         public List<Projectile> portalsActive = new();

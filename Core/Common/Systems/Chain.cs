@@ -1,22 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.ID;
-using Insignia.Prim;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Insignia.Core.Common.Systems;
-using Terraria.DataStructures;
-using Microsoft.CodeAnalysis;
-using Insignia.Content.Items.Weapons.Sets.Torgustus;
-using Terraria.Audio;
-using Terraria.GameContent.Creative;
-using Insignia.Core.Particles;
-using Microsoft.Xna.Framework.Graphics.PackedVector;
+using System.Collections.Generic;
+using Terraria;
+using Terraria.ModLoader;
 
 namespace Insignia
 {
@@ -28,10 +14,12 @@ namespace Insignia
             Chain chain = new(startpos, endpos, pointCount, lengthBetweenPoints, chainWeight, drag, gravity, isStartPosStationary);
             chains.Add(chain);
         }*/
+
         public void Create(Chain chain)
         {
             chains.Add(chain);
         }
+
         public override void PostUpdateProjectiles()
         {
             foreach (Chain chain in chains)
@@ -39,22 +27,24 @@ namespace Insignia
                 chain.UpdateChain();
             }
         }
+
         public override void PostDrawTiles()
         {
             foreach (Chain chain in chains)
                 chain.DrawChain();
         }
     }
+
     public class Chain
     {
         public ChainPoint[] points;
-        Vector2 start;
-        float drag;
-        float lengthBetweenPoints;
-        Texture2D texture;
-        Vector2 gravity = new(0, 0.5f);
-        bool collidesWithTiles;
-        bool collidesWithPlayers;
+        private Vector2 start;
+        private float drag;
+        private float lengthBetweenPoints;
+        private Texture2D texture;
+        private Vector2 gravity = new(0, 0.5f);
+        private bool collidesWithTiles;
+        private bool collidesWithPlayers;
 
         //private float weight;
         //might implement weight parameter later but probably not
@@ -82,6 +72,7 @@ namespace Insignia
             }
             texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow", ReLogic.Content.AssetRequestMode.ImmediateLoad);
         }
+
         //TODO: chains weigh more as i increases
         public void UpdateChain()
         {
@@ -112,7 +103,7 @@ namespace Insignia
                     ChainPoint nextpoint = points[i + 1];
                     //gravity *= (points.Length - i) / (20 - weight);
                     Vector2 vel = (point.pos - point.oldPos) * drag;
-                    force *= drag; 
+                    force *= drag;
                     if (collidesWithTiles)
                     {
                         if (Main.tile[(point.pos / 16).ToPoint()].HasTile)
@@ -129,11 +120,11 @@ namespace Insignia
 
                     if (Vector2.Distance(point.pos, lastpoint.pos) != lengthBetweenPoints)
                         point.pos += (point.pos.DirectionTo(nextpoint.pos) * (Vector2.Distance(point.pos, nextpoint.pos) - lengthBetweenPoints) * drag);
-                        //lastpoint.pos += (lastpoint.pos.DirectionTo(point.pos) * (Vector2.Distance(point.pos, lastpoint.pos) - lengthBetweenPoints * var) * drag);
-
+                    //lastpoint.pos += (lastpoint.pos.DirectionTo(point.pos) * (Vector2.Distance(point.pos, lastpoint.pos) - lengthBetweenPoints * var) * drag);
                 }
             }
         }
+
         public void DrawChain()
         {
             if (points.Length > 0)
@@ -158,4 +149,3 @@ namespace Insignia
         internal bool stationary;
     }
 }
-

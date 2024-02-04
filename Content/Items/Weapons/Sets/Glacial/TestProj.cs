@@ -1,18 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.ID;
-using Insignia.Prim;
+using Insignia.Content.NPCS.Icerock;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Insignia.Core.Common.Systems;
+using System;
+using Terraria;
 using Terraria.DataStructures;
-using Microsoft.CodeAnalysis;
-using Insignia.Content.NPCS.Icerock;
+using Terraria.ModLoader;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -30,20 +22,25 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Projectile.tileCollide = false;
             Projectile.ownerHitCheck = true;
         }
-        Chain chain;
+
+        private Chain chain;
         public static Texture2D texture;
+
         public override bool? CanDamage()
         {
             return false;
         }
+
         public override void Load()
         {
             texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow", ReLogic.Content.AssetRequestMode.ImmediateLoad);
         }
+
         public override void Unload()
         {
             texture = null;
         }
+
         public override void OnSpawn(IEntitySource source)
         {
             NPC.NewNPC(Projectile.GetSource_FromThis(), (int)Main.MouseWorld.X, (int)Main.MouseWorld.Y, ModContent.NPCType<TestNPC>());
@@ -52,11 +49,13 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             chain = new(player.Center, player.Center + new Vector2(-1, 10), 10, 15, default, new Vector2(0, 0.2f), true, true, false);
             chaincaller.Create(chain);*/
         }
+
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
             //chain.points[1].pos = player.Center;
         }
+
         /*public override void PostDraw(Color lightColor)
         {
             Player player = Main.player[Projectile.owner];
@@ -75,6 +74,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Main.EntitySpriteDraw(texture, joint2 - Main.screenPosition, texture.Bounds, lightColor,
                             -rotations[1] * leftOrRight + joint2.DirectionTo(joint1).ToRotation(), texture.Size() / 2, new Vector2(limb2Length / 20, 1), SpriteEffects.None, default);
         }*/
+
         public float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos)
         {
             float maxLimbDist = limbLength1 + limbLength2;
@@ -104,9 +104,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         //Dust d = Dust.NewDustPerfect(joint2, DustID.Adamantite, Vector2.Zero);
         //d.noGravity = true;
 
-
         float rotation1 = (float)Math.Acos((limb1Length * limb1Length + a * a - limb2Length * limb2Length) / (2 * limb1Length * a));
         float rotation2 = (float)Math.Acos((-limb1Length * limb1Length + a * a + limb2Length * limb2Length) / (2 * limb2Length * a));*/
     }
 }
-

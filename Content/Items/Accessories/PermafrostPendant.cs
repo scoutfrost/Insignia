@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.ID;
-using Terraria.DataStructures;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.ModLoader;
 
 namespace Insignia.Content.Items.Accessories
 {
     internal class PermafrostPendant : ModItem
     {
         public override string Texture => "Insignia/Content/Items/Accessories/PermafrostPendant";
+
         public override void SetDefaults()
         {
             Item.width = 20;
             Item.height = 20;
             Item.accessory = true;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<AccessoryPlayer>().OnHitNPCEvent += PermafrostPendant_OnHitNPCEvent;
@@ -34,9 +31,11 @@ namespace Insignia.Content.Items.Accessories
             }
         }
     }
+
     public class PermafrostPendantExplosion : ModProjectile
     {
         public override string Texture => "Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow";
+
         public override void SetDefaults()
         {
             Projectile.width = 200;
@@ -49,44 +48,50 @@ namespace Insignia.Content.Items.Accessories
             Projectile.tileCollide = false;
             Projectile.ownerHitCheck = true;
         }
+
         public static Texture2D texture;
+
         public override void Load()
         {
             texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow", ReLogic.Content.AssetRequestMode.ImmediateLoad);
         }
+
         public override void Unload()
         {
             texture = null;
         }
+
         public override void OnSpawn(IEntitySource source)
         {
         }
-        int timer = 0;
-        bool shouldDamage = false;
+
+        private int timer = 0;
+        private bool shouldDamage = false;
+
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
 
             if (timer++ >= 120)
                 shouldDamage = true;
-
-
         }
+
         public override bool? CanDamage()
         {
             return shouldDamage;
         }
     }
-    internal class AccessoryPlayer : ModPlayer 
+
+    internal class AccessoryPlayer : ModPlayer
     {
-        //using events because if it was a method i would have to add each function call to the modplayer and thats annoying and not super clean 
-        //could also use a list/array of delegates then add to that but i like this better 
+        //using events because if it was a method i would have to add each function call to the modplayer and thats annoying and not super clean
+        //could also use a list/array of delegates then add to that but i like this better
         public event Action<NPC, NPC.HitInfo, int, Player> OnHitNPCEvent;
+
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             OnHitNPCEvent?.Invoke(target, hit, damageDone, Entity);
             base.OnHitNPC(target, hit, damageDone);
         }
     }
-
 }

@@ -1,18 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.ID;
-using Insignia.Prim;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Insignia.Core.Common.Systems;
-using Terraria.DataStructures;
-using Microsoft.CodeAnalysis;
 using Insignia.Helpers;
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.ModLoader;
 
 namespace Insignia.Content.Items.Weapons.Sets.Torgustus
 {
@@ -29,15 +21,16 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
         }
-        int i = 0;
-        List<Vector2> keypoints = new();
-        Vector2 mouse;
-        Vector2 vectorToMouse;
-        Vector2 mousew;
-        ProjKeyFrameHandler keyFrameHandler;
+
+        private int i = 0;
+        private List<Vector2> keypoints = new();
+        private Vector2 mouse;
+        private Vector2 vectorToMouse;
+        private Vector2 mousew;
+        private ProjKeyFrameHandler keyFrameHandler;
+
         public override void OnSpawn(IEntitySource source)
         {
-
             Player player = Main.player[Projectile.owner];
             keyFrameHandler = new(KeyFrameInterpolationCurve.Bezier, "Insignia/Content/Items/Weapons/Sets/Torgustus/SwingPointsParabola");
 
@@ -51,11 +44,12 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 i = keypoints.Count;
             }
 
-             keyFrameHandler.ChangePoints(ref keypoints, new ProjKeyFrameHandler.DesiredChange((Vector2 point, int i) =>
-             {
+            keyFrameHandler.ChangePoints(ref keypoints, new ProjKeyFrameHandler.DesiredChange((Vector2 point, int i) =>
+            {
                 return point = new(point.X * 1.75f, point.Y);
-             }));
+            }));
         }
+
         public override void AI()
         {
             Player player = Main.player[Projectile.owner];
@@ -69,6 +63,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
 
             player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.Pi + MathHelper.ToRadians(-21) + MathHelper.PiOver4 * player.direction);
         }
+
         public override bool PreDraw(ref Color lightColor)
         {
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, lightColor, 1);
@@ -76,4 +71,3 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         }
     }
 }
-

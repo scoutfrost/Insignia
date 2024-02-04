@@ -1,27 +1,28 @@
-﻿using Insignia.Content.Items.Weapons.Sets.Torgustus;
+﻿using Insignia.Core.Common.Systems;
+using Insignia.Core.Particles;
+using Insignia.Helpers;
+using Insignia.Prim;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Insignia.Core.Particles;
-using Insignia.Core.Common.Systems;
-using System;
-using System.Collections.Generic;
-using Insignia.Helpers;
-using ReLogic.Content;
-using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
-using Insignia.Prim;
 
 namespace Insignia.Content.Items.Weapons.Sets.Torgustus
 {
     public class TorgustusGreatbow : ModItem
     {
         public override void SetStaticDefaults() => CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+
         public override bool AltFunctionUse(Player player) => !player.HasBuff(ModContent.BuffType<PoweredTorgustusBowCooldown>());
+
         public override void SetDefaults()
         {
             Item.damage = 27;
@@ -42,6 +43,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Item.channel = true;
             Item.useAnimation = 2;
         }
+
         public override bool CanUseItem(Player player)
         {
             if (player.altFunctionUse == 2)
@@ -71,19 +73,24 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             }
             return player.ownedProjectileCounts[Mod.Find<ModProjectile>("TorgustusBowProj").Type] < 1;
         }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer == player.whoAmI && player.altFunctionUse != 2) {
+            if (Main.myPlayer == player.whoAmI && player.altFunctionUse != 2)
+            {
                 Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<TorgustusBowProj>(), damage, knockback, player.whoAmI);
             }
-            
+
             return false;
         }
     }
+
     public class TorgustusBowProj : ModProjectile
     {
         public override string Texture => "Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusBowProj";
+
         public override void SetStaticDefaults() => Main.projFrames[Projectile.type] = 3;
+
         public override void SetDefaults()
         {
             Projectile.DamageType = DamageClass.Ranged;
@@ -95,16 +102,20 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
         }
-        bool rightClicked;
-        int strongArrowIndex;
-        Player player => Main.player[Projectile.owner];
-        Projectile strongArrow;
-        ref float strongArrowTimer => ref Projectile.ai[0];
+
+        private bool rightClicked;
+        private int strongArrowIndex;
+        private Player player => Main.player[Projectile.owner];
+        private Projectile strongArrow;
+        private ref float strongArrowTimer => ref Projectile.ai[0];
+
         public override void OnSpawn(IEntitySource source)
         {
             rightClicked = player.GetModPlayer<TorgustusBowPlayer>().hasRightClicked;
         }
+
         public override bool? CanDamage() => false;
+
         public override void AI()
         {
             int frameDelay = (int)(rightClicked ? 30 * player.GetAttackSpeed(DamageClass.Ranged) : 8 * player.GetAttackSpeed(DamageClass.Ranged));
@@ -121,15 +132,18 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 Projectile.rotation = player.Center.DirectionTo(Main.MouseWorld).ToRotation();
                 Projectile.Center = player.Center + player.Center.DirectionTo(Main.MouseWorld).ToRotation().ToRotationVector2() * 10;
                 Projectile.netUpdate = true;
-                if (!player.channel) {
+                if (!player.channel)
+                {
                     Projectile.Kill();
                 }
                 Projectile.frameCounter++;
 
-                if (Projectile.frameCounter % frameDelay == 0) {
+                if (Projectile.frameCounter % frameDelay == 0)
+                {
                     Projectile.frame++;
                 }
-                if (Projectile.frame == 3 && !rightClicked) {
+                if (Projectile.frame == 3 && !rightClicked)
+                {
                     Shoot();
                 }
                 if (Projectile.frame >= 3)
@@ -147,7 +161,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 }
                 if (rightClicked && Projectile.frame == 0 && Main.myPlayer == Projectile.owner)
                 {
-                    if (strongArrowTimer == 1) {
+                    if (strongArrowTimer == 1)
+                    {
                         strongArrowIndex = Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ModContent.ProjectileType<TorgustusArrow>(), 0, 1, Projectile.owner, 0, 0);
                         player.GetModPlayer<TorgustusBowPlayer>().arrowType = ModContent.ProjectileType<TorgustusArrow>();
                     }
@@ -159,11 +174,11 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                     {
                         int strongArrowDrawPos = 10 / 6 - Projectile.frame * 2;
                         strongArrow.rotation = Projectile.rotation;
-                        strongArrow.Center = Projectile.Center + new Vector2(strongArrowDrawPos * player.direction ,0);
+                        strongArrow.Center = Projectile.Center + new Vector2(strongArrowDrawPos * player.direction, 0);
                     }
                 }
 
-                if (rightClicked && player.channel && strongArrowTimer == frameDelay * 3) 
+                if (rightClicked && player.channel && strongArrowTimer == frameDelay * 3)
                 {
                     for (int i = 0; i < 40; i++)
                     {
@@ -174,11 +189,13 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
 
                 if (!player.channel && rightClicked)
                 {
-                    if (strongArrowTimer >= frameDelay * 3) {
+                    if (strongArrowTimer >= frameDelay * 3)
+                    {
                         strongArrow.velocity = Projectile.DirectionTo(Main.MouseWorld) * 25;
                         strongArrow.timeLeft = 300;
                     }
-                    else {
+                    else
+                    {
                         strongArrow.velocity = Projectile.DirectionTo(Main.MouseWorld) * 3 * (strongArrowTimer / frameDelay * 3);
                         strongArrow.timeLeft = 120;
                     }
@@ -186,28 +203,33 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                     strongArrow.penetrate = (int)strongArrow.velocity.Length() / 7;
                 }
 
-
-                if (Projectile.frame == 0) {
+                if (Projectile.frame == 0)
+                {
                     player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation - MathHelper.PiOver2);
                 }
-                if (Projectile.frame == 1) {
+                if (Projectile.frame == 1)
+                {
                     player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.ThreeQuarters, Projectile.rotation - MathHelper.PiOver2);
                 }
-                if (Projectile.frame == 2) {
+                if (Projectile.frame == 2)
+                {
                     player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Quarter, Projectile.rotation - MathHelper.PiOver2);
                 }
             }
         }
+
         public override bool PreDraw(ref Color lightColor)
         {
             Color color = rightClicked ? Color.FloralWhite : lightColor;
-            if (rightClicked) {
+            if (rightClicked)
+            {
                 ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, new Color(255, 80, 40, 0), 1.2f);
             }
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, color, 1);
             return false;
         }
-        void Shoot()
+
+        private void Shoot()
         {
             if (!player.PickAmmo(player.HeldItem, out int type, out float speed, out int damage, out float knockBack, out int ammoItemID, false))
             {
@@ -216,21 +238,25 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             }
 
             SoundEngine.PlaySound(SoundID.Item5, Projectile.Center);
-            if (!rightClicked) {
+            if (!rightClicked)
+            {
                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.DirectionTo(Main.MouseWorld) * 12, type, damage, 1, Projectile.owner, 0, 0);
             }
-            
+
             player.GetModPlayer<TorgustusBowPlayer>().arrowType = type;
         }
     }
+
     internal class TorgustusArrow : ModProjectile
     {
         public override string Texture => "Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow";
+
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 16;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
         }
+
         public override void SetDefaults()
         {
             Projectile.width = 20;
@@ -241,37 +267,47 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Projectile.tileCollide = false;
             Projectile.aiStyle = -1;
         }
-        Vector2 mouse;
-        Player player => Main.player[Projectile.owner];
+
+        private Vector2 mouse;
+        private Player player => Main.player[Projectile.owner];
+
         public override void OnSpawn(IEntitySource source)
         {
             mouse = Main.MouseWorld;
         }
+
         public override Color? GetAlpha(Color lightColor) => Color.White;
+
         public override void AI()
         {
-            if (Projectile.ai[1] == 1) { // aka checking if its been through a portal
+            if (Projectile.ai[1] == 1)
+            { // aka checking if its been through a portal
                 Projectile.velocity *= 1.03f;
             }
-            if (Projectile.velocity.Length() < 25) {
+            if (Projectile.velocity.Length() < 25)
+            {
                 Projectile.velocity *= 0.97f;
             }
         }
+
         private static Asset<Texture2D> telegraphTexture;
+
         public override void Load()
         {
             telegraphTexture = ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusBowTelegraph");
         }
-        public override void Unload() 
-        { 
-            telegraphTexture = null; 
+
+        public override void Unload()
+        {
+            telegraphTexture = null;
         }
 
-        int primTimer = 0;
-        float lengthOfHitlineIntersect;
-        float collisionPoint = 0;
-        bool collidingWithPortal;
-        ref float ScaleTimer => ref Projectile.ai[0];
+        private int primTimer = 0;
+        private float lengthOfHitlineIntersect;
+        private float collisionPoint = 0;
+        private bool collidingWithPortal;
+        private ref float ScaleTimer => ref Projectile.ai[0];
+
         public override bool PreDraw(ref Color lightColor)
         {
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, Color.LightYellow, 1);
@@ -332,7 +368,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                 collidingWithPortal = false;
             }
 
-            if (lengthOfHitlineIntersect > hitLength) {
+            if (lengthOfHitlineIntersect > hitLength)
+            {
                 lengthOfHitlineIntersect = hitLength;
             }
             var exitPortal = portals.Where(proj => proj.active && !Collision.CheckAABBvLineCollision(proj.Center, proj.Hitbox.Size(), Projectile.Center, hitLine, 8 * Projectile.scale, ref collisionPoint));
@@ -346,15 +383,17 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
                         Color.LightGoldenrodYellow * 0.7f, Projectile.rotation + MathHelper.Pi, telegraphTexture.Size(), collidingWithPortal ? -scale : scale, SpriteEffects.FlipHorizontally, default);
                 }
             }
-            else {
+            else
+            {
                 lengthOfHitlineIntersect = 0;
             }
-            //drawing telegraph on way in portal 
+            //drawing telegraph on way in portal
             Main.EntitySpriteDraw(telegraphTexture.Value, Projectile.Center + drawingVectors,
                 new Rectangle(0, 0, telegraphTexture.Width() - (int)lengthOfHitlineIntersect, telegraphTexture.Height()),
                 Color.LightGoldenrodYellow * 0.7f, Projectile.rotation, telegraphTexture.Size(), scale, SpriteEffects.None, default);
             return false;
         }
+
         public override void OnKill(int timeLeft)
         {
             if (Projectile.velocity.Length() > 10)
@@ -380,6 +419,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             }
         }
     }
+
     public class PoweredTorgustusBowCooldown : ModBuff
     {
         public override void SetStaticDefaults()
@@ -387,6 +427,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             Main.debuff[Type] = true;
         }
     }
+
     internal class TorgustusBowPlayer : ModPlayer
     {
         public int poweredShotCount;

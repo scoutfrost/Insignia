@@ -1,21 +1,15 @@
 ﻿using Insignia.Content.Items.Misc;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
 using Terraria;
-using Terraria.Audio;
-using Terraria.DataStructures;
-using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Utilities;
 
 namespace Insignia.Content.NPCS.Icerock
 {
     public class IcerockSlime2 : ModNPC
     {
-
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[NPC.type] = 2;
@@ -26,7 +20,6 @@ namespace Insignia.Content.NPCS.Icerock
                 Velocity = 1f // Draws the NPC in the bestiary as if its walking +1 tiles in the x direction
             };
             NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, value);
-
         }
 
         public override void SetDefaults()
@@ -44,34 +37,31 @@ namespace Insignia.Content.NPCS.Icerock
             NPC.netAlways = true;
             NPC.netUpdate = true;
             NPC.defense = 1;
-
         }
+
         public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             Color color = GetAlpha(Color.LightBlue) ?? Color.LightBlue;
 
             if (NPC.IsABestiaryIconDummy)
                 color = Color.LightBlue;
-
         }
-     
+
         private int dustTimer;
 
         public override void AI()
         {
-            Lighting.AddLight(NPC.position, r: 0.1f, g: 0.15f, b: 0.3f) ;
+            Lighting.AddLight(NPC.position, r: 0.1f, g: 0.15f, b: 0.3f);
 
             NPC.TargetClosest(true);
             dustTimer++;
 
             Player player = Main.player[NPC.target];
 
-
             NPC.velocity *= 1.013f;
             NPC.spriteDirection = NPC.direction;
 
             if (dustTimer >= 50)
-
 
             {
                 for (int i = 0; i < 60; i++)
@@ -93,24 +83,19 @@ namespace Insignia.Content.NPCS.Icerock
                 NPC.frameCounter = 0;
             NPC.frame.Y = (int)NPC.frameCounter / 10 * frameHeight;
         }
-       
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<GlacialChunkItem>(), 2, 2, 3));
             npcLoot.Add(ItemDropRule.Common(ItemID.IceBlock, 3, 2, 4));
             npcLoot.Add(ItemDropRule.Common(ItemID.Gel, 1, 2, 4));
-
         }
 
         public override void HitEffect(NPC.HitInfo hit)
         {
-
             for (int i = 0; i < 23; i++)
             {
-
                 Dust.NewDust(NPC.position, NPC.width, NPC.height, DustID.Ice, 2.5f * hit.HitDirection, -2.5f, 0, Color.White, 0.6f);
-
             }
         }
     }

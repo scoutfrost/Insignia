@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.ID;
-using Terraria.DataStructures;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Insignia.Core.Common.Systems;
+﻿using Insignia.Core.Common.Systems;
 using Insignia.Helpers;
 using Insignia.Prim;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -36,22 +32,28 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
             Item.shoot = ModContent.ProjectileType<CrystalScytheProjectile>();
         }
+
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             return base.Shoot(player, source, position, velocity, type, damage, knockback);
         }
     }
+
     public class CrystalScytheProjectile : ModProjectile
     {
         public override string Texture => "Insignia/Content/Items/Weapons/Sets/Glacial/CrystalScythe";
-        static Texture2D tex;
+        private static Texture2D tex;
+
         public override void Load() => tex = (Texture2D)ModContent.Request<Texture2D>(Texture, ReLogic.Content.AssetRequestMode.ImmediateLoad);
+
         public override void Unload() => tex = null;
+
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 4;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
         }
+
         public override void SetDefaults()
         {
             Projectile.width = 50;
@@ -63,23 +65,26 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Projectile.tileCollide = false;
             Projectile.ownerHitCheck = true;
         }
-        ProjKeyFrameHandler handler;
-        Vector2 mouse;
-        List<Vector2> points;
-        int i; 
-        Vector2 vectorToMouse;
-        Player Player => Main.player[Projectile.owner];
+
+        private ProjKeyFrameHandler handler;
+        private Vector2 mouse;
+        private List<Vector2> points;
+        private int i;
+        private Vector2 vectorToMouse;
+        private Player Player => Main.player[Projectile.owner];
+
         public override void OnSpawn(IEntitySource source)
         {
             handler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints", 23);
             points = handler.GetPoints(30);
 
             vectorToMouse = Player.Center.DirectionTo(Main.MouseWorld);
-           
+
             i = points.Count - 1;
             if (Player.direction == 1)
                 i = 0;
         }
+
         public override void AI()
         {
             float rotOffset = Player.direction == 1 ? MathHelper.Pi : 0;
@@ -89,7 +94,9 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
             Player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + (Player.direction == 1 ? MathHelper.PiOver4 : MathHelper.PiOver2 + MathHelper.PiOver4));
         }
-        float time;
+
+        private float time;
+
         public override bool PreDraw(ref Color lightColor)
         {
             if (Player.direction == -1)

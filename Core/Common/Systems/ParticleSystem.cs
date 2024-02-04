@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Insignia.Core.Particles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Insignia.Core.Particles;
+using ReLogic.Content;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using ReLogic.Content;
 
 namespace Insignia.Core.Common.Systems
 {
@@ -15,6 +12,7 @@ namespace Insignia.Core.Common.Systems
     {
         public static List<Particle> particles = new List<Particle>();
         private static readonly int maxParticles = 500;
+
         public static void GenerateParticle(params Particle[] p)
         {
             foreach (Particle particle in p)
@@ -23,6 +21,7 @@ namespace Insignia.Core.Common.Systems
                     particles.Add(particle);
             }
         }
+
         public static void UpdateParticles()
         {
             for (int particle = 0; particle < particles.Count; particle++)
@@ -39,6 +38,7 @@ namespace Insignia.Core.Common.Systems
                 }
             }
         }
+
         public static void Draw()
         {
             foreach (Particle Particle in particles)
@@ -66,6 +66,7 @@ namespace Insignia.Core.Common.Systems
                 }
             }
         }
+
         public static void AnimateFromVerticalSpritesheet(Particle particle, int numberOfFrames, int animSpeed = 5, int? animTimer = null)
         {
             if (particle != null)
@@ -76,10 +77,10 @@ namespace Insignia.Core.Common.Systems
                 particle.Frame = Utils.Frame(particle.Texture, 1, numberOfFrames, 0, whichFrame, 0, 0);
             }
         }
+
         public static void Unload()
         {
             particles = null;
         }
     }
 }
-

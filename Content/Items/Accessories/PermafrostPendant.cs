@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.DataStructures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Insignia.Helpers;
 
 namespace Insignia.Content.Items.Accessories
 {
@@ -21,16 +22,25 @@ namespace Insignia.Content.Items.Accessories
             Item.height = 20;
             Item.accessory = true;
         }
+        //Player player;
+        AccessoryPlayer player;
+        bool hasSubscribed = false;
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            player.GetModPlayer<AccessoryPlayer>().OnHitNPCEvent += PermafrostPendant_OnHitNPCEvent;
+            //this.player = player;
+            if (!hasSubscribed)
+            {
+                player.GetModPlayer<AccessoryPlayer>().OnHitNPCEvent += PermafrostPendant_OnHitNPCEvent;
+                this.player = player.GetModPlayer<AccessoryPlayer>();
+                hasSubscribed = true;
+            }
         }
 
-        private void PermafrostPendant_OnHitNPCEvent(NPC target, NPC.HitInfo hit, int damageDone, Player player)
+        internal void PermafrostPendant_OnHitNPCEvent(NPC target, NPC.HitInfo hit, int damageDone, Player player)
         {
-            if (hit.Crit)
+            if (hit.Crit && !target.active && !target.CountsAsACritter)
             {
-                Projectile.NewProjectile(player.GetSource_Accessory(Entity), target.Center, Vector2.Zero, ModContent.ProjectileType<PermafrostPendantExplosion>(), 75, 0);
+                Projectile.NewProjectile(player.GetSource_Accessory(Entity), target.Center, Vector2.Zero, ModContent.ProjectileType<PermafrostPendantExplosion>(), 90, 0, Main.player.ToList().IndexOf(player));
             }
         }
     }
@@ -65,12 +75,33 @@ namespace Insignia.Content.Items.Accessories
         bool shouldDamage = false;
         public override void AI()
         {
+            int maxdist = 200;
             Player player = Main.player[Projectile.owner];
+
+            if (shouldDamage)
+                Projectile.Kill();
 
             if (timer++ >= 120)
                 shouldDamage = true;
+            
+            var targets = Main.npc.Where(npc => npc.active && npc.type != NPCID.TargetDummy && Projectile.Center.DistanceSQ(npc.Center) < maxdist * maxdist);
 
-
+            foreach (var npc in targets)
+            {
+                if (shouldDamage)
+                {
+                    npc.velocity += npc.DirectionFrom(Projectile.Center).RotatedByRandom(MathHelper.ToRadians(10)) * 2;
+                }
+                else
+                {
+                    npc.velocity += npc.DirectionTo(Projectile.Center).RotatedByRandom(MathHelper.ToRadians(10)) * 0.05f;
+                }
+            }
+        }
+        public override bool PreDraw(ref Color lightColor)
+        {
+            ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, lightColor, 1);
+            return false;
         }
         public override bool? CanDamage()
         {
@@ -88,5 +119,4 @@ namespace Insignia.Content.Items.Accessories
             base.OnHitNPC(target, hit, damageDone);
         }
     }
-
 }

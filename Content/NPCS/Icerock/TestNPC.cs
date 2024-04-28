@@ -41,22 +41,20 @@ namespace Insignia.Content.NPCS.Icerock
         }
         public override void SafeOnSpawn(IEntitySource source)
         {
-            for (int i = 0; i < 2; i++)
-            {
-                Limb limb = new(NPC.Center, NPC.Center + new Vector2(0, 10), new Texture2D[2] {texture, texture}, new float[2] { 20, 20 });
+            Limb limb = new(NPC.Center, NPC.Center + new Vector2(0, 10), new Texture2D[2] {texture, texture}, new float[2] { 60, 60 });
+            Limb limb2 = new(NPC.Center, NPC.Center + new Vector2(-20, 10), new Texture2D[2] {texture, texture}, new float[2] { 60, 60 });
 
-                float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
-                float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
-                //limb.endPos = limb.attachedJointPos + limb.attachedJointPos.DirectionTo(limb.endPos) * length;
-
-                Limbs.Add(limb);
-                WhichLegsMoveInSuccession.Add(new List<Limb>());
-                WhichLegsMoveInSuccession[i].Add(limb);
-            }
+            limb.bendsFowards = false;
+            limb2.bendsFowards = false;
+            Limbs.Add(limb);
+            Limbs.Add(limb2);
+            WhichLegsMoveInSuccession.Add(new List<Limb>());
+            WhichLegsMoveInSuccession.Add(new List<Limb>());
+            WhichLegsMoveInSuccession[0].Add(limb); 
+            WhichLegsMoveInSuccession[1].Add(limb2);
         }
         public override void SafeAI()
         {
-            //NPC.velocity = (Main.MouseWorld - NPC.Center).SafeNormalize(Vector2.Zero) * 10;
             NPC.Center = Main.MouseWorld;
             for (int i = 0; i < Limbs.Count; i++)
             {
@@ -72,38 +70,27 @@ namespace Insignia.Content.NPCS.Icerock
                 Dust d2 = Dust.NewDustPerfect(l.endPos, DustID.ArgonMoss, Vector2.Zero);
                 d2.noGravity = true;
             }
-            //NPC.Center = Main.MouseWorld;
         }
+        Vector2 tile;
         public override Vector2 GetDestinationTile(Limb limb)
         {
-            //Vector2 vel = NPC.position - NPC.oldPosition;
-
-            float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1] - 0.01f;
-
-            return limb.endPos + new Vector2(Helpers.Helper.Pythagoras(default, distanceFromGround, maxLimbDist), 0);// * vel;
+            tile = NPC.Center + new Vector2(20, 0);
+            int i = 0;
+            while (WorldGen.TileEmpty((int)tile.X / 16, (int)tile.Y / 16))
+            {
+                i++;
+                tile = NPC.Center + new Vector2(20, i);
+            }
+            return tile;
         }
         float t = 0;
-        float distanceFromGround = 20;
         public override void LegMovement(ref Limb limb, Vector2 targetTile)
         {
-            float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1] - 0.01f; //subtracting by 0.01 to avoid NaN errors
-           
-
-           
             t += 0.01f;
-            if (limb.endPos.Distance(NPC.Center) >= maxLimbDist)
-            {
-                limb.endPos = Vector2.Lerp(limb.endPos, targetTile, t);
-            }
-
-            //limb.endPos *= length;
+            limb.endPos = Vector2.Lerp(limb.endPos, targetTile, t);
+            
             if (t >= 1)
                 t = 0;
-
-            //Main.NewText(limb.endPos);
-            //Main.NewText(t);
-            //Main.NewText(limb.destinationTile);
-            //Main.NewText("CRAXWAXAXAXWXWAX");
         }
     }
 }

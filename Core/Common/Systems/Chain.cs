@@ -28,7 +28,7 @@ namespace Insignia
             Chain chain = new(startpos, endpos, pointCount, lengthBetweenPoints, chainWeight, drag, gravity, isStartPosStationary);
             chains.Add(chain);
         }*/
-        public void Create(Chain chain)
+        public static void Create(Chain chain)
         {
             chains.Add(chain);
         }

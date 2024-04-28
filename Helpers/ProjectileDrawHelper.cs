@@ -17,13 +17,13 @@ namespace Insignia.Helpers
         {
             if (c == default)
                 return (float)Math.Sqrt(a * a + b * b);
-            
+
             if (a == default)
                 return (float)Math.Sqrt(c * c - b * b);
-            
+
             if (b == default)
                 return (float)Math.Sqrt(c * c - a * a);
-            
+
             return default;
         }
     }
@@ -52,12 +52,8 @@ namespace Insignia.Helpers
                  Projectile.Center - Main.screenPosition + new Vector2(0f, Projectile.gfxOffY),
                 sourceRectangle, drawColor, Projectile.rotation, origin, scale, spriteEffects, 0);
         }
-        public static void QuickDrawProjectile(Projectile Projectile, float? offsetX, float? offsetY, string texPath, Color drawColor, Vector2 scale)
+        public static void QuickDrawProjectile(Projectile Projectile, float? offsetX, float? offsetY, string texPath, Color drawColor, Vector2 scale, SpriteEffects sE = default)
         {
-            SpriteEffects spriteEffects = SpriteEffects.None;
-            if (Projectile.spriteDirection == -1 || Projectile.direction == -1)
-                spriteEffects = SpriteEffects.FlipVertically;
-
             Texture2D tex = (Texture2D)ModContent.Request<Texture2D>(texPath);
 
             int frameHeight = tex.Height / Main.projFrames[Projectile.type];
@@ -73,7 +69,7 @@ namespace Insignia.Helpers
 
             Main.EntitySpriteDraw(tex,
                  Projectile.Center - Main.screenPosition + new Vector2(0f, Projectile.gfxOffY),
-                sourceRectangle, drawColor, Projectile.rotation, origin, scale, spriteEffects, 0);
+                sourceRectangle, drawColor, Projectile.rotation, origin, scale, sE, 0);
         }
     }
 }

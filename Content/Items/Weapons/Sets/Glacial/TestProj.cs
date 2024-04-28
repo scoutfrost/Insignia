@@ -13,6 +13,7 @@ using Insignia.Core.Common.Systems;
 using Terraria.DataStructures;
 using Microsoft.CodeAnalysis;
 using Insignia.Content.NPCS.Icerock;
+using Insignia.Core.Particles;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -54,8 +55,9 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         }
         public override void AI()
         {
-            Player player = Main.player[Projectile.owner];
-            //chain.points[1].pos = player.Center;
+            //GenericGlowParticle p = new(Main.MouseWorld, Vector2.Zero, Color.Green, 4, 60, 1, 0.97f, "OpaqueBallParticle");
+            //SparkleParticle s = new(Color.White, 1, Main.MouseWorld, Vector2.Zero, 0);
+            //ParticleSystem.GenerateParticle(p);
         }
         /*public override void PostDraw(Color lightColor)
         {

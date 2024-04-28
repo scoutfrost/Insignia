@@ -23,7 +23,7 @@ namespace Insignia.Core.Common.Systems
         public Vector2 attachedJointPos;
         public Vector2 destinationTile;
         public bool bendsFowards = true;
-
+        internal bool ismoving = false;
         public Limb(Vector2 attachedJoint, Vector2 endPos, Texture2D[] limbTextures, float[] lengthOfLimbSegments)
         {
             attachedJointPos = attachedJoint;
@@ -39,6 +39,7 @@ namespace Insignia.Core.Common.Systems
         int i = 0;
         protected List<List<Limb>> WhichLegsMoveInSuccession = new();
         protected List<Limb> Limbs = new();
+        int maxDistance;
         public override void OnSpawn(IEntitySource source)
         {
             SafeOnSpawn(source);
@@ -46,11 +47,10 @@ namespace Insignia.Core.Common.Systems
             {
                 Limb limb = WhichLegsMoveInSuccession[0][i];
                 limb.destinationTile = GetDestinationTile(limb);
-                Main.player[0].Center = limb.destinationTile;
-                Main.NewText(limb.destinationTile);
+                //Main.player[0].Center = limb.destinationTile;
             }
         }
-        public override void AI()
+        public sealed override void AI()
         {
             SafeAI();
             int next = i + 1;
@@ -64,8 +64,9 @@ namespace Insignia.Core.Common.Systems
             for (int j = 0; j < WhichLegsMoveInSuccession[i].Count; j++)
             {
                 Limb limb = WhichLegsMoveInSuccession[i][j];
-                //Main.NewText(limb.destinationTile);
-                if (limb.destinationTile == limb.endPos)
+                maxDistance = limb.limbSegmentTextures[0].Width + limb.limbSegmentTextures[1].Width * 2;
+
+                if ((limb.destinationTile == limb.endPos) && limb.attachedJointPos.Distance(limb.destinationTile) >= maxDistance)
                 {
                     for (int k = 0; k < WhichLegsMoveInSuccession[next].Count; k++)
                     {
@@ -78,6 +79,7 @@ namespace Insignia.Core.Common.Systems
                 }
                 LegMovement(ref limb, limb.destinationTile);
             }
+
             Main.NewText(i);
             //Main.NewText(next);
         }
@@ -85,7 +87,7 @@ namespace Insignia.Core.Common.Systems
         //i'll cross that bridge when i get to it
 
         //VERY placeholder drawing- TODO: implement post/predraw for limbs drawing behind npc + more flexibility for implemented class
-        public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+        public sealed override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             if (SafePreDraw(spriteBatch, screenPos, drawColor))
             {
@@ -93,8 +95,8 @@ namespace Insignia.Core.Common.Systems
                 {
                     Limb limb = Limbs[i];
 
-                    float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
-                    float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
+                    //float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
+                    //float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); //subtracting by 0.01 to avoid NaN errors
                     
 
                     int leftOrRight = 1;
@@ -112,11 +114,22 @@ namespace Insignia.Core.Common.Systems
 
                     float[] rotations = TwoJoint2LimbIKSolver(limb1Length, limb2Length, joint1, ref joint2);
 
-                    Main.EntitySpriteDraw(texture, joint1 - Main.screenPosition, texture.Bounds, drawColor,
-                                     rotations[0] * leftOrRight + joint1.DirectionTo(joint2).ToRotation(), texture.Size() / 2, 1, SpriteEffects.None, default);
+                    if (i == 0)
+                    {
+                        Main.EntitySpriteDraw(texture, joint1 - Main.screenPosition, texture.Bounds, Color.Black,
+                                         rotations[0] * leftOrRight + joint1.DirectionTo(joint2).ToRotation(), texture.Size() / 2, new Vector2(1 * limb1Length / 20, 1), SpriteEffects.None, default);
 
-                    Main.EntitySpriteDraw(texture2, joint2 - Main.screenPosition, texture2.Bounds, drawColor,
-                                    -rotations[1] * leftOrRight + joint2.DirectionTo(joint1).ToRotation(), texture.Size() / 2, 1, SpriteEffects.None, default);
+                        Main.EntitySpriteDraw(texture2, joint2 - Main.screenPosition, texture2.Bounds, Color.Black,
+                                        -rotations[1] * leftOrRight + joint2.DirectionTo(joint1).ToRotation(), texture.Size() / 2, new Vector2(1 * limb2Length / 20, 1), SpriteEffects.None, default);
+                    }
+                    else
+                    {
+                        Main.EntitySpriteDraw(texture, joint1 - Main.screenPosition, texture.Bounds, drawColor,
+                                         rotations[0] * leftOrRight + joint1.DirectionTo(joint2).ToRotation(), texture.Size() / 2, new Vector2(1 * limb1Length / 20, 1), SpriteEffects.None, default);
+
+                        Main.EntitySpriteDraw(texture2, joint2 - Main.screenPosition, texture2.Bounds, drawColor,
+                                        -rotations[1] * leftOrRight + joint2.DirectionTo(joint1).ToRotation(), texture.Size() / 2, new Vector2(1 * limb2Length / 20, 1), SpriteEffects.None, default);
+                    }
                 }
             }
             SafePreDraw(spriteBatch, screenPos, drawColor);
@@ -126,9 +139,10 @@ namespace Insignia.Core.Common.Systems
         {
             for (int i = 0; i < Limbs.Count; i++)
             {
-                Limb limb = Limbs[i]; float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
+                Limb limb = Limbs[i];
+                float maxLimbDist = limb.lengthOfLimbSegments[0] + limb.lengthOfLimbSegments[1];
                 float length = MathHelper.Clamp(Vector2.Distance(limb.attachedJointPos, limb.endPos), Math.Abs(limb.lengthOfLimbSegments[0] - limb.lengthOfLimbSegments[1]), maxLimbDist - 0.01f); 
-                limb.endPos = limb.attachedJointPos + limb.attachedJointPos.DirectionTo(limb.endPos) * length;
+                //limb.endPos = limb.attachedJointPos + limb.attachedJointPos.DirectionTo(limb.endPos) * length;
             }
         }
         public abstract void SafeOnSpawn(IEntitySource entitySource);

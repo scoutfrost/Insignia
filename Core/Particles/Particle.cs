@@ -14,8 +14,8 @@ namespace Insignia.Core.Particles
     {
         public Texture2D Texture;
         public string TextureName;
-        public Vector2 Position;
         public Vector2 Velocity;
+        public Vector2 Position;
         public float Angle;
         public float AngularVelocity;
         public Color Color;
@@ -23,6 +23,12 @@ namespace Insignia.Core.Particles
         public int TimeLeft;
         public Rectangle? Frame;
         public int? Alpha;
+        public float[] Ai = new float[2];
+
+        public bool isMetaBall = false;
+        public Color outlineColor;
+        //public float outlineWidth;
+
         public virtual void CustomDraw(SpriteBatch sb) { }
         public virtual void Update() { }
         public virtual bool ShouldCustomDraw => false;

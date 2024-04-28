@@ -13,7 +13,8 @@ namespace Insignia.Core.Particles
     public class GenericGlowParticle : Particle
     {
         int lightIntensity;
-        public GenericGlowParticle(Vector2 position, Vector2 velocity, Color color, float scale, int maxTime = 60, int lightIntensity = 1)
+        float scaleMult;
+        public GenericGlowParticle(Vector2 position, Vector2 velocity, Color color, float scale, int maxTime = 60, int lightIntensity = 1, float scaleMultiplier = 0.97f, string altTextureName = default)
         {
             Position = position;
             Velocity = velocity;
@@ -23,13 +24,21 @@ namespace Insignia.Core.Particles
             MathHelper.Clamp(lightIntensity, 1, 255);
             lightIntensity = 256 - lightIntensity;
             this.lightIntensity = lightIntensity;
-            TextureName = "GenericGlowParticle";
+            scaleMult = scaleMultiplier;
+
+            isMetaBall = true;
+            outlineColor = Color.Aqua;
+
+            if (altTextureName == null)
+                TextureName = "GenericGlowParticle";
+            else 
+                TextureName = altTextureName;
         }
         public override void Update()
         {
             Lighting.AddLight(Position, Color.R / 255 / lightIntensity, Color.G / 255 / lightIntensity, Color.B / 255 / lightIntensity);
             Velocity = Velocity.RotatedByRandom(MathHelper.ToRadians(5)) * 0.99f;
-            Size *= 0.97f;
+            Size *= scaleMult;
         }
     }
 }

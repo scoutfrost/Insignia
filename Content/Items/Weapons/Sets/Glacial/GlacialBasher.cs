@@ -30,7 +30,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 			Item.noMelee = true; 
             Item.noUseGraphic = true;
 
-			Item.shoot = ModContent.ProjectileType<TestProj>();
+            Item.shoot = ModContent.ProjectileType<GlacialBasherHeld>();
 		}
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {

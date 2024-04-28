@@ -9,6 +9,10 @@ using Terraria.ID;
 using Insignia.Prim;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Terraria.DataStructures;
+using Insignia.Core.Particles;
+using Insignia.Core.Common.Systems;
+
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
     internal class GlacialBasherHeld : ModProjectile
@@ -27,6 +31,11 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 			Projectile.hostile = false; 
 			Projectile.DamageType = DamageClass.Melee; 
 			Projectile.light = 0.5f; 
+		}
+        public override void OnSpawn(IEntitySource source)
+		{
+			GenericGlowParticle particle = new(Projectile.Center, Main.rand.NextVector2Unit() * 1.2f, Color.MistyRose, 0.4f, 120);
+			ParticleSystem.GenerateParticle(particle);
 		}
         public override void AI()
         {

@@ -15,8 +15,7 @@ namespace Insignia.Core.Common.Systems
     public class ProjKeyFrameHandler
     {
         public delegate Vector2 CustomFunction(Vector2 start, Vector2 end, float t);
-
-        CustomFunction Customfunc; 
+        CustomFunction Customfunc;
 
         KeyFrameInterpolationCurve keyFrameInterpolationCurve;
         static string texturePath;
@@ -43,7 +42,7 @@ namespace Insignia.Core.Common.Systems
             List<Vector2> returnPoints = new();
             int height = tex.Height;
             int width = tex.Width;
-            
+
             Color[] colorData = new Color[tex.Width * tex.Height];
             tex.GetData(colorData);
             List<Vector2> coordsForColorData = new();
@@ -94,7 +93,7 @@ namespace Insignia.Core.Common.Systems
                         {
                             for (float k = 0; k <= pointCount / coordsForColorData.Count; k++)
                             {
-                                Vector2 center = new(coordsForColorData[0].X, (coordsForColorData[coordsForColorData.Count - 1].Y + coordsForColorData[0].Y) / 2); //average of the y value, but not the x - makes it more intuitive to use
+                                Vector2 center = new(coordsForColorData[0].X, (coordsForColorData[^1].Y + coordsForColorData[0].Y) / 2); //average of the y value, but not the x - makes it more intuitive to use
                                 float maxRotation = center.AngleTo(coordsForColorData[i + 1]) - center.AngleTo(coordsForColorData[i]);
                                 returnPoints.Add(EasingFunctions.Slerp(coordsForColorData[i], coordsForColorData[i + 1], k / (pointCount / coordsForColorData.Count) * maxRotation, center, radius));
                             }
@@ -133,7 +132,7 @@ namespace Insignia.Core.Common.Systems
         {
             for (int i = 0; i < points.Count; i++)
             {
-                points[i] = desiredChange(points[i], i); 
+                points[i] = desiredChange(points[i], i);
             }
         }
         /// <summary>
@@ -186,6 +185,15 @@ namespace Insignia.Core.Common.Systems
 
             return owner.Center + points[i].RotatedBy(owner.Center.DirectionTo(vectorToMouse).ToRotation()) + projOffset;
         }
+        public static List<Vector2> CalculateVelocitiesFromPoints(List<Vector2> points)
+        {
+            List<Vector2> velocities = new();
+            for (int i = 1; i < points.Count; i++)
+            {
+                velocities.Add(points[i] - points[i - 1]);
+            }
+            return velocities;
+        }
         /// <summary>
         /// Sets common variables that most held projectiles have. Call this in AI.
         /// </summary>
@@ -198,7 +206,7 @@ namespace Insignia.Core.Common.Systems
             projectile.direction = owner.direction;
             projectile.spriteDirection = projectile.direction;
             owner.direction = Math.Sign(owner.DirectionTo(mouse).X);
-            owner.heldProj = projectile.whoAmI;
+            //owner.heldProj = projectile.whoAmI;
             owner.itemTime = 2;
             owner.itemAnimation = 2;
         }
@@ -212,4 +220,3 @@ namespace Insignia.Core.Common.Systems
         CompleteCustom
     }
 }
-

@@ -17,6 +17,7 @@ namespace Insignia.Core.Common.Systems
 {
     public abstract class PrimTrail
     {
+        //TODO: rewrite/rework most of the code here as well as make it more optimized using vertex/index buffers and making it easier to use
         public static GraphicsDevice GD { get; protected set; } = Main.graphics.GraphicsDevice;
         public static BasicEffect BasicEffect { get; protected set; } = new(GD);
         public VertexPositionColorTexture[] Vertices { get; protected set; }
@@ -29,6 +30,7 @@ namespace Insignia.Core.Common.Systems
         public virtual void CustomDraw(GraphicsDevice graphicsDevice) { }
         public virtual bool ShouldCustomDraw => false;
         public virtual bool ShouldBasicDraw => true;
+        public bool WidthFallOff { get; protected set; }
         public void Draw()
         {
             Vertices = new VertexPositionColorTexture[Points.Length * 2];
@@ -36,7 +38,7 @@ namespace Insignia.Core.Common.Systems
                 CustomDraw(GD);
 
             if (ShouldBasicDraw && Points != null)
-                GenerateVertices(Points, Width, Color);   
+                GenerateVertices(Points, Width, Color);
             SetShaders();
 
             RasterizerState rasterizerState = new()
@@ -55,12 +57,12 @@ namespace Insignia.Core.Common.Systems
                 GD.DrawUserPrimitives(PrimitiveType.TriangleStrip, Vertices, 0, Vertices.Length / 3);
             }
         }
-       
+
         private void GenerateVertices(Vector2[] points, float width, Color color)
         {
             int max = points.Length;
             if (points.Length % 2 != 0)
-                max = points.Length + 1;
+                max = points.Length - 1;
 
             for (int i = 0; i < max; i += 2)
             {
@@ -68,11 +70,17 @@ namespace Insignia.Core.Common.Systems
                 Vector2 next = points[i + 1];
                 float progress = 1 - ((float)i / points.Length);
                 Vector3 normal = new((current.DirectionTo(next) * width).RotatedBy(MathHelper.PiOver2), 0);
-                normal *= progress;
-
+                if (WidthFallOff)
+                {
+                    normal *= progress;
+                }
                 Vertices[i] = new(new Vector3(current, 0) + normal, color, Vector2.One);
                 Vertices[i + 1] = new(new Vector3(current, 0) - normal, color, Vector2.One);
-                
+
+                /*Dust d = Dust.NewDustPerfect(new Vector2(Vertices[i].Position.X, Vertices[i].Position.Y), DustID.Ash, Vector2.Zero);
+                Dust d1 = Dust.NewDustPerfect(new Vector2(Vertices[i + 1].Position.X, Vertices[i + 1].Position.Y), DustID.Ash, Vector2.Zero);
+                d.noGravity = true;
+                d1.noGravity = true;*/
             }
         }
     }

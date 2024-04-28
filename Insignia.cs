@@ -8,34 +8,22 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Insignia.Core.Common.Systems;
 using Insignia.Core.Particles;
+using Terraria.Graphics.Shaders;
+using Terraria.Graphics.Effects;
+using ReLogic.Content;
 
 namespace Insignia
 {
 	public class Insignia : Mod
-	{
-        public static Insignia Instance = new();
-
-        public const string AssetPath = $"{nameof(Insignia)}/Assets/";
-
-        public static float ModTime { get; internal set; }
-        public static object MessageType { get; internal set; } 
-
-        internal static object GetLegacySoundSlot(object custom, string v)
+    {
+        public override void Load()
         {
-            throw new NotImplementedException();
-        }
+            if (Main.netMode != NetmodeID.Server)
+            {
+                Asset<Effect> outlineShader = Assets.Request<Effect>("Effects/OutlineShader", ReLogic.Content.AssetRequestMode.ImmediateLoad);
 
-        internal static object GetLegacySoundSlot(SoundType soundType)
-        {
-            throw new NotImplementedException();
+                GameShaders.Misc.Add("OutlineShader", new(outlineShader, "Edge"));
+            }
         }
-        public override void Unload()
-        {
-            ParticleSystem.Unload();
-        }
-
-
     }
-
-
 }

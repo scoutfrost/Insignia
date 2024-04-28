@@ -11,21 +11,23 @@ namespace Insignia.Core.Particles
 {
     internal class SparkleParticle : Particle
     {
-        public SparkleParticle(Color color, float scale, Vector2 position, Vector2 velocity, int alpha, int maxTime = 60)
+        float scaleMult;
+        public SparkleParticle(Color color, float scale, Vector2 position, Vector2 velocity, int alpha, int maxTime = 60, float scaleMultiplier = 0.97f)
         {
             Color = color;
             Size = scale;
             Position = position;
             Velocity = velocity;
             TimeLeft = maxTime;
-            TextureName = "SparkleParticle";
             Alpha = alpha;
+            scaleMult = scaleMultiplier;
+            TextureName = "SparkleParticle";
         }
         public override void Update()
         {
             Lighting.AddLight(Position, Color.R / 255, Color.G / 255, Color.B / 255);
             Velocity = Velocity.RotatedByRandom(MathHelper.ToRadians(2)) * 0.99f;
-            Size *= 0.97f;
+            Size *= scaleMult;
             AngularVelocity = Velocity.ToRotation();
         }
     }

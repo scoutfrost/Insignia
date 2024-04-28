@@ -55,6 +55,9 @@ namespace Insignia.Biomes
 		}
 		private void TestMethod2(int x, int y)
 		{
+			//CustomLiquidHandler c = new();
+			//c.liquidParticles = new();
+			//c.liquidParticles.Add( new LiquidParticle() { position = Main.MouseWorld, velocity = Vector2.Zero });
 			//ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Lerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
 			//keypoints = keyFrameHandler.GetPoints();
 

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria.Audio;
+﻿using Terraria.Audio;
 using Terraria.ModLoader;
-using Terraria;
-using Terraria.ID;
 
 namespace Insignia.Core.Common.Systems
 {
@@ -16,6 +9,8 @@ namespace Insignia.Core.Common.Systems
         public static readonly SoundStyle GlacialChunkKillSound;
         public static readonly SoundStyle TreeHurt;
         public static readonly SoundStyle TreeKill;
+        public static readonly SoundStyle CyroBang;
+
 
         static SoundSystem()
         {
@@ -23,6 +18,8 @@ namespace Insignia.Core.Common.Systems
             GlacialChunkKillSound = new SoundStyle("Insignia/Assets/Sounds/GlacialChunkKillSound", 0);
             TreeHurt = new SoundStyle("Insignia/Assets/Sounds/TreeHurt", 0);
             TreeKill = new SoundStyle("Insignia/Assets/Sounds/TreeKill", 0);
+            CyroBang = new SoundStyle("Insignia/Assets/Sounds/CyroBang", 0);
+
         }
     }
 }

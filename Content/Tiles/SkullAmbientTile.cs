@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.ModLoader;
-using Microsoft.Xna.Framework;
-using Terraria.ObjectData;
-using Terraria.Localization;
-using Terraria.ID;
 using Terraria.Audio;
-using Insignia.Core.Common.Systems;
+using Terraria.ID;
+using Terraria.Localization;
+using Terraria.ModLoader;
+using Terraria.ObjectData;
+
 namespace Insignia.Content.Tiles
 {
     public class SkullAmbientTile : ModTile
@@ -28,25 +23,23 @@ namespace Insignia.Content.Tiles
             TileObjectData.newTile.Width = 2;
             TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16, 16, 16, 16, 16, 16 };
             TileObjectData.addTile(Type);
-            
+
             LocalizedText name = CreateMapEntryName();
             AddMapEntry(new Color(80, 150, 220), name);
         }
 
-        
         public override void NumDust(int i, int j, bool fail, ref int num)
         {
             num = fail ? 1 : 3;
         }
+
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
             Tile tile = Framing.GetTileSafely(i, j);
 
-          
             if (Main.netMode != NetmodeID.Server)
             {
                 SoundEngine.PlaySound(SoundID.Dig);
-
             }
         }
     }

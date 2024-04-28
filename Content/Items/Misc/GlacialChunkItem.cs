@@ -1,17 +1,13 @@
 ﻿using Terraria;
+using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.GameContent.Creative;
-using Terraria.GameContent.ItemDropRules;
-using Insignia.Helpers;
 
 namespace Insignia.Content.Items.Misc
 {
- 
-    public class GlacialChunkItem: ModItem
+    public class GlacialChunkItem : ModItem
     {
-
-  //      public override string Texture => Helper.Empty;
+        //      public override string Texture => Helper.Empty;
 
         public override void SetStaticDefaults()
         {
@@ -27,7 +23,5 @@ namespace Insignia.Content.Items.Misc
             Item.rare = ItemRarityID.Blue;
             Item.value = Item.sellPrice(0, 3);
         }
-
-        
     }
 }

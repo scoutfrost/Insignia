@@ -10,10 +10,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
     {
         public override void SetStaticDefaults()
         {
-            
-
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 100;
-
         }
 
         public override void SetDefaults()
@@ -34,7 +31,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Item.maxStack = 999;
             Item.shoot = ModContent.ProjectileType<TundraThrowingKnifeProjectile>();
             Item.noMelee = true;
-
         }
 
         public override void AddRecipes()
@@ -44,7 +40,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             recipe.AddIngredient(ItemID.ThrowingKnife, 50);
             recipe.AddTile(TileID.WorkBenches);
             recipe.Register();
-
         }
     }
 }

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace Insignia.Core.Particles
 {
@@ -19,6 +14,7 @@ namespace Insignia.Core.Particles
             TimeLeft = maxTime;
             AngularVelocity = angularVel;
         }
+
         public override void Update()
         {
             Size *= (float)Math.Sin(TimeLeft) / 100;

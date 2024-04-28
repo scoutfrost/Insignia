@@ -1,17 +1,15 @@
 ﻿using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.GameContent.Creative;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace Insignia.Content.Items.Misc
 {
- 
-    public class GlacialCrate: ModItem
+    public class GlacialCrate : ModItem
     {
         public override void SetStaticDefaults()
         {
-         
             ItemID.Sets.IsFishingCrate[Type] = true;
 
             CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 10;
@@ -19,7 +17,7 @@ namespace Insignia.Content.Items.Misc
 
         public override void SetDefaults()
         {
-         Item.DefaultToPlaceableTile(ModContent.TileType<Tiles.ArcticTreeMultiTile>());
+            Item.DefaultToPlaceableTile(ModContent.TileType<Tiles.ArcticTreeMultiTile>());
             Item.width = 12; //The hitbox dimensions are intentionally smaller so that it looks nicer when fished up on a bobber
             Item.height = 12;
             Item.maxStack = 99;
@@ -47,7 +45,6 @@ namespace Insignia.Content.Items.Misc
                 ItemID.IceSkates,
                 ItemID.SnowballCannon
 
-
             //    ModContent.ItemType<Accessories.ExampleStatBonusAccessory>()
             };
             itemLoot.Add(ItemDropRule.OneFromOptionsNotScalingWithLuck(1, themedDrops));
@@ -67,7 +64,6 @@ namespace Insignia.Content.Items.Misc
                 ItemDropRule.Common(ItemID.PlatinumOre, 1, 30, 50),
                 ItemDropRule.Common(ItemID.IceBlock, 1, 30, 50),
                 ItemDropRule.Common(ItemID.SnowBlock, 1, 30, 50),
-
 
              //   ItemDropRule.Common(ModContent.ItemType<Placeable.ExampleOre>(), 1, 30, 50),
             };

@@ -20,15 +20,13 @@ Mods: {
 Projectiles: {
 	GlacialBasherHeld.DisplayName: Glacial Basher Held
 	TorgustusArrow.DisplayName: Torgustus Arrow
-	TorgustusBowProj.DisplayName: Torgustus Bow Proj
+	TorgustusBowProj.DisplayName: Torgustus Bow
 	TorgustusPortal.DisplayName: Torgustus Portal
 	TestProj.DisplayName: Test Proj
-	TundraThrowingKnifeProjectile.DisplayName: Tundra Throwing Knife Projectile
+	TundraThrowingKnifeProjectile.DisplayName: Tundra Throwing Knife
 	BloodIceSpear.DisplayName: Blood Ice Spear
 	PermafrostPendantExplosion.DisplayName: Permafrost Pendant Explosion
 	CrystalScytheProjectile.DisplayName: Crystal Scythe Projectile
-	CryshotProj.DisplayName: Cryshot Proj
-	CyroProj.DisplayName: Cyro Proj
 }
 
 NPCs: {
@@ -98,6 +96,11 @@ Buffs: {
 	PoweredTorgustusBowCooldown: {
 		DisplayName: Powered Torgustus Bow Cooldown
 		Description: Your greatbow seems weaker...
+	}
+
+	BleedDebuff: {
+		DisplayName: Bleed Debuff
+		Description: Mods.Insignia.Buffs.BleedDebuff.Description
 	}
 }
 

@@ -1,6 +1,21 @@
-﻿using Insignia.Core.Common.Systems;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Terraria;
+using Terraria.ModLoader;
+using Terraria.ID;
+using Terraria.DataStructures;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Insignia.Core.Common.Systems;
 using Insignia.Helpers;
 using Insignia.Prim;
+using Insignia.Core.Particles;
+using Terraria.GameContent;
+using Insignia.Content.Buffs;
+using Insignia.Core.ModPlayers;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -13,7 +28,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Item.damage = 25;
             Item.DamageType = DamageClass.Melee;
             Item.rare = ItemRarityID.Green;
-            Item.useTime = 50;
+            Item.useTime = 20;
 
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.autoReuse = false;
@@ -24,6 +39,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
             Item.shoot = ModContent.ProjectileType<CrystalScytheProjectile>();
         }
+        int shotCount = 0;
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             shotCount++;
@@ -31,27 +47,32 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 Projectile.NewProjectile(source, position, velocity, type, damage, knockback);
             else
                 Projectile.NewProjectile(source, position, velocity, type, damage, knockback, -1, 1);
-            
+
             return false;
+        }
+        public override void AddRecipes()
+        {
+            Recipe recipe = Recipe.Create(ModContent.ItemType<CrystalScythe>());
+            recipe.AddIngredient(ItemID.IceBlade);
+            recipe.Register();
+        }
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            GeneralHelper.AddExpandableTooltip(ref tooltips, Mod, Color.Blue, Helpers.GeneralHelper.BleedDescription, Color.LightBlue);
         }
     }
     public class CrystalScytheProjectile : ModProjectile
     {
         public override string Texture => "Insignia/Content/Items/Weapons/Sets/Glacial/CrystalScythe";
-        static Texture2D tex;
-        public override void Load() => tex = (Texture2D)ModContent.Request<Texture2D>(Texture, ReLogic.Content.AssetRequestMode.ImmediateLoad);
-        public override void Unload() => tex = null;
-
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 3;
         }
-
         public override void SetDefaults()
         {
-            Projectile.width = 50;
-            Projectile.height = 60;
+            Projectile.width = 85;
+            Projectile.height = 85;
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Melee;
@@ -59,13 +80,31 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Projectile.tileCollide = false;
             Projectile.ownerHitCheck = true;
             Projectile.timeLeft = timeleft;
+            Projectile.knockBack = 10;
         }
-        ProjKeyFrameHandler handler;
-        Vector2 mouse;
-        List<Vector2> points;
-        int i; 
-        Vector2 vectorToMouse;
         Player Player => Main.player[Projectile.owner];
+
+        ProjKeyFrameHandler handler;
+
+        bool upSwing = false;
+        bool hitNPC = false;
+
+        readonly int timeleft = 500;
+        int i;
+        int freezeTime = 0;
+        float time;
+
+        Vector2 vectorToMouse;
+        Vector2 mouse;
+
+        NPC target;
+
+        List<Vector2> oldpos;
+        List<Vector2> points;
+        List<Vector2> oldscale = new();
+
+        List<Projectile> shards = new();
+
         public override void OnSpawn(IEntitySource source)
         {
             if (Projectile.ai[0] == 1)
@@ -79,6 +118,12 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             i = points.Count - 1;
             if (Player.direction == 1 && !upSwing || Player.direction == -1 && upSwing)
                 i = 0;
+
+            for (int i = 0; i < 3; i++)
+            {
+                shards.Add(Projectile.NewProjectileDirect(source, Projectile.Center + new Vector2(Main.rand.Next(30)), Vector2.Zero, ModContent.ProjectileType<CrystalShard>(), 7, 0));
+            }
+
         }
         public override void AI()
         {
@@ -121,7 +166,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 Player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.PiOver2 + MathHelper.PiOver4);
             else
                 Player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + (Player.direction == 1 ? -MathHelper.PiOver2 - MathHelper.PiOver4 : MathHelper.Pi));
-            
+
         }
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -142,14 +187,20 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             {
                 npc.lifeRegen -= 12;
             }
-            if (stack >= 30 && npc.type != NPCID.TargetDummy)
+            if (stack >= 30 / Player.GetModPlayer<InsigniaPlayer>().BleedBuildupMultiplier && npc.type != NPCID.TargetDummy)
             {
                 for (int i = 0; i < 10; i++)
                 {
                     Vector2 dustSpeed = new Vector2(0, -4).RotatedByRandom(MathHelper.ToRadians(20));
                     Dust.NewDust(Main.rand.NextVector2FromRectangle(npc.Hitbox), 10, 10, DustID.Blood, dustSpeed.X, dustSpeed.Y, default, default, 2f);
                 }
-                npc.life -= (int)(npc.lifeMax * 0.09f + npc.lifeMax / 10000);
+                int bleedDamage = (int)(npc.lifeMax * 0.2f * (1 - npc.lifeMax / 10000) * Player.GetModPlayer<InsigniaPlayer>().BleedDamageMultiplier);
+
+                if (bleedDamage < 0)
+                    bleedDamage = 0;
+                
+                npc.life -= bleedDamage;
+                CombatText.NewText(new((int)npc.Center.X, (int)npc.Center.Y, 10, 10), Color.DarkRed, bleedDamage);
                 if (npc.life <= 0)
                     npc.life = 1;
 
@@ -157,7 +208,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 stackList[index] = stack;
             }
         }
-        float time;
         public override bool PreDraw(ref Color lightColor)
         {
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
@@ -196,7 +246,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             }
             GenericPrimTrail prim = new(new(10, 30, 35, 10), oldpos.ToArray(), 5 + time * 10, true);
             prim.Draw();
-            
+
             SpriteEffects spriteEffects = Player.direction == 1 && !upSwing || (Player.direction == -1 && upSwing) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, lightColor, scale, spriteEffects);
@@ -210,6 +260,78 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
             oldscale.Add(scale);
             return false;
+        }
+    }
+    public class CrystalShard : ModProjectile
+    {
+        public override string Texture => GeneralHelper.Empty;
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
+        }
+        public override void SetDefaults()
+        {
+            Projectile.width = 10;
+            Projectile.height = 10;
+            Projectile.friendly = true;
+            Projectile.hostile = false;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.penetrate = -1;
+            Projectile.tileCollide = true;
+            Projectile.ownerHitCheck = true;
+            Projectile.timeLeft = timeleft;
+            Projectile.usesIDStaticNPCImmunity = true;
+            Projectile.idStaticNPCHitCooldown = 7;
+            Projectile.damage = 7;
+        }
+        readonly int timeleft = 300;
+        public override void AI()
+        {
+            SparkleParticle p = new(Color.Azure, Projectile.scale, Projectile.Center, Vector2.Zero, 200, Projectile.timeLeft, 0.95f);
+            ParticleSystem.GenerateParticle(p);
+            if (Projectile.ai[0] != 1 && Projectile.timeLeft <= timeleft - 100)
+            {
+                Projectile.Kill();
+            }
+        }
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<BleedDebuff>(), 120);
+            BleedDebuff debuff = (BleedDebuff)ModContent.GetModBuff(ModContent.BuffType<BleedDebuff>());
+            debuff.reApplyBleed = ReApplyBleed;
+            Projectile.Center = target.Center;
+            Projectile.ai[0] = 1;
+        }
+        private void ReApplyBleed(ref List<int> stackList, NPC npc, int index)
+        {
+            Player player = Main.player[Projectile.owner];
+            int stack = stackList[index];
+            if (stack >= 25)
+            {
+                npc.lifeRegen -= 10;
+            }
+            if (stack >= 60 / player.GetModPlayer<InsigniaPlayer>().BleedBuildupMultiplier && npc.type != NPCID.TargetDummy)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector2 dustSpeed = new Vector2(0, -4).RotatedByRandom(MathHelper.ToRadians(20));
+                    Dust.NewDust(Main.rand.NextVector2FromRectangle(npc.Hitbox), 10, 10, DustID.Blood, dustSpeed.X, dustSpeed.Y, default, default, 2f);
+                }
+
+                int bleedDamage = (int)(npc.lifeMax * 0.12f * (1 - npc.lifeMax / 10000) * player.GetModPlayer<InsigniaPlayer>().BleedDamageMultiplier);
+
+                if (bleedDamage < 0) 
+                    bleedDamage = 0;
+                
+                npc.life -= bleedDamage;
+                CombatText.NewText(new((int)npc.Center.X, (int)npc.Center.Y, 10, 10), Color.DarkRed, bleedDamage);
+
+                if (npc.life <= 0)
+                    npc.life = 1;
+                stack = 0;
+                stackList[index] = stack;
+            }
         }
     }
 }

@@ -26,9 +26,6 @@ namespace Insignia.Core.Particles
             this.lightIntensity = lightIntensity;
             scaleMult = scaleMultiplier;
 
-            isMetaBall = true;
-            outlineColor = Color.Aqua;
-
             if (altTextureName == null)
                 TextureName = "GenericGlowParticle";
             else 

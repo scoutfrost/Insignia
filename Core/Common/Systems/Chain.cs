@@ -58,7 +58,7 @@ namespace Insignia
 
         //private float weight;
         //might implement weight parameter later but probably not
-        public Chain(Vector2 startpos, Vector2 endpos, int pointCount, float lengthBetweenPoints, /*float chainWeight,*/ float drag = 0.75f, Vector2 gravity = default, bool isStartPosStationary = true, bool collidesWithTiles = false, bool collidesWithPlayers = true)
+        public Chain(Texture2D tex, Vector2 startpos, Vector2 endpos, int pointCount, float lengthBetweenPoints, /*float chainWeight,*/ float drag = 0.75f, Vector2 gravity = default, bool isStartPosStationary = true, bool collidesWithTiles = false, bool collidesWithPlayers = true)
         {
             points = new ChainPoint[pointCount];
             start = startpos;
@@ -80,7 +80,7 @@ namespace Insignia
             {
                 points[0].stationary = true;
             }
-            texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow", ReLogic.Content.AssetRequestMode.ImmediateLoad);
+            texture = tex;
         }
         //TODO: chains weigh more as i increases
         public void UpdateChain()

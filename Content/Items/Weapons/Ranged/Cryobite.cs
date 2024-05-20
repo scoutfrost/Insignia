@@ -30,15 +30,14 @@ namespace Insignia.Content.Items.Weapons.Ranged
             Item.useAmmo = AmmoID.Bullet;
             Item.noMelee = true;
             Item.shootSpeed = 40f;
-            Item.shoot = ModContent.ProjectileType<CyroProj>();
+            Item.shoot = ModContent.ProjectileType<CryoProj>();
         }
-
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
             velocity = velocity.RotatedByRandom(MathHelper.ToRadians(5));
 
             if (type == ProjectileID.Bullet)
-                type = ModContent.ProjectileType<CyroProj>();
+                type = ModContent.ProjectileType<CryoProj>();
         }
         public override bool? UseItem(Player player)
         {
@@ -48,14 +47,12 @@ namespace Insignia.Content.Items.Weapons.Ranged
         }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            Vector2 muzzleOffset = Vector2.Normalize(new Vector2(velocity.X, velocity.Y)) * 13f;
-            if (Collision.CanHit(position, 0, 0, position + muzzleOffset, 0, 0))
-                position += muzzleOffset;
-            Gore.NewGore(source, player.Center + muzzleOffset * 1, new Vector2(player.direction * -1, -0.5f) * 2, Mod.Find<ModGore>("CryobiteChasingGore").Type, 1f);
+            Vector2 muzzleOffset = new(0, -5);
 
-            //    Projectile.NewProjectile(player.GetSource_ItemUse(Item), position + muzzleOffset, Vector2.Zero, ModContent.ProjectileType<CryobiteChasing>(), 0, 0, player.whoAmI);
+            Gore.NewGore(source, player.Center + muzzleOffset, new Vector2(player.direction * -1, -0.5f) * 2, Mod.Find<ModGore>("CryobiteCasingGore").Type, 1f);
 
-            return true;
+            Projectile.NewProjectile(source, position + muzzleOffset, velocity, type, damage, knockback, player.whoAmI);
+            return false;
         }
 
         public override bool CanConsumeAmmo(Item ammo, Player player)
@@ -65,8 +62,7 @@ namespace Insignia.Content.Items.Weapons.Ranged
 
         public override Vector2? HoldoutOffset()
         {
-            var offset = new Vector2(-3, 0);
-            return offset;
+            return new Vector2(-3, 0);
         }
     }
 
@@ -123,14 +119,23 @@ namespace Insignia.Content.Items.Weapons.Ranged
          }
      }*/
 
-    public class CyroProj : ModProjectile
+    public class CryoProj : ModProjectile
     {
         public override string Texture
-          => Helper.Empty;
+          => GeneralHelper.Empty;
 
         private const int timeLeftMax = 18;
         private Vector2 origin;
 
+        static Texture2D trail1;
+        static Texture2D glowTrail;
+        static Texture2D trailing;
+        public override void Load()
+        {
+            trail1 = Mod.Assets.Request<Texture2D>("Assets/Effects/Trail_1", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            glowTrail = Mod.Assets.Request<Texture2D>("Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            trailing = Mod.Assets.Request<Texture2D>("Assets/Effects/GradientCirc", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+        }
         public override void SetDefaults()
         {
             Projectile.Size = new Vector2(12);
@@ -144,7 +149,6 @@ namespace Insignia.Content.Items.Weapons.Ranged
             Projectile.tileCollide = true;
             Projectile.extraUpdates = 1;
         }
-
         public override void AI()
         {
             if (Projectile.timeLeft == timeLeftMax)
@@ -152,18 +156,13 @@ namespace Insignia.Content.Items.Weapons.Ranged
                 origin = Projectile.Center;
             }
         }
-
+        Color color;
         public override void OnKill(int timeLeft)
         {
-            if (timeLeft <= 0)
+            for (int i = 0; i < 2; i++)
             {
-                return;
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                VelocityBasedParticle velParticle = new(3, Color.LightBlue, (Projectile.velocity / 4).RotatedBy(MathHelper.ToRadians(-10)).RotatedBy(MathHelper.ToRadians(10 * i)), Projectile.Center, Vector2.One, 50, 0.3f);
-                SparkleParticle particle = new(Color.LightBlue, 1, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) * i / 10, 100);
+                VelocityBasedParticle velParticle = new(3, Color.LightBlue, (Projectile.velocity / 4).RotatedBy(MathHelper.ToRadians(-10)).RotatedBy(MathHelper.ToRadians(10 * i)), Projectile.Center, Vector2.One, color.A, 0.3f);
+                SparkleParticle particle = new(Color.LightBlue, 0.7f, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) * i / 10, color.A);
                 ParticleSystem.GenerateParticle(particle, velParticle);
             }
         }
@@ -173,25 +172,23 @@ namespace Insignia.Content.Items.Weapons.Ranged
             float Descaling = (float)
             Projectile.timeLeft / timeLeftMax;
             float ScaleY = 18;
-            Color color = Color.LightBlue;
+            color = Color.LightBlue;
 
             for (int i = 0; i < 3; i++)
             {
                 float shotLength = origin.Distance(Projectile.Center);
 
                 Texture2D texture = (i > 1) ?
-                Mod.Assets.Request<Texture2D>("Assets/Effects/Trail_1").Value : Mod.Assets.Request<Texture2D>("Assets/Effects/GlowTrail").Value;
+                trail1 : glowTrail;
                 Vector2 scale = new Vector2(shotLength, MathHelper.Lerp(ScaleY, 5, 1f - Descaling)) / texture.Size();
 
                 //descales by colour
                 color = (color with { A = 0 }) * Descaling;
                 Main.EntitySpriteDraw(texture, origin - Main.screenPosition, null, color, Projectile.velocity.ToRotation(), new Vector2(0, texture.Height / 2), scale, SpriteEffects.None, 0);
 
-                Texture2D Trailing = Mod.Assets.Request<Texture2D>("Assets/Effects/GradientCirc").Value;
                 Vector2 Endscale = origin + (Vector2.UnitX * shotLength).RotatedBy(Projectile.velocity.ToRotation());
 
-
-                Main.EntitySpriteDraw(Trailing, Endscale - Main.screenPosition, null, color, 0, Trailing.Size() / 2, (0.13f - (i * 0.1f)) * Descaling, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(trailing, Endscale - Main.screenPosition, null, color, 0, trailing.Size() / 2, (0.13f - (i * 0.1f)) * Descaling, SpriteEffects.None, 0);
             }
 
             return false;

@@ -37,8 +37,8 @@ namespace Insignia.Core.Common.Systems
 	public abstract class ProcedurallyAnimatedNPC : ModNPC
 	{
         int i = 0;
-        protected List<List<Limb>> WhichLegsMoveInSuccession = new();
-        protected List<Limb> Limbs = new();
+        protected List<List<Limb>> WhichLegsMoveInSuccession = [];
+        protected List<Limb> Limbs = [];
         int maxDistance;
         public override void OnSpawn(IEntitySource source)
         {
@@ -56,32 +56,28 @@ namespace Insignia.Core.Common.Systems
             int next = i + 1;
             if (next >= WhichLegsMoveInSuccession.Count)
                 next = 0;
-            //Main.NewText("bbbb");
-
-            //if (i >= WhichLegsMoveInSuccession.Count)
-            //i = 0;
 
             for (int j = 0; j < WhichLegsMoveInSuccession[i].Count; j++)
             {
                 Limb limb = WhichLegsMoveInSuccession[i][j];
                 maxDistance = limb.limbSegmentTextures[0].Width + limb.limbSegmentTextures[1].Width * 2;
 
-                if ((limb.destinationTile == limb.endPos) && limb.attachedJointPos.Distance(limb.destinationTile) >= maxDistance)
+                if (limb.destinationTile == limb.endPos)
                 {
-                    for (int k = 0; k < WhichLegsMoveInSuccession[next].Count; k++)
+                    if (limb.attachedJointPos.Distance(limb.destinationTile) >= maxDistance)
                     {
-                        Limb nextMovingLimb = WhichLegsMoveInSuccession[next][k];
-                        nextMovingLimb.destinationTile = GetDestinationTile(nextMovingLimb);
+                        for (int k = 0; k < WhichLegsMoveInSuccession[next].Count; k++)
+                        {
+                            Limb nextMovingLimb = WhichLegsMoveInSuccession[next][k];
+                            nextMovingLimb.destinationTile = GetDestinationTile(nextMovingLimb);
+                        }
+                        i++;
+                        if (i >= WhichLegsMoveInSuccession.Count)
+                            i = 0;
                     }
-                    i++;
-                    if (i >= WhichLegsMoveInSuccession.Count)
-                        i = 0;
                 }
                 LegMovement(ref limb, limb.destinationTile);
             }
-
-            Main.NewText(i);
-            //Main.NewText(next);
         }
         //hardcoded but uhhh ummm
         //i'll cross that bridge when i get to it

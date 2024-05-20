@@ -27,6 +27,9 @@ Projectiles: {
 	BloodIceSpear.DisplayName: Blood Ice Spear
 	PermafrostPendantExplosion.DisplayName: Permafrost Pendant Explosion
 	CrystalScytheProjectile.DisplayName: Crystal Scythe Projectile
+	CryoProj.DisplayName: Cryo Proj
+	CrystalShard.DisplayName: Crystal Shard
+	TestProj2.DisplayName: Test Proj2
 }
 
 NPCs: {
@@ -35,6 +38,7 @@ NPCs: {
 	IcerockSlime2.DisplayName: Icerock Slime2
 	TestNPC.DisplayName: Test N P C
 	AuratailEel.DisplayName: Auratail Eel
+	TestNPC2.DisplayName: Test N P C2
 }
 
 Items: {
@@ -83,11 +87,34 @@ Items: {
 
 	CrystalScythe: {
 		DisplayName: Crystal Scythe
-		Tooltip: ""
+		Tooltip: Inflicts bleed buildup upon enemies
 	}
 
 	Cryobite: {
 		DisplayName: Cryobite
+		Tooltip: ""
+	}
+
+	BloodSyphon: {
+		DisplayName: Blood Syphon
+		Tooltip:
+			'''
+			5% decreased bleed damage when built up
+			10% increased bleed buildup per hit
+			'''
+	}
+
+	HornedGlove: {
+		DisplayName: Horned Glove
+		Tooltip:
+			'''
+			5% decreased bleed buildup per hit
+			10% increased bleed damage when built up
+			'''
+	}
+
+	Horn: {
+		DisplayName: Horn
 		Tooltip: ""
 	}
 }

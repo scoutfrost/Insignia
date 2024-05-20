@@ -1,10 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Terraria;
+using Terraria.ModLoader;
+using Terraria.ID;
 using Terraria.DataStructures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Insignia.Core.Common.Systems;
 using Insignia.Helpers;
-
+using Insignia.Prim;
+using Insignia.Core.Particles;
+using Terraria.GameContent;
+using Insignia.Content.Buffs;
+using Insignia.Core.ModPlayers;
 namespace Insignia.Content.Items.Accessories
 {
     internal class PermafrostPendant : ModItem
@@ -62,9 +73,6 @@ namespace Insignia.Content.Items.Accessories
         {
             texture = null;
         }
-        public override void OnSpawn(IEntitySource source)
-        {
-        }
         int timer = 0;
         bool shouldDamage = false;
         public override void AI()
@@ -102,16 +110,4 @@ namespace Insignia.Content.Items.Accessories
             return shouldDamage;
         }
     }
-    internal class AccessoryPlayer : ModPlayer 
-    {
-        //using events because if it was a method i would have to add each function call to the modplayer and thats annoying and not super clean 
-        //could also use a list/array of delegates then add to that but i like this better 
-        public event Action<NPC, NPC.HitInfo, int, Player> OnHitNPCEvent;
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            OnHitNPCEvent?.Invoke(target, hit, damageDone, Entity);
-            base.OnHitNPC(target, hit, damageDone);
-        }
-    }
-
 }

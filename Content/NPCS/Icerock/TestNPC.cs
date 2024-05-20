@@ -17,7 +17,7 @@ namespace Insignia.Content.NPCS.Icerock
 {
 	public class TestNPC : ProcedurallyAnimatedNPC
 	{
-        public override string Texture => Helpers.Helper.Empty;
+        public override string Texture => Helpers.GeneralHelper.Empty;
         public override void SetDefaults()
         {
             NPC.width = 36;
@@ -41,28 +41,29 @@ namespace Insignia.Content.NPCS.Icerock
         }
         public override void SafeOnSpawn(IEntitySource source)
         {
-            Limb limb = new(NPC.Center, NPC.Center + new Vector2(0, 10), new Texture2D[2] {texture, texture}, new float[2] { 60, 60 });
-            Limb limb2 = new(NPC.Center, NPC.Center + new Vector2(-20, 10), new Texture2D[2] {texture, texture}, new float[2] { 60, 60 });
+            Limb limb = new(NPC.Center, NPC.Center + new Vector2(0, 10), [texture, texture], [60, 60]);
+            Limb limb2 = new(NPC.Center, NPC.Center + new Vector2(-20, 10), [texture, texture], [60, 60]);
 
             limb.bendsFowards = false;
             limb2.bendsFowards = false;
             Limbs.Add(limb);
             Limbs.Add(limb2);
-            WhichLegsMoveInSuccession.Add(new List<Limb>());
-            WhichLegsMoveInSuccession.Add(new List<Limb>());
+            WhichLegsMoveInSuccession.Add([]);
+            WhichLegsMoveInSuccession.Add([]);
             WhichLegsMoveInSuccession[0].Add(limb); 
             WhichLegsMoveInSuccession[1].Add(limb2);
         }
+        Vector2 gravity;
         public override void SafeAI()
         {
-            NPC.Center = Main.MouseWorld;
+            if (Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.R))
+            {
+                NPC.life = 0;
+            }
             for (int i = 0; i < Limbs.Count; i++)
             {
                 Limb l = Limbs[i];
                 l.attachedJointPos = NPC.Center;
-
-                Dust d = Dust.NewDustPerfect(l.attachedJointPos, DustID.Adamantite, Vector2.Zero);
-                d.noGravity = true;
 
                 Dust d1 = Dust.NewDustPerfect(l.destinationTile, DustID.AmberBolt, Vector2.Zero);
                 d1.noGravity = true;
@@ -70,6 +71,19 @@ namespace Insignia.Content.NPCS.Icerock
                 Dust d2 = Dust.NewDustPerfect(l.endPos, DustID.ArgonMoss, Vector2.Zero);
                 d2.noGravity = true;
             }
+
+            Vector2 distOffGround = new(0, 100);
+
+            gravity = new Vector2(0, 10);
+            Vector2 pos = (NPC.Center + distOffGround) / 16;
+
+            if (!WorldGen.TileEmpty((int)pos.X, (int)pos.Y) && !WorldGen.SolidTile((int)pos.X, (int)pos.Y)) 
+            {
+                gravity = new Vector2(0, -10);
+            }
+            NPC.Center += gravity;
+            if (Helpers.GeneralHelper.DoesTileCollideWithLine(NPC.Center, Main.MouseWorld))
+                NPC.velocity = NPC.Center.DirectionTo(Main.MouseWorld) * 5;
         }
         Vector2 tile;
         public override Vector2 GetDestinationTile(Limb limb)
@@ -86,9 +100,18 @@ namespace Insignia.Content.NPCS.Icerock
         float t = 0;
         public override void LegMovement(ref Limb limb, Vector2 targetTile)
         {
-            t += 0.01f;
-            limb.endPos = Vector2.Lerp(limb.endPos, targetTile, t);
-            
+            Vector2 stepheight = new(0, -20);
+            Vector2 controlPoint = limb.endPos + ((targetTile - limb.endPos) / 2) + stepheight;
+
+            if (limb.endPos != targetTile)
+            {
+                t += 0.05f;
+                limb.endPos = Helpers.EasingFunctions.Bezier([limb.endPos, controlPoint, targetTile], t);
+            }
+            else
+            {
+                t = 0;
+            }
             if (t >= 1)
                 t = 0;
         }

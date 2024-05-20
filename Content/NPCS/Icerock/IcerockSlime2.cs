@@ -1,4 +1,4 @@
-﻿using Insignia.Content.Items.Misc;
+﻿using Insignia.Content.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;

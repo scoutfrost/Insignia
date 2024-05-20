@@ -48,8 +48,7 @@ namespace Insignia.Core.Common.Systems
                 {
                     particles.RemoveAt(i);
                     i--;
-                    if (metaBalls.Contains(Particle))
-                        metaBalls.Remove(Particle);
+                    metaBalls.Remove(Particle);
                 }
             }
         }
@@ -91,7 +90,6 @@ namespace Insignia.Core.Common.Systems
                 }
             }
         }
-        static int i = 0;
         public static void DrawMetaBalls()
         {
             gD.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;

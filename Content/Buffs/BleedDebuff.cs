@@ -15,7 +15,7 @@ namespace Insignia.Content.Buffs
 {
     public class BleedDebuff : ModBuff
     {
-        public override string Texture => Helpers.Helper.Empty;
+        public override string Texture => Helpers.GeneralHelper.Empty;
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;

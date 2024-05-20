@@ -4,7 +4,7 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Insignia.Content.Items.Misc
+namespace Insignia.Content.Tiles
 {
     public class GlacialCrate : ModItem
     {
@@ -17,7 +17,7 @@ namespace Insignia.Content.Items.Misc
 
         public override void SetDefaults()
         {
-            Item.DefaultToPlaceableTile(ModContent.TileType<Tiles.ArcticTreeMultiTile>());
+            Item.DefaultToPlaceableTile(ModContent.TileType<ArcticTreeMultiTile>());
             Item.width = 12; //The hitbox dimensions are intentionally smaller so that it looks nicer when fished up on a bobber
             Item.height = 12;
             Item.maxStack = 99;

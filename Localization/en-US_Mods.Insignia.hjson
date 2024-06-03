@@ -117,6 +117,11 @@ Items: {
 		DisplayName: Horn
 		Tooltip: ""
 	}
+
+	BloodSmokeAccessory: {
+		DisplayName: Blood Smoke Accessory
+		Tooltip: ""
+	}
 }
 
 Buffs: {

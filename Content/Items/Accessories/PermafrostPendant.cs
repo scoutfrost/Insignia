@@ -28,7 +28,6 @@ namespace Insignia.Content.Items.Accessories
             Item.accessory = true;
         }
         //Player player;
-        AccessoryPlayer player;
         bool hasSubscribed = false;
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
@@ -36,7 +35,6 @@ namespace Insignia.Content.Items.Accessories
             if (!hasSubscribed)
             {
                 player.GetModPlayer<AccessoryPlayer>().OnHitNPCEvent += PermafrostPendant_OnHitNPCEvent;
-                this.player = player.GetModPlayer<AccessoryPlayer>();
                 hasSubscribed = true;
             }
         }
@@ -54,8 +52,8 @@ namespace Insignia.Content.Items.Accessories
         public override string Texture => "Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow";
         public override void SetDefaults()
         {
-            Projectile.width = 200;
-            Projectile.height = 200;
+            Projectile.width = 250;
+            Projectile.height = 250;
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Melee;
@@ -63,6 +61,7 @@ namespace Insignia.Content.Items.Accessories
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.ownerHitCheck = true;
+            Projectile.damage = 50;
         }
         public static Texture2D texture;
         public override void Load()
@@ -72,6 +71,11 @@ namespace Insignia.Content.Items.Accessories
         public override void Unload()
         {
             texture = null;
+        }
+        GenericPrimTrail primTrail;
+        public override void OnSpawn(IEntitySource source)
+        {
+            primTrail = new(Color.LightBlue, points, 20, false);
         }
         int timer = 0;
         bool shouldDamage = false;
@@ -86,7 +90,7 @@ namespace Insignia.Content.Items.Accessories
             if (timer++ >= 120)
                 shouldDamage = true;
             
-            var targets = Main.npc.Where(npc => npc.active && npc.type != NPCID.TargetDummy && Projectile.Center.DistanceSQ(npc.Center) < maxdist * maxdist);
+            var targets = Main.npc.Where(npc => npc.active && npc.CanBeChasedBy() && !npc.boss && Projectile.Center.DistanceSQ(npc.Center) < maxdist * maxdist);
 
             foreach (var npc in targets)
             {
@@ -96,13 +100,28 @@ namespace Insignia.Content.Items.Accessories
                 }
                 else
                 {
-                    npc.velocity += npc.DirectionTo(Projectile.Center).RotatedByRandom(MathHelper.ToRadians(10)) * 0.05f;
+                    npc.velocity += npc.DirectionTo(Projectile.Center).RotatedByRandom(MathHelper.ToRadians(10)) * 0.3f;
                 }
             }
         }
+        static int pointCount = 150;
+        Vector2[] points = new Vector2[pointCount];
         public override bool PreDraw(ref Color lightColor)
         {
+            int pointcount = 16;
+            float maxtime = 180;
+            float timeMult = 1.3f;
+
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, lightColor, 1);
+            for (int i = 0; i < pointcount; i++)
+            {
+                points[i] = Projectile.Center + Vector2.UnitY.RotatedBy(Math.Tau / (pointcount - 1.5f) * i) * (maxtime - timer * timeMult);
+                //points[i] = points[i].RotatedBy(MathHelper.ToRadians(i * 10), Projectile.Center);
+                //Dust d = Dust.NewDustPerfect(points[i], DustID.Adamantite, Vector2.Zero);
+                //d.noGravity = true;
+            }
+            primTrail.Points = points;
+            primTrail.Draw();
             return false;
         }
         public override bool? CanDamage()

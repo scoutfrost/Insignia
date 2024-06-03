@@ -56,7 +56,7 @@ float4 EdgeDetection(float2 coords : TEXCOORD0) : COLOR0
 }
 technique Technique1
 {
-    pass Edge
+    pass OutlineShaderPass
     {
         PixelShader = compile ps_2_0 EdgeDetection();
     }

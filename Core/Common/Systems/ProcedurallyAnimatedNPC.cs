@@ -60,7 +60,7 @@ namespace Insignia.Core.Common.Systems
             for (int j = 0; j < WhichLegsMoveInSuccession[i].Count; j++)
             {
                 Limb limb = WhichLegsMoveInSuccession[i][j];
-                maxDistance = limb.limbSegmentTextures[0].Width + limb.limbSegmentTextures[1].Width * 2;
+                maxDistance = ((int)limb.lengthOfLimbSegments[0] / 20) + ((int)limb.lengthOfLimbSegments[1] / 20); // the drawn scale, see predraw hook
 
                 if (limb.destinationTile == limb.endPos)
                 {
@@ -98,6 +98,8 @@ namespace Insignia.Core.Common.Systems
                     int leftOrRight = 1;
                     if (!limb.bendsFowards)
                         leftOrRight = -1;
+                    if (NPC.direction == -1)
+                        leftOrRight *= -1;
 
                     float limb1Length = limb.lengthOfLimbSegments[0];
                     float limb2Length = limb.lengthOfLimbSegments[1];
@@ -153,7 +155,7 @@ namespace Insignia.Core.Common.Systems
         /// <param name="joint">Where the limb attatches to the object.</param>
         /// <param name="footpos">The end position of the limb- ie. a hand or a foot's position </param>
         /// <returns>Returns the correct rotations of the limbs in an array</returns>
-        protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos) //not sure why i named it footpos instead of endpos lol
+        protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, ref Vector2 footpos)
         {
             float maxLimbDist = limbLength1 + limbLength2 - 0.01f; //subtracting by 0.01 to avoid NaN errors
 
@@ -168,7 +170,7 @@ namespace Insignia.Core.Common.Systems
             float rotation1 = (float)Math.Acos((limbLength1 * limbLength1 + a * a - limbLength2 * limbLength2) / (2 * limbLength1 * a));
             float rotation2 = (float)Math.Acos((-limbLength1 * limbLength1 + a * a + limbLength2 * limbLength2) / (2 * limbLength2 * a));
 
-            return new float[2] { rotation1, rotation2 };
+            return [rotation1, rotation2];
         }
         /*protected float[] TwoJoint2LimbIKSolver(float limbLength1, float limbLength2, Vector2 joint, Vector2 footpos) //not sure why i named it footpos instead of endpos lol
         {

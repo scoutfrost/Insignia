@@ -54,6 +54,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         {
             Recipe recipe = Recipe.Create(ModContent.ItemType<CrystalScythe>());
             recipe.AddIngredient(ItemID.IceBlade);
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
         }
         public override void ModifyTooltips(List<TooltipLine> tooltips)
@@ -66,7 +67,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         public override string Texture => "Insignia/Content/Items/Weapons/Sets/Glacial/CrystalScythe";
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 3;
         }
         public override void SetDefaults()
@@ -99,11 +100,11 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
         NPC target;
 
-        List<Vector2> oldpos;
+        List<Vector2> oldpos = [];
         List<Vector2> points;
-        List<Vector2> oldscale = new();
+        List<Vector2> oldscale = [];
 
-        List<Projectile> shards = new();
+        List<Projectile> shards = [];
 
         public override void OnSpawn(IEntitySource source)
         {
@@ -182,6 +183,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         }
         private void ReApplyBleed(ref List<int> stackList, NPC npc, int index)
         {
+            Player.GetModPlayer<InsigniaPlayer>().BleedProc = true;
             int stack = stackList[index];
             if (stack >= 10)
             {
@@ -238,13 +240,14 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             {
                 oldscale.Remove(oldscale[0]);
             }
-
-            oldpos = Projectile.oldPos.ToList();
-            for (int i = 0; i < oldpos.Count; i++)
+            oldpos = [.. Projectile.oldPos];
+            oldpos[0] = Projectile.Center;
+            for (int i = 1; i < oldpos.Count; i++)
             {
-                oldpos[i] += drawOrigin + new Vector2(time * 35, time * 10).RotatedBy(Player.Center.DirectionTo(mouse).ToRotation());
+                oldpos[i] = Projectile.oldPos[i];
+                oldpos[i] += drawOrigin + new Vector2(Player.direction == 1 ? time * 80 : time * 35, 0).RotatedBy(Player.Center.DirectionTo(mouse).ToRotation());
             }
-            GenericPrimTrail prim = new(new(10, 30, 35, 10), oldpos.ToArray(), 5 + time * 10, true);
+            GenericPrimTrail prim = new(new(5, 15, 17, 10), [.. oldpos], 5 + time * 10);
             prim.Draw();
 
             SpriteEffects spriteEffects = Player.direction == 1 && !upSwing || (Player.direction == -1 && upSwing) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
@@ -306,6 +309,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         private void ReApplyBleed(ref List<int> stackList, NPC npc, int index)
         {
             Player player = Main.player[Projectile.owner];
+            player.GetModPlayer<InsigniaPlayer>().BleedProc = true;
             int stack = stackList[index];
             if (stack >= 25)
             {

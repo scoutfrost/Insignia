@@ -155,14 +155,18 @@ namespace Insignia.Content.Items.Weapons.Ranged
             {
                 origin = Projectile.Center;
             }
+            if (Projectile.timeLeft % 2 == 0)
+            {
+                Projectile.damage--;
+            }
         }
         Color color;
         public override void OnKill(int timeLeft)
         {
             for (int i = 0; i < 2; i++)
             {
-                VelocityBasedParticle velParticle = new(3, Color.LightBlue, (Projectile.velocity / 4).RotatedBy(MathHelper.ToRadians(-10)).RotatedBy(MathHelper.ToRadians(10 * i)), Projectile.Center, Vector2.One, color.A, 0.3f);
-                SparkleParticle particle = new(Color.LightBlue, 0.7f, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) * i / 10, color.A);
+                VelocityBasedParticle velParticle = new(3, Color.LightBlue, (Projectile.velocity / 4).RotatedBy(MathHelper.ToRadians(-10)).RotatedBy(MathHelper.ToRadians(10 * i)), Projectile.Center, Vector2.One, 150, 0.3f);
+                SparkleParticle particle = new(Color.LightBlue, 0.7f, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) * i / 10, 100);
                 ParticleSystem.GenerateParticle(particle, velParticle);
             }
         }

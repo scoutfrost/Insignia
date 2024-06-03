@@ -11,8 +11,10 @@ namespace Insignia.Core.ModPlayers
     {
         public float BleedDamageMultiplier = 1;
         public float BleedBuildupMultiplier = 1;
+        public bool BleedProc;
         public override void ResetEffects()
         {
+            BleedProc = false;
             BleedBuildupMultiplier = 1;
             BleedDamageMultiplier = 1;
         }

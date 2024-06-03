@@ -16,7 +16,7 @@ namespace Insignia
 {
 	public class Insignia : Mod
     {
-        public override void Load()
+        /*public override void Load()
         {
             if (Main.netMode != NetmodeID.Server)
             {
@@ -24,6 +24,6 @@ namespace Insignia
 
                 GameShaders.Misc.Add("OutlineShader", new(outlineShader, "Edge"));
             }
-        }
+        }*/
     }
 }

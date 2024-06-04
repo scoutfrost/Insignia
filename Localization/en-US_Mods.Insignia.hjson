@@ -27,9 +27,16 @@ Projectiles: {
 	BloodIceSpear.DisplayName: Blood Ice Spear
 	PermafrostPendantExplosion.DisplayName: Permafrost Pendant Explosion
 	CrystalScytheProjectile.DisplayName: Crystal Scythe Projectile
+<<<<<<< Updated upstream
 	CryoProj.DisplayName: Cryo Proj
 	CrystalShard.DisplayName: Crystal Shard
 	TestProj2.DisplayName: Test Proj2
+=======
+	CryshotProj.DisplayName: Cryshot Proj
+	CyroProj.DisplayName: Cyro Proj
+	BouncingFishSpike.DisplayName: Bouncing Fish Spike
+	FishspikeFlailProj.DisplayName: Fishspike Flail Proj
+>>>>>>> Stashed changes
 }
 
 NPCs: {
@@ -95,6 +102,7 @@ Items: {
 		Tooltip: ""
 	}
 
+<<<<<<< Updated upstream
 	BloodSyphon: {
 		DisplayName: Blood Syphon
 		Tooltip:
@@ -120,6 +128,10 @@ Items: {
 
 	BloodSmokeAccessory: {
 		DisplayName: Blood Smoke Accessory
+=======
+	FishspikeFlail: {
+		DisplayName: Fishspike Flail
+>>>>>>> Stashed changes
 		Tooltip: ""
 	}
 }

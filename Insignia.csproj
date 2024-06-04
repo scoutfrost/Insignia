@@ -8,7 +8,11 @@
   <ItemGroup>
     <None Remove="Assets\Effects\TrailTextureFlames.png" />
     <None Remove="Assets\Misc\Ring.png" />
+<<<<<<< Updated upstream
     <None Remove="Content\Items\Accessories\BloodSmokeAccessory.png" />
+=======
+    <None Remove="Content\Items\Weapons\Melee\BouncingFishspike.png" />
+>>>>>>> Stashed changes
     <None Remove="Content\Items\Weapons\Sets\Glacial\SwingPoints.png" />
     <None Remove="Content\Items\Weapons\Sets\Glacial\TestProj.png" />
     <None Remove="Content\Items\Weapons\Sets\Glacial\TundraThrowingKnife.png" />

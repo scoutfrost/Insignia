@@ -22,7 +22,7 @@ namespace Insignia.Content.Items.Weapons.Ranged
             Item.useTime = 6;
             Item.useAnimation = 6;
             Item.useStyle = ItemUseStyleID.Shoot;
-            Item.knockBack = 1f;
+            Item.knockBack = 1f;    
             Item.value = Item.buyPrice(0, 0, 80, 0);
 
             Item.rare = ItemRarityID.Blue;

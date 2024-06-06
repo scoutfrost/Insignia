@@ -1,0 +1,30 @@
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\tModLoader.targets" />
+  <PropertyGroup>
+    <AssemblyName>Insignia</AssemblyName>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\Effects\TrailTextureFlames.png" />
+    <None Remove="Assets\Misc\Ring.png" />
+<<<<<<< Updated upstream
+    <None Remove="Content\Items\Accessories\BloodSmokeAccessory.png" />
+=======
+    <None Remove="Content\Items\Weapons\Melee\BouncingFishspike.png" />
+>>>>>>> Stashed changes
+    <None Remove="Content\Items\Weapons\Sets\Glacial\SwingPoints.png" />
+    <None Remove="Content\Items\Weapons\Sets\Glacial\TestProj.png" />
+    <None Remove="Content\Items\Weapons\Sets\Glacial\TundraThrowingKnife.png" />
+    <None Remove="Content\Items\Weapons\Sets\Torgustus\PoweredTorgustusBowCooldown.png" />
+    <None Remove="Content\Items\Weapons\Sets\Torgustus\TorgustusPortal.png" />
+    <None Remove="Content\Projectiles\Glacial\TundraThrowingKnifeProjectile.png" />
+    <None Remove="Core\Particles\SparkleParticle.png" />
+    <None Remove="Effects\OutlineShader.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\Armor\" />
+    <Folder Include="Content\Items\Weapons\Sets\Blackice\" />
+    <Folder Include="Content\Items\Weapons\Sets\Icerock\" />
+  </ItemGroup>
+</Project>

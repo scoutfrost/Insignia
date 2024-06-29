@@ -1,6 +1,10 @@
 float4 outlineColor : COLOR0;
 float2 uImageSize;
-sampler uImage0 : register(s0);
+texture uImage0;
+sampler2D samplerTexture = sampler_state
+{
+    texture = <uImage0>;
+};
 float4 EdgeDetection(float2 coords : TEXCOORD0) : COLOR0
 {
     /*bool edge = false;
@@ -27,7 +31,7 @@ float4 EdgeDetection(float2 coords : TEXCOORD0) : COLOR0
     float x = 1 / uImageSize.x;
     float y = 1 / uImageSize.y;
  
-    float4 centerPixel = tex2D(uImage0, coords);
+    float4 centerPixel = tex2D(samplerTexture, coords);
 
     if (centerPixel.a == 0)
     {
@@ -37,7 +41,7 @@ float4 EdgeDetection(float2 coords : TEXCOORD0) : COLOR0
             {
                 if (edge == false)
                 {
-                    float4 neighborPixel = tex2D(uImage0, coords + float2(x * i, y * j));
+                    float4 neighborPixel = tex2D(samplerTexture, coords + float2(x * i, y * j));
                     
                     if (neighborPixel.a != 0)
                     {

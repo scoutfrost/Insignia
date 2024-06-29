@@ -16,6 +16,16 @@ using Insignia.Core.Particles;
 using Terraria.GameContent;
 using Insignia.Content.Buffs;
 using Insignia.Core.ModPlayers;
+using Terraria.Graphics.Shaders;
+using System.Diagnostics;
+using Terraria.GameContent.Golf;
+using System.Net;
+using Microsoft.Build.ObjectModelRemoting;
+using Insignia.Content.Items.Weapons.Sets.Glacial;
+using Terraria.Graphics.CameraModifiers;
+using Microsoft.CodeAnalysis;
+using Humanizer;
+
 namespace Insignia.Content.Items.Accessories
 {
     internal class PermafrostPendant : ModItem
@@ -23,37 +33,52 @@ namespace Insignia.Content.Items.Accessories
         public override string Texture => "Insignia/Content/Items/Accessories/PermafrostPendant";
         public override void SetDefaults()
         {
+            Item.rare = ItemRarityID.Blue;
             Item.width = 20;
             Item.height = 20;
             Item.accessory = true;
         }
-        //Player player;
         bool hasSubscribed = false;
+        bool equipped = false;
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            //this.player = player;
+            equipped = true;
             if (!hasSubscribed)
             {
+                player.GetModPlayer<AccessoryPlayer>().UpDateEquipEvent += PermafrostPendant_UpDateEquipEvent;
                 player.GetModPlayer<AccessoryPlayer>().OnHitNPCEvent += PermafrostPendant_OnHitNPCEvent;
+                player.GetModPlayer<AccessoryPlayer>().ResetEffectsEvent += PermafrostPendant_ResetEffectsEvent;
                 hasSubscribed = true;
             }
         }
-
-        internal void PermafrostPendant_OnHitNPCEvent(NPC target, NPC.HitInfo hit, int damageDone, Player player)
+        void PermafrostPendant_ResetEffectsEvent()
+        {
+            equipped = false;
+        }
+        void PermafrostPendant_UpDateEquipEvent(Player player)
+        {
+            if (hasSubscribed && !equipped)
+            {
+                hasSubscribed = false;
+                player.GetModPlayer<AccessoryPlayer>().OnHitNPCEvent -= PermafrostPendant_OnHitNPCEvent;
+            }
+        }
+        void PermafrostPendant_OnHitNPCEvent(NPC target, NPC.HitInfo hit, int damageDone, Player player)
         {
             if (hit.Crit && !target.active && !target.CountsAsACritter)
             {
                 Projectile.NewProjectile(player.GetSource_Accessory(Entity), target.Center, Vector2.Zero, ModContent.ProjectileType<PermafrostPendantExplosion>(), 90, 0, Main.player.ToList().IndexOf(player));
             }
         }
+
     }
     public class PermafrostPendantExplosion : ModProjectile
     {
-        public override string Texture => "Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow";
+        public override string Texture => GeneralHelper.Empty;
         public override void SetDefaults()
         {
-            Projectile.width = 250;
-            Projectile.height = 250;
+            Projectile.width = 400;
+            Projectile.height = 400;
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Melee;
@@ -63,66 +88,125 @@ namespace Insignia.Content.Items.Accessories
             Projectile.ownerHitCheck = true;
             Projectile.damage = 50;
         }
-        public static Texture2D texture;
-        public override void Load()
-        {
-            texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Torgustus/TorgustusArrow", ReLogic.Content.AssetRequestMode.ImmediateLoad);
-        }
-        public override void Unload()
-        {
-            texture = null;
-        }
-        GenericPrimTrail primTrail;
+        PrimTrail primTrail;
+        List<Projectile> particles = [];
+        bool initialize = false;
         public override void OnSpawn(IEntitySource source)
         {
-            primTrail = new(Color.LightBlue, points, 20, false);
+            initialize = true;
+            Projectile.netUpdate = true;
+
+            primTrail = new PrimTrail()
+            {
+                Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad)
+            };
+
         }
-        int timer = 0;
         bool shouldDamage = false;
+        int maxdist = 200;
         public override void AI()
         {
-            int maxdist = 200;
             Player player = Main.player[Projectile.owner];
 
-            if (shouldDamage)
-                Projectile.Kill();
+            shouldDamage = false;
 
-            if (timer++ >= 120)
+            if (radius <= -20)
                 shouldDamage = true;
+            
+            if (radius <= -maxdist)
+                Projectile.Kill();
             
             var targets = Main.npc.Where(npc => npc.active && npc.CanBeChasedBy() && !npc.boss && Projectile.Center.DistanceSQ(npc.Center) < maxdist * maxdist);
 
             foreach (var npc in targets)
             {
                 if (shouldDamage)
-                {
                     npc.velocity += npc.DirectionFrom(Projectile.Center).RotatedByRandom(MathHelper.ToRadians(10)) * 2;
-                }
                 else
-                {
                     npc.velocity += npc.DirectionTo(Projectile.Center).RotatedByRandom(MathHelper.ToRadians(10)) * 0.3f;
-                }
             }
         }
-        static int pointCount = 150;
-        Vector2[] points = new Vector2[pointCount];
+        float timer = 0;
+        static int pointCount = 32;
+        Vector2[] points = new Vector2[pointCount + 1];
+        float radius;
+        bool explode;
         public override bool PreDraw(ref Color lightColor)
         {
-            int pointcount = 16;
-            float maxtime = 180;
-            float timeMult = 1.3f;
-
-            ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, lightColor, 1);
-            for (int i = 0; i < pointcount; i++)
+            timer++;
+            float startingRadius = 180;
+            float timeMult = 2;
+            radius = startingRadius - timer * timeMult;
+            float radiusSpeed = timeMult * 7;
+            float time = maxdist / radiusSpeed;
+            int trailWidthExplosion = 250;
+            if (radius <= 0)
             {
-                points[i] = Projectile.Center + Vector2.UnitY.RotatedBy(Math.Tau / (pointcount - 1.5f) * i) * (maxtime - timer * timeMult);
-                //points[i] = points[i].RotatedBy(MathHelper.ToRadians(i * 10), Projectile.Center);
-                //Dust d = Dust.NewDustPerfect(points[i], DustID.Adamantite, Vector2.Zero);
-                //d.noGravity = true;
+                Main.instance.CameraModifiers.Add(new PunchCameraModifier(Main.screenPosition, Main.rand.NextFloat(MathHelper.Pi).ToRotationVector2(), 1, 15, 5));
+                explode = true;
+                radius *= 6;
+            }
+            for (int i = 0; i < pointCount; i++)
+            {
+                points[i] = Projectile.Center + Vector2.UnitY.RotatedBy((Math.Tau / pointCount * i) + MathHelper.ToRadians(timer)) * radius;
+                if (explode && primTrail.Width < 25)
+                {
+                    ParticleSystem.GenerateParticle(new SparkleParticle(
+                        Color.Azure, 0.2f, points[i] - Vector2.UnitY.RotatedBy((float)Projectile.Center.DirectionTo(points[i]).ToRotation()), Projectile.Center.DirectionTo(points[i]), 0, 600, 0.99f));
+                }
+                if (timer == 1)
+                {
+                    if (i % 2 == 0)
+                    {
+                        Projectile p = Projectile.NewProjectileDirect(Projectile.GetSource_FromAI(), points[i], Vector2.Zero, ModContent.ProjectileType<CrystalShard>(), 10, 0, default, 1);
+                        p.tileCollide = false;
+                        p.timeLeft = 110;
+                        p.alpha = 175;
+                        particles.Add(p);
+                        //Particle p = new SparkleParticle(Color.Azure, 0.5f, points[i], Vector2.Zero, 0, 360, 1); 
+                        //ParticleSystem.GenerateParticle(p);
+                    }
+                }
+            }
+            points[^1] = points[0];
+
+            for (int i = 0; i < particles.Count; i++)
+            {
+                Projectile p = particles[i];
+                if (explode)
+                {
+                    p.alpha += 2;
+                    p.velocity += p.Center.DirectionTo(points[i * 2 + 1]) * 0.5f;
+                    continue;
+                }
+                p.Center = points[i * 2] + Vector2.Normalize(Projectile.Center.DirectionTo(points[i * 2])) * (float)Math.Sin(timer / 10) * 30;
+            }
+
+            if (radius < 0 && radius > -25)
+            {
+                primTrail.Width = trailWidthExplosion;
             }
             primTrail.Points = points;
+            primTrail.Color = new Color(100, 150, 170);
+            primTrail.Width = explode == true ? primTrail.Width - (trailWidthExplosion / time) : 40;
+            primTrail.pixelated = true;
+            if (initialize)
+            {
+                primTrail.Initialize();
+                initialize = false;
+            }
             primTrail.Draw();
+            
             return false;
+        }
+        public override void OnKill(int timeLeft)
+        {
+            primTrail.kill = true;
+            
+            for (int i = 0; i < particles.Count; i++)
+            {
+                particles[i].timeLeft = 300;
+            }
         }
         public override bool? CanDamage()
         {

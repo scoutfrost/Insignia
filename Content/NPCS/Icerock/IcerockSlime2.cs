@@ -1,4 +1,4 @@
-﻿using Insignia.Content.Tiles;
+﻿using Insignia.Biomes.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;

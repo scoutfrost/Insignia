@@ -25,7 +25,7 @@ namespace Insignia.Content.Items.Weapons.Ranged
             Item.knockBack = 1f;
             Item.value = Item.buyPrice(0, 0, 80, 0);
 
-            Item.rare = ItemRarityID.Blue;
+            Item.rare = ItemRarityID.Green;
             Item.autoReuse = true;
             Item.useAmmo = AmmoID.Bullet;
             Item.noMelee = true;

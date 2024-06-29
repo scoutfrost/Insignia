@@ -5,7 +5,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Insignia.Content.Tiles
+namespace Insignia.Biomes.Tiles
 {
     public class GlacialChunkTile : ModTile
     {

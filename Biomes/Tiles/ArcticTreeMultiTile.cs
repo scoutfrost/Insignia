@@ -7,9 +7,9 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace Insignia.Content.Tiles
+namespace Insignia.Biomes.Tiles
 {
-    public class BigGlacialChunkMultitile : ModTile
+    public class ArcticTreeMultiTile : ModTile
     {
         public override void SetStaticDefaults()
         {
@@ -17,11 +17,12 @@ namespace Insignia.Content.Tiles
             Main.tileNoAttach[Type] = true;
             Main.tileCut[Type] = false;
             Main.tileLavaDeath[Type] = true;
+            HitSound = SoundSystem.TreeHurt;
             DustType = DustID.Ice;
             TileObjectData.newTile.CopyFrom(TileObjectData.Style2xX);
-            TileObjectData.newTile.Height = 10;
-            TileObjectData.newTile.Width = 8;
-            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 };
+            TileObjectData.newTile.Height = 12;
+            TileObjectData.newTile.Width = 10;
+            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 };
             TileObjectData.addTile(Type);
 
             LocalizedText name = CreateMapEntryName();
@@ -35,9 +36,11 @@ namespace Insignia.Content.Tiles
 
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
+            Tile tile = Framing.GetTileSafely(i, j);
+
             if (Main.netMode != NetmodeID.Server)
             {
-                SoundEngine.PlaySound(SoundSystem.GlacialChunkKillSound with { Volume = 1.5f, Pitch = -0.2f });
+                SoundEngine.PlaySound(SoundSystem.TreeKill);
             }
         }
     }

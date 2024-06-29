@@ -22,7 +22,7 @@ namespace Insignia.Core.Common.Systems
         static List<Particle> particles = new();
         static List<Particle> metaBalls = new();
         static List<Type> metaballTypes = new();
-        static readonly int maxParticles = 500;
+        static readonly int maxParticles = 1000;
         public static void GenerateParticle(params Particle[] p)
         {
             foreach (Particle particle in p)
@@ -44,7 +44,7 @@ namespace Insignia.Core.Common.Systems
                 Particle.Position += Particle.Velocity;
                 Particle.TimeLeft--;
                 Particle.Angle += Particle.AngularVelocity;
-                if (particles[i].TimeLeft <= 0 || particles.Count >= maxParticles || Particle.Kill || Particle.Size <= 0.005f)
+                if (particles[i].TimeLeft <= 0 || particles.Count >= maxParticles || Particle.Kill || Particle.Size <= 0.00001f)
                 {
                     particles.RemoveAt(i);
                     i--;
@@ -75,7 +75,7 @@ namespace Insignia.Core.Common.Systems
                     }
                     else
                     {
-                        sB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
+                        sB.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
                             RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
                         Main.EntitySpriteDraw(particle.Texture, particle.Position - Main.screenPosition, particle.Texture.Bounds, particle.Color * (1 - alpha / 255),
@@ -92,45 +92,48 @@ namespace Insignia.Core.Common.Systems
         }
         public static void DrawMetaBalls()
         {
-            gD.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
             for (int i = 0; i < metaballTypes.Count; i++)
             {
-                Color outlineColor = Color.White;
-
-                gD.SetRenderTarget(renderTarget);
-                gD.Clear(Color.Transparent);
-
-                sB.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
-                    RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-                
-                for (int j = 0; j < metaBalls.Count; j++)
+                if (metaBalls.Count > 0)
                 {
-                    if (metaBalls[j].GetType() == metaballTypes[i])
+                    Color outlineColor = Color.White;
+                    Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+                    RenderTargetBinding[] previousRTs = gD.GetRenderTargets();
+
+                    gD.SetRenderTarget(renderTarget);
+                    gD.Clear(Color.Transparent);
+
+                    sB.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
+                        RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+
+                    for (int j = 0; j < metaBalls.Count; j++)
                     {
-                        Particle particle = metaBalls[j];
+                        if (metaBalls[j].GetType() == metaballTypes[i])
+                        {
+                            Particle particle = metaBalls[j];
 
-                        float alpha = MathHelper.Clamp((float)particle.Alpha, 0f, 255f);
+                            float alpha = MathHelper.Clamp((float)particle.Alpha, 0f, 255f);
 
-                        sB.Draw(particle.Texture, particle.Position - Main.screenPosition, particle.Texture.Bounds, particle.Color * (1 - alpha / 255),
-                            particle.Angle, particle.Texture.Size() / 2, particle.Size, SpriteEffects.None, 0);
+                            sB.Draw(particle.Texture, particle.Position - Main.screenPosition, particle.Texture.Bounds, particle.Color * (1 - alpha / 255),
+                                particle.Angle, particle.Texture.Size() / 2, particle.Size, SpriteEffects.None, 0);
 
-                        outlineColor = particle.outlineColor;
+                            outlineColor = particle.outlineColor;
+                        }
                     }
+                    sB.End();
+
+                    gD.SetRenderTargets(previousRTs);
+
+                    GameShaders.Misc["OutlineShader"].Shader.Parameters["outlineColor"].SetValue(outlineColor.ToVector4());
+                    GameShaders.Misc["OutlineShader"].Shader.Parameters["uImageSize"].SetValue(renderTarget.Size() / 2);
+
+                    sB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
+                        RasterizerState.CullNone, GameShaders.Misc["OutlineShader"].Shader);
+
+                    sB.Draw(renderTarget, Vector2.Zero, Color.White);
+
+                    sB.End();
                 }
-                sB.End();
-
-                gD.SetRenderTarget(null);
-                gD.Textures[0] = renderTarget;
-
-                GameShaders.Misc["OutlineShader"].Shader.Parameters["outlineColor"].SetValue(outlineColor.ToVector4());
-                GameShaders.Misc["OutlineShader"].Shader.Parameters["uImageSize"].SetValue(renderTarget.Size() / 2);
-
-                sB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
-                    RasterizerState.CullNone, GameShaders.Misc["OutlineShader"].Shader);
-
-                sB.Draw(renderTarget, Vector2.Zero, Color.White);
-
-                sB.End();
             }
         }
         public static void AnimateFromVerticalSpritesheet(Particle particle, int numberOfFrames, int animSpeed = 5, int? animTimer = null)

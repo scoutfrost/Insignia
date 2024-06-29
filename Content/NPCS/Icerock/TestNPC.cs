@@ -56,12 +56,8 @@ namespace Insignia.Content.NPCS.Icerock
             WhichLegsMoveInSuccession[1].Add(limb2);
         }
         Vector2 gravity;
-        public override void SafeAI()
+        void SpawnDust()
         {
-            if (Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.R))
-            {
-                NPC.life = 0;
-            }
             for (int i = 0; i < Limbs.Count; i++)
             {
                 Limb l = Limbs[i];
@@ -73,6 +69,14 @@ namespace Insignia.Content.NPCS.Icerock
                 Dust d2 = Dust.NewDustPerfect(l.endPos, DustID.ArgonMoss, Vector2.Zero);
                 d2.noGravity = true;
             }
+        }
+        public override void SafeAI()
+        {
+            SpawnDust();
+            if (Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.R))
+            {
+                NPC.life = 0;
+            }
 
             int iterations = 9;
             int distOffGroundInTiles = 7;
@@ -82,7 +86,7 @@ namespace Insignia.Content.NPCS.Icerock
 
             for (int i = 0; i < iterations; i++)
             {
-                if (WorldGen.TileEmpty((int)pos.X, (int)pos.Y) && !WorldGen.SolidTile((int)pos.X, (int)pos.Y))
+                if (WorldGen.TileEmpty((int)pos.X, (int)pos.Y) || !WorldGen.SolidTile((int)pos.X, (int)pos.Y))
                 {
                     gravity = new Vector2(0, 10);
                     pos += new Vector2(0, 1);
@@ -112,10 +116,10 @@ namespace Insignia.Content.NPCS.Icerock
         Vector2 tile;
         public override Vector2 GetDestinationTile(Limb limb)
         {
-            int stepdist = 20 * (int)NPC.velocity.LengthSquared() / 20 * NPC.direction;
+            int stepdist = (int)NPC.velocity.LengthSquared() * NPC.direction;
 
             tile = (NPC.Center + new Vector2(stepdist, 0)) / 16;
-            while (WorldGen.TileEmpty((int)tile.X, (int)tile.Y) && !WorldGen.SolidTile((int)tile.X, (int)tile.Y))
+            while (WorldGen.TileEmpty((int)tile.X, (int)tile.Y) || !WorldGen.SolidTile((int)tile.X, (int)tile.Y))
             {
                 tile += new Vector2(0, 1);
             }

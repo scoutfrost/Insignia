@@ -59,7 +59,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         }
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            GeneralHelper.AddExpandableTooltip(ref tooltips, Mod, Color.Blue, Helpers.GeneralHelper.BleedDescription, Color.LightBlue);
+            GeneralHelper.AddExpandableTooltip(ref tooltips, Mod, Color.Blue, GeneralHelper.BleedDescription, Color.LightBlue);
         }
     }
     public class CrystalScytheProjectile : ModProjectile
@@ -100,14 +100,17 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
         NPC target;
 
-        List<Vector2> oldpos = [];
+        Vector2[] oldpos = [];
         List<Vector2> points;
         List<Vector2> oldscale = [];
 
         List<Projectile> shards = [];
 
+        PrimTrail prim;
         public override void OnSpawn(IEntitySource source)
         {
+            oldpos = new Vector2[Projectile.oldPos.Length];
+            prim = new PrimTrail();
             if (Projectile.ai[0] == 1)
                 upSwing = true;
 
@@ -124,7 +127,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             {
                 shards.Add(Projectile.NewProjectileDirect(source, Projectile.Center + new Vector2(Main.rand.Next(30)), Vector2.Zero, ModContent.ProjectileType<CrystalShard>(), 7, 0));
             }
-
         }
         public override void AI()
         {
@@ -240,14 +242,19 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             {
                 oldscale.Remove(oldscale[0]);
             }
-            oldpos = [.. Projectile.oldPos];
+
             oldpos[0] = Projectile.Center;
-            for (int i = 1; i < oldpos.Count; i++)
+            for (int i = 1; i < Projectile.oldPos.Length; i++)
             {
                 oldpos[i] = Projectile.oldPos[i];
                 oldpos[i] += drawOrigin + new Vector2(Player.direction == 1 ? time * 80 : time * 35, 0).RotatedBy(Player.Center.DirectionTo(mouse).ToRotation());
             }
-            GenericPrimTrail prim = new(new(5, 15, 17, 10), [.. oldpos], 5 + time * 10);
+            prim.Color = new(5, 15, 17, 10);
+            prim.Points = oldpos;
+            prim.pixelated = true;
+            prim.Width = 5 + time * 10;
+            if (Projectile.timeLeft == timeleft - 1)
+                prim.Initialize();
             prim.Draw();
 
             SpriteEffects spriteEffects = Player.direction == 1 && !upSwing || (Player.direction == -1 && upSwing) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
@@ -263,6 +270,10 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 
             oldscale.Add(scale);
             return false;
+        }
+        public override void OnKill(int timeLeft)
+        {
+            prim.kill = true;
         }
     }
     public class CrystalShard : ModProjectile
@@ -287,11 +298,12 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Projectile.usesIDStaticNPCImmunity = true;
             Projectile.idStaticNPCHitCooldown = 7;
             Projectile.damage = 7;
+            Projectile.alpha = 200;
         }
         readonly int timeleft = 300;
         public override void AI()
         {
-            SparkleParticle p = new(Color.Azure, Projectile.scale, Projectile.Center, Vector2.Zero, 200, Projectile.timeLeft, 0.95f);
+            SparkleParticle p = new(Color.Azure, Projectile.scale, Projectile.Center, Vector2.Zero, Projectile.alpha, Projectile.timeLeft, 0.95f);
             ParticleSystem.GenerateParticle(p);
             if (Projectile.ai[0] != 1 && Projectile.timeLeft <= timeleft - 100)
             {

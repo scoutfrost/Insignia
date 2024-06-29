@@ -82,7 +82,7 @@ Items: {
 
 	PermafrostPendant: {
 		DisplayName: Permafrost Pendant
-		Tooltip: ""
+		Tooltip: Creates an icy explosion that sucks enemies in on critical kills
 	}
 
 	CrystalScythe: {

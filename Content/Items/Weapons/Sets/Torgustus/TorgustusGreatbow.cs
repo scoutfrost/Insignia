@@ -242,6 +242,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         }
         Vector2 mouse;
         Player player => Main.player[Projectile.owner];
+        GenericPrimTrail primtrail;
         public override void OnSpawn(IEntitySource source)
         {
             mouse = Main.MouseWorld;
@@ -266,7 +267,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             telegraphTexture = null; 
         }
 
-        int primTimer = 0;
         float lengthOfHitlineIntersect;
         float collisionPoint = 0;
         bool collidingWithPortal;
@@ -278,13 +278,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             List<Projectile> portals = player.GetModPlayer<TorgustusPortalPlayer>().portalsActive;
             if (Projectile.ai[1] == 1)
             {
-                primTimer++;
-
-                if (primTimer > 20)
-                {
-                    GenericPrimTrail primtrail = new(new(220, 110, 30, 150), Projectile.oldPos, 5);
-                    primtrail.Draw();
-                }
+                primtrail = new(new(220, 110, 30, 150), Projectile.oldPos, 5);
+                //primtrail.Draw();
 
                 if (Projectile.velocity.Length() > 25)
                 {
@@ -356,6 +351,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         }
         public override void OnKill(int timeLeft)
         {
+            if (primtrail != null)
+                primtrail.kill = true;
             if (Projectile.velocity.Length() > 10)
             {
                 for (int i = 0; i < 10; i++)

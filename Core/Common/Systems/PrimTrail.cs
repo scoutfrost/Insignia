@@ -14,97 +14,169 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Insignia.Core.Particles;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Terraria.UI;
 
 namespace Insignia.Core.Common.Systems
 {
-    public abstract class PrimTrail
+    internal class PrimHandler : ModSystem
     {
-        private VertexBuffer vertexBuffer;
-        private IndexBuffer indexBuffer;
-        readonly BasicEffect BasicEffect = new(GD);
-        protected Effect Shader;
-        protected static GraphicsDevice GD = Main.graphics.GraphicsDevice;
-        protected VertexPositionColorTexture[] Vertices;
-        protected short[] indices;
+        static internal List<PrimTrail> trails = [];
+        public override void PostUpdateProjectiles()
+        {
+            for (int i = 0; i < trails.Count; i++)
+            {
+                PrimTrail trail = trails[i];
+                if (trail.kill || trail == null)
+                {
+                    trails.Remove(trail);
+                    continue;
+                }
+            }
+            //Main.NewText(trails.Count);
+        }
+        public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
+        {
+            for (int i = 0; i < trails.Count; i++)
+            {
+                PrimTrail trail = trails[i];
+                if (trail.pixelated)
+                {
+                    Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+
+                    GraphicsDevice GD = Main.graphics.GraphicsDevice;
+                    RenderTargetBinding[] previousRTs = GD.GetRenderTargets();
+                    RenderTarget2D pixelationTarget = new(GD, GD.PresentationParameters.BackBufferWidth / 2, GD.PresentationParameters.BackBufferHeight / 2);
+
+                    GD.SetRenderTarget(pixelationTarget);
+                    GD.Clear(Color.Transparent);
+
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
+                        RasterizerState.CullNone, null);
+                    
+                    RasterizerState rasterizerState = new()
+                    {
+                        CullMode = CullMode.None
+                    };
+                    GD.RasterizerState = rasterizerState;
+
+                    foreach (EffectPass pass in trail.Shader.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+                        GD.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, trail.Vertices, 0, trail.Vertices.Length, trail.indices, 0, trail.Vertices.Length - 2);
+                    }
+                    Main.spriteBatch.End();
+                    GD.SetRenderTargets(previousRTs);
+
+                    Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
+                        RasterizerState.CullNone, null);
+
+                    Main.spriteBatch.Draw(pixelationTarget, new Rectangle(0, 0, pixelationTarget.Width * 2, pixelationTarget.Height * 2), Color.White);
+                    Main.spriteBatch.End();
+
+                    pixelationTarget.Dispose();
+                }
+            }
+        }
+    }
+    public class PrimTrail
+    {
+        public BasicEffect basicEffect = new(GD);
+        VertexBuffer vertexBuffer;
+        IndexBuffer indexBuffer;
+        static GraphicsDevice GD = Main.graphics.GraphicsDevice;
+        internal protected bool pixelated = false;
+        public VertexPositionColorTexture[] Vertices;
+        internal protected short[] indices;
         public Color Color;
         public Vector2[] Points;
         public float Width;
+        public Effect Shader;
+        public Texture2D Texture;
+        public bool kill = false;
         protected virtual void Update() { }
-        protected virtual void SetShaders() { }
-        protected virtual void OnKill() { }
+        //protected virtual void OnKill() { }
         protected virtual void CustomDraw(GraphicsDevice graphicsDevice) { }
-        protected virtual bool ShouldCustomDraw => false;
+        public bool ShouldCustomDraw = false;
         public bool WidthFallOff;
-        protected void Initialize()
+        public PrimTrail(Vector2[] points, Color color, int width)
         {
-            for (int i = 0; i < Points.Length; i++)
-            {
-                Points[i] += new Vector2(0.01f);
-            }
+            Points = points;
+            Color = color;
+            Width = width;
+            Initialize();
+        }
+        public PrimTrail() { }
+        public void Initialize()
+        {
             Vertices = new VertexPositionColorTexture[Points.Length * 2];
-            indices = new short[3 * (Vertices.Length - 2)];
+            indices = new short[Vertices.Length];
             vertexBuffer = new(GD, typeof(VertexPositionTexture), Vertices.Length, BufferUsage.WriteOnly);
             indexBuffer = new(GD, typeof(short), indices.Length, BufferUsage.WriteOnly);
             indexBuffer.SetData(indices);
             vertexBuffer.SetData(Vertices);
+
+            PrimHandler.trails.Add(this);
         }
         public void Draw()
         {
+            if (Points.Length < 2)
+                return;
             if (ShouldCustomDraw)
                 CustomDraw(GD);
 
             if (!ShouldCustomDraw && Points != null)
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    if (Points[i] == default)
-                        return;
-                }
                 GenerateVertices();
                 GenerateIndeces();
             }
-            SetShaders();
+
+            GD.SetVertexBuffer(vertexBuffer);
+            GD.Indices = indexBuffer;
 
             RasterizerState rasterizerState = new()
             {
                 CullMode = CullMode.None
             };
-            BasicEffect.VertexColorEnabled = true;
-            BasicEffect.World = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
-            BasicEffect.View = Main.GameViewMatrix.TransformationMatrix;
-            BasicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, GD.Viewport.Width, GD.Viewport.Height, 0, -1, 1);
             GD.RasterizerState = rasterizerState;
 
-            GD.SetVertexBuffer(vertexBuffer);
-            GD.Indices = indexBuffer;
+            if (Shader == default || Shader.GetType() == basicEffect.GetType())
+            {
+                if (Texture != null)
+                    basicEffect.TextureEnabled = true;
+                basicEffect.VertexColorEnabled = true;
 
-            if (Shader == default)
-                Shader = BasicEffect;
-            
+                basicEffect.World = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
+                basicEffect.View = Main.GameViewMatrix.TransformationMatrix;
+                basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, GD.Viewport.Width, GD.Viewport.Height, 0, -1, 1);
+
+                basicEffect.Texture = Texture;
+                Shader = basicEffect;
+            }
             foreach (EffectPass pass in Shader.CurrentTechnique.Passes)
             {
-                pass.Apply();
-                GD.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, Vertices, 0, Vertices.Length, indices, 0, Vertices.Length - 2);
+                if (!pixelated)
+                {
+                    pass.Apply();
+                    GD.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, Vertices, 0, Vertices.Length, indices, 0, Vertices.Length - 2);
+                }
             }
         }
         private void GenerateIndeces()
         {
-            for (short i = 0; i < Vertices.Length - 2; i++)
+            for (short i = 0; i < Vertices.Length; i++)
             {
                 if (Vertices[i] == default)
                     return;
-                indices[i * 3] = i;
-                indices[i * 3 + 1] = (short)(i + 1);
-                indices[i * 3 + 2] = (short)(i + 2);
+                indices[i] = i;
             }
         }
         private void GenerateVertices()
         {
             for (int i = 0; i < Points.Length; i++)
             {
-                if (Points[i] == default) 
-                   return;
-
+                if (Points[i].X <= 100)
+                    Points[i] = Points[0];
+                Color.A = 0;
                 bool lastpoint = i == Points.Length - 1;
                 Vector2 current = Points[i];
                 Vector2 next = lastpoint ? Points[i - 1] : Points[i + 1];
@@ -112,12 +184,12 @@ namespace Insignia.Core.Common.Systems
                 Vector3 normal = new(current.DirectionTo(next).RotatedBy(lastpoint ? MathHelper.PiOver2 : -MathHelper.PiOver2) * Width, 0);
                 if (WidthFallOff)
                     normal *= progress;
-                Vertices[i * 2] = new(new Vector3(current, 0) + normal, Color, Vector2.One);
-                Vertices[i * 2 + 1] = new(new Vector3(current, 0) - normal, Color, Vector2.One);
-                
-                /*Dust d = Dust.NewDustPerfect(new Vector2(Vertices[i].Position.X, Vertices[i].Position.Y), DustID.Ash, Vector2.Zero, 0, default, 1);
-                Dust d1 = Dust.NewDustPerfect(new Vector2(Vertices[i + 1].Position.X, Vertices[i + 1].Position.Y), DustID.Ash, Vector2.Zero, 0, default, 1f);
+                Vertices[i * 2] = new(new Vector3(current, 0) + normal, Color, i % 2 == 0 ? new(0, 0) : new(1, 0));
+                Vertices[i * 2 + 1] = new(new Vector3(current, 0) - normal, Color, i % 2 == 0 ? new(0, 1) : new(1, 1));
+
+                /*Dust d = Dust.NewDustPerfect(new Vector2((int)Vertices[i * 2].Position.X, (int)Vertices[i * 2].Position.Y), DustID.AmberBolt, Vector2.Zero);
                 d.noGravity = true;
+                Dust d1 = Dust.NewDustPerfect(new Vector2((int)Vertices[i * 2 + 1].Position.X, (int)Vertices[i * 2 + 1].Position.Y), DustID.Adamantite, Vector2.Zero);
                 d1.noGravity = true;*/
             }
         }

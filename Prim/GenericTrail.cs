@@ -13,13 +13,14 @@ namespace Insignia.Prim
 {
     internal class GenericPrimTrail : PrimTrail
     {
-        public GenericPrimTrail(Color color, Vector2[] points, float width, bool widthFallOff = true, Effect shader = default)
+        public GenericPrimTrail(Color color, Vector2[] points, float width, bool widthFallOff = true, Effect shader = default, bool pixelated = false)
         {
             Color = color;
             Points = points;
             Width = width;
             WidthFallOff = widthFallOff;
             Shader = shader;
+            this.pixelated = pixelated;
             Initialize();
         }
     }

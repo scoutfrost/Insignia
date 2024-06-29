@@ -8,19 +8,19 @@ using System.Collections.Generic;
 using Terraria.WorldBuilding;
 using Terraria.IO;
 using System;
-using Insignia.Content.Tiles;
 using Insignia.Core.Common.Systems;
+using Insignia.Biomes.Tiles;
 
 namespace Insignia.Biomes
 {
-	internal class ArcticBiomeGeneration : ModSystem
+    internal class ArcticBiomeGeneration : ModSystem
 	{
 		public override void ModifyWorldGenTasks(List<GenPass> tasks, ref double totalWeight)
 		{
 			int genIndex = tasks.FindIndex(genpass => genpass.Name.Equals("Dungeon"));
 			if (genIndex != -1)
 			{
-				tasks.Insert(genIndex - 1, new PassLegacy("Arctic Biome Gen", ArcticBiomeGen));
+				tasks.Insert(genIndex + 1, new PassLegacy("Arctic Biome Gen", ArcticBiomeGen));
 			}
 		}
 
@@ -55,13 +55,7 @@ namespace Insignia.Biomes
 		}
 		private void TestMethod2(int x, int y)
 		{
-			//CustomLiquidHandler c = new();
-			//c.liquidParticles = new();
-			//c.liquidParticles.Add( new LiquidParticle() { position = Main.MouseWorld, velocity = Vector2.Zero });
-			//ProjKeyFrameHandler keyFrameHandler = new(KeyFrameInterpolationCurve.Lerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints");
-			//keypoints = keyFrameHandler.GetPoints();
-
-			//Main.NewText(keypoints.Count + "real");
+			TestMethod(x, y);
 		}
 		private void TestMethod(int x1, int y1)
 		{

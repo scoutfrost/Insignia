@@ -1,4 +1,4 @@
-﻿using Insignia.Content.Tiles;
+﻿using Insignia.Biomes.Tiles;
 using Insignia.Core.Common.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

@@ -3,7 +3,7 @@ using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Insignia.Content.Tiles
+namespace Insignia.Biomes.Tiles
 {
     public class GlacialChunkItem : ModItem
     {

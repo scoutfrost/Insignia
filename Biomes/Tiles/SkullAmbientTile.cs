@@ -1,5 +1,4 @@
-﻿using Insignia.Core.Common.Systems;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -7,9 +6,9 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace Insignia.Content.Tiles
+namespace Insignia.Biomes.Tiles
 {
-    public class ArcticTreeMultiTile : ModTile
+    public class SkullAmbientTile : ModTile
     {
         public override void SetStaticDefaults()
         {
@@ -17,12 +16,12 @@ namespace Insignia.Content.Tiles
             Main.tileNoAttach[Type] = true;
             Main.tileCut[Type] = false;
             Main.tileLavaDeath[Type] = true;
-            HitSound = SoundSystem.TreeHurt;
-            DustType = DustID.Ice;
+            HitSound = SoundID.Dig;
+            DustType = DustID.Stone;
             TileObjectData.newTile.CopyFrom(TileObjectData.Style2xX);
-            TileObjectData.newTile.Height = 12;
-            TileObjectData.newTile.Width = 10;
-            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 };
+            TileObjectData.newTile.Height = 8;
+            TileObjectData.newTile.Width = 2;
+            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16, 16, 16, 16, 16, 16 };
             TileObjectData.addTile(Type);
 
             LocalizedText name = CreateMapEntryName();
@@ -40,7 +39,7 @@ namespace Insignia.Content.Tiles
 
             if (Main.netMode != NetmodeID.Server)
             {
-                SoundEngine.PlaySound(SoundSystem.TreeKill);
+                SoundEngine.PlaySound(SoundID.Dig);
             }
         }
     }

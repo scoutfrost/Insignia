@@ -16,6 +16,7 @@ namespace Insignia.Content.Items.Accessories
     {
         public override void SetDefaults()
         {
+            Item.rare = ItemRarityID.Blue;
             Item.accessory = true;
         }
         public override void UpdateAccessory(Player player, bool hideVisual)

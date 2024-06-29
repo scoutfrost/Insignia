@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Terraria;
 
 namespace Insignia.Core.Particles
@@ -25,7 +26,7 @@ namespace Insignia.Core.Particles
         }
         public override void Update()
         {
-            Lighting.AddLight(Position, Color.R / 255, Color.G / 255, Color.B / 255);
+            Lighting.AddLight(Position, Color.R / 255 * (1 - (float)Alpha / 255), Color.G / 255 * (1 - (float)Alpha / 255), Color.B / 255 * (1 - (float)Alpha / 255));
             Velocity = Velocity.RotatedByRandom(MathHelper.ToRadians(2)) * 0.99f;
             Size *= scaleMult;
             AngularVelocity = Velocity.ToRotation();

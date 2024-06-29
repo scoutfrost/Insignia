@@ -30,6 +30,8 @@ namespace Insignia.Core.Particles
                 TextureName = "GenericGlowParticle";
             else 
                 TextureName = altTextureName;
+            //isMetaBall = true;
+            //outlineColor = Color.White;
         }
         public override void Update()
         {

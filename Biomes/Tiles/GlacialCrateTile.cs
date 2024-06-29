@@ -6,7 +6,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace Insignia.Content.Tiles
+namespace Insignia.Biomes.Tiles
 {
     public class GlacialCrateTile : ModTile
     {

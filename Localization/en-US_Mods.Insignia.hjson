@@ -30,6 +30,10 @@ Projectiles: {
 	CryoProj.DisplayName: Cryo Proj
 	CrystalShard.DisplayName: Crystal Shard
 	TestProj2.DisplayName: Test Proj2
+	CryshotProj.DisplayName: Cryshot Proj
+	CyroProj.DisplayName: Cyro Proj
+	BouncingFishSpike.DisplayName: Bouncing Fish Spike
+	FishspikeFlailProj.DisplayName: Fishspike Flail Proj
 }
 
 NPCs: {
@@ -122,6 +126,11 @@ Items: {
 		DisplayName: Blood Smoke Accessory
 		Tooltip: ""
 	}
+
+	FishspikeFlail: {
+		DisplayName: Fishspike Flail
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -141,4 +150,5 @@ Tiles: {
 	BigGlacialChunkMultitile.MapEntry: Large Glacial Chunk
 	ArcticTreeMultiTile.MapEntry: Arctic Tree Multi Tile
 	SkullAmbientTile.MapEntry: Skull Ambient Tile
+	IceFlower.MapEntry: Ice Flower
 }

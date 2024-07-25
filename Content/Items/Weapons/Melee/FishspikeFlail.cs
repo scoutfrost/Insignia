@@ -11,7 +11,6 @@ using Terraria.Audio;
 using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
-using static Humanizer.In;
 
 namespace Insignia.Content.Items.Weapons.Melee
 {

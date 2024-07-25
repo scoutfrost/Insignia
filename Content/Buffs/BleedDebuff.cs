@@ -1,15 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using Microsoft.Xna.Framework.Input;
-using Terraria.ID;
-using Microsoft.Xna.Framework;
-using Terraria.GameContent.Generation;
 using System.Collections.Generic;
-using Terraria.WorldBuilding;
-using Terraria.IO;
-using System;
-using Insignia.Content.Tiles;
-using Insignia.Core.Common.Systems;
 
 namespace Insignia.Content.Buffs
 {

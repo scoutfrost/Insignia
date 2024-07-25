@@ -1,34 +1,34 @@
-﻿using System;
+﻿using Insignia.Biomes.ColdBiome.Backgrounds;
+using Insignia.Biomes.ColdBiome.Tiles;
+using Insignia.Core.ModPlayers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.Enums;
 using Terraria.ModLoader;
 
 namespace Insignia.Biomes.ColdBiome
 {
-    public class ExampleBiomeTileCount : ModSystem
+    public class BiomeTileCount : ModSystem
     {
-        public int exampleBlockCount;
-
+        public int tileCount;
         public override void TileCountsAvailable(ReadOnlySpan<int> tileCounts)
         {
-            exampleBlockCount = tileCounts[ModContent.TileType<ExampleBlock>()];
+            tileCount = tileCounts[ModContent.TileType<GlacialChunkTile>()];
         }
     }
     internal class ColdBiome : ModBiome
     {
+        public override SceneEffectPriority Priority => SceneEffectPriority.BiomeHigh;
+        public override ModUndergroundBackgroundStyle UndergroundBackgroundStyle => ModContent.GetInstance<ColdBiomeBackground>();
         public override bool IsBiomeActive(Player player)
         {
-            bool b1 = ModContent.GetInstance<ExampleBiomeTileCount>().exampleBlockCount >= 40;
-
-            // Second, we will limit this biome to the inner horizontal third of the map as our second custom condition
-            bool b2 = Math.Abs(player.position.ToTileCoordinates().X - Main.maxTilesX / 2) < Main.maxTilesX / 6;
-
-            // Finally, we will limit the height at which this biome can be active to above ground (ie sky and surface). Most (if not all) surface biomes will use this condition.
-            bool b3 = player.ZoneSkyHeight || player.ZoneOverworldHeight;
-            return b1 && b2 && b3;
+            bool tilecount = ModContent.GetInstance<BiomeTileCount>().tileCount >= 40;
+            player.GetModPlayer<InsigniaPlayer>().inColdBiome = tilecount;
+            return tilecount;
         }
     }
 }

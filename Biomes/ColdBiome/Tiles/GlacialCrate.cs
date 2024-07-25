@@ -4,7 +4,7 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Insignia.Biomes.Tiles
+namespace Insignia.Biomes.ColdBiome.Tiles
 {
     public class GlacialCrate : ModItem
     {

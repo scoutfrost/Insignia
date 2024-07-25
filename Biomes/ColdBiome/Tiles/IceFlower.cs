@@ -6,9 +6,9 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace Insignia.Biomes.Tiles
+namespace Insignia.Biomes.ColdBiome.Tiles
 {
-    public class SkullAmbientTile : ModTile
+    public class IceFlower : ModTile
     {
         public override void SetStaticDefaults()
         {
@@ -17,11 +17,11 @@ namespace Insignia.Biomes.Tiles
             Main.tileCut[Type] = false;
             Main.tileLavaDeath[Type] = true;
             HitSound = SoundID.Dig;
-            DustType = DustID.Stone;
+            DustType = DustID.Ice;
             TileObjectData.newTile.CopyFrom(TileObjectData.Style2xX);
-            TileObjectData.newTile.Height = 8;
-            TileObjectData.newTile.Width = 2;
-            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16, 16, 16, 16, 16, 16 };
+            TileObjectData.newTile.Height = 5;
+            TileObjectData.newTile.Width = 4;
+            TileObjectData.newTile.CoordinateHeights = new int[] { 16, 16, 16, 16, 16 };
             TileObjectData.addTile(Type);
 
             LocalizedText name = CreateMapEntryName();
@@ -36,11 +36,6 @@ namespace Insignia.Biomes.Tiles
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
             Tile tile = Framing.GetTileSafely(i, j);
-
-            if (Main.netMode != NetmodeID.Server)
-            {
-                SoundEngine.PlaySound(SoundID.Dig);
-            }
         }
     }
 }

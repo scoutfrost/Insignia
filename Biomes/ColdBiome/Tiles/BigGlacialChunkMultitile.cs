@@ -7,7 +7,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace Insignia.Biomes.Tiles
+namespace Insignia.Biomes.ColdBiome.Tiles
 {
     public class BigGlacialChunkMultitile : ModTile
     {

@@ -9,6 +9,7 @@ namespace Insignia.Core.ModPlayers
 {
     internal class InsigniaPlayer : ModPlayer
     {
+        public bool inColdBiome;
         public float BleedDamageMultiplier = 1;
         public float BleedBuildupMultiplier = 1;
         public bool BleedProc;

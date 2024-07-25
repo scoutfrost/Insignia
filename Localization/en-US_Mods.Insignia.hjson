@@ -131,6 +131,11 @@ Items: {
 		DisplayName: Fishspike Flail
 		Tooltip: ""
 	}
+
+	PlantMatterTileItem: {
+		DisplayName: Plant Matter Tile Item
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -151,4 +156,11 @@ Tiles: {
 	ArcticTreeMultiTile.MapEntry: Arctic Tree Multi Tile
 	SkullAmbientTile.MapEntry: Skull Ambient Tile
 	IceFlower.MapEntry: Ice Flower
+}
+
+Biomes: {
+	ColdBiome: {
+		DisplayName: Cold Biome
+		TownNPCDialogueName: the Cold Biome
+	}
 }

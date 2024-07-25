@@ -176,7 +176,7 @@ namespace Insignia.Content.Items.Accessories
                 if (explode)
                 {
                     p.alpha += 2;
-                    p.velocity += p.Center.DirectionTo(points[i * 2 + 1]) * 0.5f;
+                    p.velocity += p.Center.DirectionTo(points[i * 2 + 1]) * 0.4f;
                     continue;
                 }
                 p.Center = points[i * 2] + Vector2.Normalize(Projectile.Center.DirectionTo(points[i * 2])) * (float)Math.Sin(timer / 10) * 30;
@@ -205,7 +205,7 @@ namespace Insignia.Content.Items.Accessories
             
             for (int i = 0; i < particles.Count; i++)
             {
-                particles[i].timeLeft = 300;
+                particles[i].timeLeft = 200;
             }
         }
         public override bool? CanDamage()

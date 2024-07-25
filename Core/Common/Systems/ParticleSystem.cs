@@ -11,6 +11,7 @@ using ReLogic.Content;
 using Terraria.ID;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
+using ReLogic.Threading;
 
 namespace Insignia.Core.Common.Systems
 {

@@ -1,7 +1,7 @@
-﻿
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\tModLoader.targets" />
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Insignia</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

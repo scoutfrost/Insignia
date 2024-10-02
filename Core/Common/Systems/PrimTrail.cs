@@ -26,11 +26,7 @@ namespace Insignia.Core.Common.Systems
             for (int i = 0; i < trails.Count; i++)
             {
                 PrimTrail trail = trails[i];
-                if (trail.kill || trail == null)
-                {
-                    trails.Remove(trail);
-                    continue;
-                }
+                trail.isActive = false;
             }
             //Main.NewText(trails.Count);
         }
@@ -39,7 +35,12 @@ namespace Insignia.Core.Common.Systems
             for (int i = 0; i < trails.Count; i++)
             {
                 PrimTrail trail = trails[i];
-                if (trail.pixelated)
+                if (trail.kill || !trail.isActive)
+                {
+                    trails.Remove(trail);
+                    continue;
+                }
+                if (trail.Pixelated)
                 {
                     Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
 
@@ -58,7 +59,7 @@ namespace Insignia.Core.Common.Systems
                         CullMode = CullMode.None
                     };
                     GD.RasterizerState = rasterizerState;
-
+                             
                     foreach (EffectPass pass in trail.Shader.CurrentTechnique.Passes)
                     {
                         pass.Apply();
@@ -78,13 +79,23 @@ namespace Insignia.Core.Common.Systems
             }
         }
     }
+    public struct PrimData
+    {
+        public bool Pixelated;
+        public Color Color;
+        public Vector2[] Points;
+        public float Width;
+        public Effect Shader;
+        public Texture2D Texture;
+    }
     public class PrimTrail
     {
+        internal bool isActive;
         public BasicEffect basicEffect = new(GD);
         VertexBuffer vertexBuffer;
         IndexBuffer indexBuffer;
         static GraphicsDevice GD = Main.graphics.GraphicsDevice;
-        internal protected bool pixelated = false;
+        internal protected bool Pixelated = false;
         public VertexPositionColorTexture[] Vertices;
         internal protected short[] indices;
         public Color Color;
@@ -93,6 +104,8 @@ namespace Insignia.Core.Common.Systems
         public Effect Shader;
         public Texture2D Texture;
         public bool kill = false;
+        public Vector2 texCoordTopOffset;
+        public Vector2 texCoordBottomOffset;
         protected virtual void Update() { }
         //protected virtual void OnKill() { }
         protected virtual void CustomDraw(GraphicsDevice graphicsDevice) { }
@@ -105,9 +118,19 @@ namespace Insignia.Core.Common.Systems
             Width = width;
             Initialize();
         }
+        public PrimTrail(PrimData primData)
+        { 
+            Pixelated = primData.Pixelated;
+            Color = primData.Color;
+            Width = primData.Width;
+            Shader = primData.Shader;
+            Texture = primData.Texture;
+            Points = primData.Points;
+            Initialize();
+        }
         public PrimTrail() { }
         public void Initialize()
-        {
+         {
             Vertices = new VertexPositionColorTexture[Points.Length * 2];
             indices = new short[Vertices.Length];
             vertexBuffer = new(GD, typeof(VertexPositionTexture), Vertices.Length, BufferUsage.WriteOnly);
@@ -124,15 +147,18 @@ namespace Insignia.Core.Common.Systems
             if (ShouldCustomDraw)
                 CustomDraw(GD);
 
+            isActive = true;
+
+            Update();
+
             if (!ShouldCustomDraw && Points != null)
             {
                 GenerateVertices();
-                GenerateIndeces();
             }
+            GenerateIndeces();
 
             GD.SetVertexBuffer(vertexBuffer);
             GD.Indices = indexBuffer;
-
             RasterizerState rasterizerState = new()
             {
                 CullMode = CullMode.None
@@ -154,7 +180,7 @@ namespace Insignia.Core.Common.Systems
             }
             foreach (EffectPass pass in Shader.CurrentTechnique.Passes)
             {
-                if (!pixelated)
+                if (!Pixelated)
                 {
                     pass.Apply();
                     GD.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, Vertices, 0, Vertices.Length, indices, 0, Vertices.Length - 2);
@@ -175,7 +201,11 @@ namespace Insignia.Core.Common.Systems
             for (int i = 0; i < Points.Length; i++)
             {
                 if (Points[i].X <= 100)
-                    Points[i] = Points[0];
+                {
+                    Points[i] = Points[i - 1];
+                    if (Points[i].X == 0)
+                        return;
+                }
                 Color.A = 0;
                 bool lastpoint = i == Points.Length - 1;
                 Vector2 current = Points[i];
@@ -184,8 +214,12 @@ namespace Insignia.Core.Common.Systems
                 Vector3 normal = new(current.DirectionTo(next).RotatedBy(lastpoint ? MathHelper.PiOver2 : -MathHelper.PiOver2) * Width, 0);
                 if (WidthFallOff)
                     normal *= progress;
-                Vertices[i * 2] = new(new Vector3(current, 0) + normal, Color, i % 2 == 0 ? new(0, 0) : new(1, 0));
-                Vertices[i * 2 + 1] = new(new Vector3(current, 0) - normal, Color, i % 2 == 0 ? new(0, 1) : new(1, 1));
+
+                Vector2 texCoordsTop = i % 2 == 0 ? texCoordTopOffset : new Vector2(1, 0) + texCoordTopOffset; //0,0 : 1,0
+                Vector2 texCoordsBottom = i % 2 == 0 ? new Vector2(0, 1) + texCoordBottomOffset : new Vector2(1, 1) + texCoordBottomOffset;//0,1 : 1,1
+
+                Vertices[i * 2] = new(new Vector3(current, 0) + normal, Color, texCoordsTop);
+                Vertices[i * 2 + 1] = new(new Vector3(current, 0) - normal, Color, texCoordsBottom);
 
                 /*Dust d = Dust.NewDustPerfect(new Vector2((int)Vertices[i * 2].Position.X, (int)Vertices[i * 2].Position.Y), DustID.AmberBolt, Vector2.Zero);
                 d.noGravity = true;

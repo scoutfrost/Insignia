@@ -1,5 +1,7 @@
-﻿using Insignia.Core.ModPlayers;
+﻿using Insignia.Core.Common.Systems;
+using Insignia.Core.ModPlayers;
 using Insignia.Core.Particles;
+using Microsoft.Xna.Framework;
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +10,7 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace Insignia.Content.Items.Accessories
 {
@@ -23,19 +26,34 @@ namespace Insignia.Content.Items.Accessories
             base.Load();
         }
         bool hasSubscribed = false;
+        Player player;
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            //this.player = player;
             if (!hasSubscribed)
             {
                 player.GetModPlayer<AccessoryPlayer>().OnHitNPCEvent += BloodSmokeAccessory_OnHitNPCEvent;
                 hasSubscribed = true;
             }
+            this.player = player;
         }
-
-        private void BloodSmokeAccessory_OnHitNPCEvent(NPC arg1, NPC.HitInfo arg2, int arg3, Player arg4)
+        int i = 0;
+        PrimTrail p;
+        private void BloodSmokeAccessory_OnHitNPCEvent(NPC npc, NPC.HitInfo arg2, int arg3, Player arg4)
         {
-            throw new System.NotImplementedException();
+            if (player.GetModPlayer<InsigniaPlayer>().BleedProc)
+            {
+                List<Vector2> primPoints = [];
+                for (int i = 0; i < 10; i++)
+                {
+                    primPoints.Add(Helpers.EasingFunctions.Bezier([npc.Center, player.Center], i));
+                }
+                /*p.Points = primPoints.ToArray();
+                p.Color = Color.AliceBlue;
+                p.Width = 10;
+                p.Initialize();
+                p.Draw();
+                player.statLife += 40;*/
+            }
         }
     }
 }

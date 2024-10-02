@@ -158,7 +158,8 @@ namespace Insignia.Biomes
 				}
 			}
 			int c = 0;
-			while (c < 750)
+			int pointcount = 1500;
+			while (c < pointcount)
 			{
 				for (int i = 0; i < points.Count; i++)
 				{
@@ -188,7 +189,7 @@ namespace Insignia.Biomes
 				}
 				c++;
 			}
-			int miscRoomCount = 5;
+			int miscRoomCount = 15;
 			for (int i = iceBiomeTile.X; i < (iceBiomeTile.X < Main.maxTilesX / 2 ? Main.maxTilesX / 2 : Main.maxTilesX); i++)
 			{
 				for (int j = iceBiomeTile.Y; j < Main.maxTilesY - 200; j++)

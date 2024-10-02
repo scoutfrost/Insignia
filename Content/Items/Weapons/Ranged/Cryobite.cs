@@ -54,12 +54,6 @@ namespace Insignia.Content.Items.Weapons.Ranged
             Projectile.NewProjectile(source, position + muzzleOffset, velocity, type, damage, knockback, player.whoAmI);
             return false;
         }
-
-        public override bool CanConsumeAmmo(Item ammo, Player player)
-        {
-            return Main.rand.NextFloat() >= 0.25f;
-        }
-
         public override Vector2? HoldoutOffset()
         {
             return new Vector2(-3, 0);
@@ -147,7 +141,7 @@ namespace Insignia.Content.Items.Weapons.Ranged
             Projectile.DamageType = DamageClass.Ranged;
             Projectile.timeLeft = timeLeftMax;
             Projectile.tileCollide = true;
-            Projectile.extraUpdates = 1;
+            Projectile.extraUpdates = 0;
         }
         public override void AI()
         {

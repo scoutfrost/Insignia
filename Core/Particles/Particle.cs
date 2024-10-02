@@ -24,6 +24,7 @@ namespace Insignia.Core.Particles
         public Rectangle? Frame;
         public int? Alpha;
         public float[] Ai = new float[2];
+        public BlendState BlendState = BlendState.AlphaBlend;
 
         public bool isMetaBall = false;
         public Color outlineColor;

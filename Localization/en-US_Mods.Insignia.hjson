@@ -34,6 +34,13 @@ Projectiles: {
 	CyroProj.DisplayName: Cyro Proj
 	BouncingFishSpike.DisplayName: Bouncing Fish Spike
 	FishspikeFlailProj.DisplayName: Fishspike Flail Proj
+	FrostDaggerProjectile.DisplayName: Frost Dagger Projectile
+	PermafrostPendantShard.DisplayName: Permafrost Pendant Shard
+	FrostHookProjectile.DisplayName: Frost Hook Projectile
+	IceGrenadeLauncherProj.DisplayName: Ice Grenade Launcher Proj
+	IceGrenadeProjectile.DisplayName: Ice Grenade Projectile
+	Explosion.DisplayName: Explosion
+	IceGrenadeLauncherExplosion.DisplayName: Ice Grenade Launcher Explosion
 }
 
 NPCs: {
@@ -134,6 +141,26 @@ Items: {
 
 	PlantMatterTileItem: {
 		DisplayName: Plant Matter Tile Item
+		Tooltip: ""
+	}
+
+	FrostHookDagger: {
+		DisplayName: Frost Hook & Dagger
+		Tooltip:
+			'''
+			Right click to pull enemies toward you
+			Certain enemies with high defense or bosses will instead pull you toward them
+			Hitting hooked enemies makes for a far more powerful attack
+			'''
+	}
+
+	CrystalTileItem: {
+		DisplayName: Crystal Tile Item
+		Tooltip: ""
+	}
+
+	IceGrenadeLauncher: {
+		DisplayName: Ice Grenade Launcher
 		Tooltip: ""
 	}
 }

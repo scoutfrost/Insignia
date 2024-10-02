@@ -41,9 +41,9 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         GenericPrimTrail primTrail2;
         public override void OnSpawn(IEntitySource source)
         {
-            primTrail2 = new(new(100, 160, 200, 0), Projectile.oldPos, 20, true, default, true)
+            primTrail2 = new(Color.White, Projectile.oldPos, 20, true, default, true)
             {
-                Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad),
+                Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Glacial/FrostHookTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad),
                 //ShouldCustomDraw = true
             };
         }
@@ -54,7 +54,6 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 Projectile.oldPos[i] = Projectile.Center + (Projectile.oldPos[i] - Projectile.Center);
             }
             Projectile.Center = Main.MouseWorld;
-            Main.NewText(Projectile.oldPos[0]) ;
         }
         public override bool PreDraw(ref Color lightColor)
         {

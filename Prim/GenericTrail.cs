@@ -20,7 +20,7 @@ namespace Insignia.Prim
             Width = width;
             WidthFallOff = widthFallOff;
             Shader = shader;
-            this.pixelated = pixelated;
+            Pixelated = pixelated;
             Initialize();
         }
     }

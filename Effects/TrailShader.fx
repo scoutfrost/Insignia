@@ -1,6 +1,6 @@
 float time;
 float repeats;
-
+float4 colorMult;
 matrix wvp;
 texture trailTexture;
 sampler2D samplerTexture = sampler_state
@@ -36,9 +36,11 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
     float2 coords = float2(input.TexCoords.x, input.TexCoords.y);
+    return tex2D(samplerTexture, coords) * colorMult;
+    /*float2 coords = float2(input.TexCoords.x, input.TexCoords.y);
     float3 color = tex2D(samplerTexture, coords).xyz;
 
-    return float4(color * input.Color.xyz, color.x * input.Color.w); //doesnt matter which rbg value to choose here since its a greyscale image
+    return float4(color * input.Color.xyz, color.x * input.Color.w); //doesnt matter which rbg value to choose here since its a greyscale image*/
     // alpha = the brightness of the pixel = any color channel
 }
 

@@ -85,7 +85,7 @@ namespace Insignia.Content.Items.Accessories
             Projectile.timeLeft = 3600;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
-            Projectile.ownerHitCheck = true;
+            Projectile.ownerHitCheck = false;
             Projectile.damage = 50;
         }
         PrimTrail primTrail;
@@ -112,11 +112,11 @@ namespace Insignia.Content.Items.Accessories
 
             if (radius <= -20)
                 shouldDamage = true;
-            
+
             if (radius <= -maxdist)
                 Projectile.Kill();
-            
-            var targets = Main.npc.Where(npc => npc.active && npc.CanBeChasedBy() && !npc.boss && Projectile.Center.DistanceSQ(npc.Center) < maxdist * maxdist);
+
+            IEnumerable<NPC> targets = Main.npc.Where(npc => npc.active && npc.CanBeChasedBy() && !npc.boss && Projectile.Center.DistanceSQ(npc.Center) < maxdist * maxdist);
 
             foreach (var npc in targets)
             {
@@ -139,7 +139,7 @@ namespace Insignia.Content.Items.Accessories
             radius = startingRadius - timer * timeMult;
             float radiusSpeed = timeMult * 7;
             float time = maxdist / radiusSpeed;
-            int trailWidthExplosion = 250;
+            int trailWidthExplosion = 350;
             if (radius <= 0)
             {
                 Main.instance.CameraModifiers.Add(new PunchCameraModifier(Main.screenPosition, Main.rand.NextFloat(MathHelper.Pi).ToRotationVector2(), 1, 15, 5));
@@ -152,15 +152,14 @@ namespace Insignia.Content.Items.Accessories
                 if (explode && primTrail.Width < 25)
                 {
                     ParticleSystem.GenerateParticle(new SparkleParticle(
-                        Color.Azure, 0.2f, points[i] - Vector2.UnitY.RotatedBy((float)Projectile.Center.DirectionTo(points[i]).ToRotation()), Projectile.Center.DirectionTo(points[i]), 0, 600, 0.99f));
+                        Color.Azure, 0.2f, points[i] - Vector2.UnitY.RotatedBy((float)Projectile.Center.DirectionTo(points[i]).ToRotation()), Projectile.Center.DirectionTo(points[i]), 0, 130, 0.99f));
                 }
                 if (timer == 1)
                 {
                     if (i % 2 == 0)
                     {
-                        Projectile p = Projectile.NewProjectileDirect(Projectile.GetSource_FromAI(), points[i], Vector2.Zero, ModContent.ProjectileType<CrystalShard>(), 10, 0, default, 1);
-                        p.tileCollide = false;
-                        p.timeLeft = 110;
+                        Projectile p = Projectile.NewProjectileDirect(Projectile.GetSource_FromAI(), points[i], Vector2.Zero, ModContent.ProjectileType<PermafrostPendantShard>(), 10, 0);
+                        p.timeLeft = 230;
                         p.alpha = 175;
                         particles.Add(p);
                         //Particle p = new SparkleParticle(Color.Azure, 0.5f, points[i], Vector2.Zero, 0, 360, 1); 
@@ -173,10 +172,12 @@ namespace Insignia.Content.Items.Accessories
             for (int i = 0; i < particles.Count; i++)
             {
                 Projectile p = particles[i];
+                p.tileCollide = false;
                 if (explode)
                 {
+                    p.tileCollide = true;
                     p.alpha += 2;
-                    p.velocity += p.Center.DirectionTo(points[i * 2 + 1]) * 0.4f;
+                    p.velocity += p.Center.DirectionTo(points[i * 2 + 1]);
                     continue;
                 }
                 p.Center = points[i * 2] + Vector2.Normalize(Projectile.Center.DirectionTo(points[i * 2])) * (float)Math.Sin(timer / 10) * 30;
@@ -189,28 +190,71 @@ namespace Insignia.Content.Items.Accessories
             primTrail.Points = points;
             primTrail.Color = new Color(100, 150, 170);
             primTrail.Width = explode == true ? primTrail.Width - (trailWidthExplosion / time) : 40;
-            primTrail.pixelated = true;
+            primTrail.Pixelated = true;
             if (initialize)
             {
                 primTrail.Initialize();
                 initialize = false;
             }
             primTrail.Draw();
-            
+
             return false;
-        }
-        public override void OnKill(int timeLeft)
-        {
-            primTrail.kill = true;
-            
-            for (int i = 0; i < particles.Count; i++)
-            {
-                particles[i].timeLeft = 200;
-            }
         }
         public override bool? CanDamage()
         {
             return shouldDamage;
+        }
+    }
+    public class PermafrostPendantShard : ModProjectile
+    {
+        public override string Texture => GeneralHelper.Empty;
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 12;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
+        }
+        public override void SetDefaults()
+        {
+            Projectile.width = 20;
+            Projectile.height = 20;
+            Projectile.friendly = true;
+            Projectile.hostile = false;
+            Projectile.DamageType = DamageClass.Generic;
+            Projectile.penetrate = -1;
+            Projectile.timeLeft = 100;
+            Projectile.usesIDStaticNPCImmunity = true;
+            Projectile.idStaticNPCHitCooldown = 7;
+            Projectile.damage = 7;
+        }
+        //PrimTrail prim;
+        /*public override void OnSpawn(IEntitySource source)
+        {
+            prim = new(Projectile.oldPos, Color.Azure * 0.1f, 5)
+            {
+                WidthFallOff = true
+            };
+        }
+        public override bool PreDraw(ref Color lightColor)
+        {
+            prim.Draw();
+            return true;
+        } commented because it lags for like a frame when the projectile spawns i have no clue why, nothing else does this*/
+        public override void AI()
+        {
+            Projectile.velocity *= 0.95f;
+            SpawnParticles(1, Projectile.timeLeft);
+        }
+        public override void OnKill(int timeLeft)
+        {
+            SpawnParticles(10, 100);
+        }
+        private void SpawnParticles(int count, int timeleft)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                SparkleParticle p = new(Color.Azure, Projectile.scale, Projectile.Center, Vector2.Zero, Projectile.alpha, timeleft, 0.95f);
+                ParticleSystem.GenerateParticle(p);
+            }
         }
     }
 }

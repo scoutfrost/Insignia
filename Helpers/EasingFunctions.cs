@@ -6,9 +6,9 @@ namespace Insignia.Helpers
 {
     internal static class EasingFunctions
     {
-        public static Vector2 Slerp(Vector2 start, Vector2 end, float t, Vector2 center, float radius = default)
+        public static Vector2 RotateVector(Vector2 start, float angle, Vector2 center, float radius = default)
         {
-            return radius == default ? center.DirectionTo(start.RotatedBy(t, center)) : center.DirectionTo(start.RotatedBy(t, center)) * radius;
+            return radius == default ? center.DirectionTo(start.RotatedBy(angle, center)) : center.DirectionTo(start.RotatedBy(angle, center)) * radius;
             //alt implementations that may or may not work
             //return Utils.AngleLerp(start.ToRotation(), end.ToRotation(), t).ToRotationVector2();
             // return new((float)Math.Cos(t), (float)Math.Sin(t)); //* radius;

@@ -53,7 +53,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         public override void AddRecipes()
         {
             Recipe recipe = Recipe.Create(ModContent.ItemType<CrystalScythe>());
-            recipe.AddIngredient(ItemID.IceBlade);
+            recipe.AddIngredient(ItemID.IceBlade); // change this later
             recipe.AddTile(TileID.Anvils);
             recipe.Register();
         }
@@ -115,28 +115,34 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 upSwing = true;
 
             handler = new(KeyFrameInterpolationCurve.Slerp, "Insignia/Content/Items/Weapons/Sets/Glacial/SwingPoints", (int)(23 / Player.GetAttackSpeed(DamageClass.Melee)));
-            points = handler.GetPoints(30);
+            points = handler.GetPoints(30, upSwing);
 
             vectorToMouse = Player.Center.DirectionTo(Main.MouseWorld);
-
-            i = points.Count - 1;
-            if (Player.direction == 1 && !upSwing || Player.direction == -1 && upSwing)
-                i = 0;
+            Projectile.netUpdate = true;
+            i = 0;
 
             for (int i = 0; i < 3; i++)
             {
                 shards.Add(Projectile.NewProjectileDirect(source, Projectile.Center + new Vector2(Main.rand.Next(30)), Vector2.Zero, ModContent.ProjectileType<CrystalShard>(), 7, 0));
             }
         }
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            modifiers.HitDirectionOverride = Player.direction;
+        }
         public override void AI()
         {
             float rotOffset = 0;
             if (upSwing)
-                rotOffset = Player.direction == 1 ? MathHelper.PiOver2 : -MathHelper.PiOver4;
+            {
+                rotOffset = MathHelper.PiOver2;
+                //rotOffset -= MathHelper.PiOver2 * Player.direction; //idk why i do this but it looks bad without it
+            }
 
             mouse = Player.Center + vectorToMouse;
             handler.SetAiDefaults(Projectile, Player, mouse);
             Projectile.Center = handler.CalculateSwordSwingPointsAndApplyRotation(Projectile, mouse, Player, points, ref i, Vector2.Zero, upSwing, rotOffset);
+
             if (hitNPC && ((Player.direction == 1 && !upSwing) || (Player.direction == -1 && upSwing)))
             {
                 i--;
@@ -144,7 +150,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             }
             else if (hitNPC)
             {
-                i++;
+                if (i > points.Count - 1) 
+                    i++;
                 freezeTime++;
             }
             if (freezeTime >= 4)
@@ -171,6 +178,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 Player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + (Player.direction == 1 ? -MathHelper.PiOver2 - MathHelper.PiOver4 : MathHelper.Pi));
 
         }
+
+        private BleedDebuff debuff;
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             this.target = target;
@@ -179,38 +188,13 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 hitNPC = true;
                 freezeTime = 0;
             }
-            target.AddBuff(ModContent.BuffType<BleedDebuff>(), 120);
-            BleedDebuff debuff = (BleedDebuff)ModContent.GetModBuff(ModContent.BuffType<BleedDebuff>());
-            debuff.reApplyBleed = ReApplyBleed;
+            target.AddBuff(ModContent.BuffType<BleedDebuff>(), 10);
+            debuff = (BleedDebuff)ModContent.GetModBuff(ModContent.BuffType<BleedDebuff>());
+            debuff.ReApplyBleedDebuff = ReApplyBleed;
         }
         private void ReApplyBleed(ref List<int> stackList, NPC npc, int index)
         {
-            Player.GetModPlayer<InsigniaPlayer>().BleedProc = true;
-            int stack = stackList[index];
-            if (stack >= 10)
-            {
-                npc.lifeRegen -= 12;
-            }
-            if (stack >= 30 / Player.GetModPlayer<InsigniaPlayer>().BleedBuildupMultiplier && npc.type != NPCID.TargetDummy)
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    Vector2 dustSpeed = new Vector2(0, -4).RotatedByRandom(MathHelper.ToRadians(20));
-                    Dust.NewDust(Main.rand.NextVector2FromRectangle(npc.Hitbox), 10, 10, DustID.Blood, dustSpeed.X, dustSpeed.Y, default, default, 2f);
-                }
-                int bleedDamage = (int)(npc.lifeMax * 0.2f * (1 - npc.lifeMax / 10000) * Player.GetModPlayer<InsigniaPlayer>().BleedDamageMultiplier);
-
-                if (bleedDamage < 0)
-                    bleedDamage = 0;
-                
-                npc.life -= bleedDamage;
-                CombatText.NewText(new((int)npc.Center.X, (int)npc.Center.Y, 10, 10), Color.DarkRed, bleedDamage);
-                if (npc.life <= 0)
-                    npc.life = 1;
-
-                stack = 0;
-                stackList[index] = stack;
-            }
+            debuff.ReApplyBleed(ref stackList, npc, index, Player, 0.5f);
         }
         public override bool PreDraw(ref Color lightColor)
         {
@@ -238,6 +222,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                     oldscale.Add(scale);
                 }
             }
+            oldscale.Add(scale);
             if (oldscale.Count > Projectile.oldPos.Length)
             {
                 oldscale.Remove(oldscale[0]);
@@ -251,13 +236,13 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             }
             prim.Color = new(5, 15, 17, 10);
             prim.Points = oldpos;
-            prim.pixelated = true;
+            prim.Pixelated = true;
             prim.Width = 5 + time * 10;
             if (Projectile.timeLeft == timeleft - 1)
                 prim.Initialize();
             prim.Draw();
 
-            SpriteEffects spriteEffects = Player.direction == 1 && !upSwing || (Player.direction == -1 && upSwing) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+            SpriteEffects spriteEffects = !upSwing ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, lightColor, scale, spriteEffects);
 
@@ -265,15 +250,10 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             {
                 Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
                 Color color = Projectile.GetAlpha(lightColor) * ((Projectile.oldPos.Length - k) / (float)Projectile.oldPos.Length) * 0.2f;
-                Main.EntitySpriteDraw(texture, drawPos, null, color, Projectile.oldRot[k] + ((Player.direction == 1 && upSwing) || (Player.direction == -1 && !upSwing) ? MathHelper.Pi : 0), drawOrigin, oldscale[k], spriteEffects, 0);
+                //no afterimages for now
+                //Main.EntitySpriteDraw(texture, drawPos, null, color, Projectile.oldRot[k], drawOrigin, oldscale[k], spriteEffects, 0);
             }
-
-            oldscale.Add(scale);
             return false;
-        }
-        public override void OnKill(int timeLeft)
-        {
-            prim.kill = true;
         }
     }
     public class CrystalShard : ModProjectile
@@ -310,44 +290,18 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 Projectile.Kill();
             }
         }
+        BleedDebuff debuff;
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            target.AddBuff(ModContent.BuffType<BleedDebuff>(), 120);
-            BleedDebuff debuff = (BleedDebuff)ModContent.GetModBuff(ModContent.BuffType<BleedDebuff>());
-            debuff.reApplyBleed = ReApplyBleed;
+            target.AddBuff(ModContent.BuffType<BleedDebuff>(), 10);
+            debuff = (BleedDebuff)ModContent.GetModBuff(ModContent.BuffType<BleedDebuff>());
+            debuff.ReApplyBleedDebuff = ReApplyBleed;
             Projectile.Center = target.Center;
             Projectile.ai[0] = 1;
         }
         private void ReApplyBleed(ref List<int> stackList, NPC npc, int index)
         {
-            Player player = Main.player[Projectile.owner];
-            player.GetModPlayer<InsigniaPlayer>().BleedProc = true;
-            int stack = stackList[index];
-            if (stack >= 25)
-            {
-                npc.lifeRegen -= 10;
-            }
-            if (stack >= 60 / player.GetModPlayer<InsigniaPlayer>().BleedBuildupMultiplier && npc.type != NPCID.TargetDummy)
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    Vector2 dustSpeed = new Vector2(0, -4).RotatedByRandom(MathHelper.ToRadians(20));
-                    Dust.NewDust(Main.rand.NextVector2FromRectangle(npc.Hitbox), 10, 10, DustID.Blood, dustSpeed.X, dustSpeed.Y, default, default, 2f);
-                }
-
-                int bleedDamage = (int)(npc.lifeMax * 0.12f * (1 - npc.lifeMax / 10000) * player.GetModPlayer<InsigniaPlayer>().BleedDamageMultiplier);
-
-                if (bleedDamage < 0) 
-                    bleedDamage = 0;
-                
-                npc.life -= bleedDamage;
-                CombatText.NewText(new((int)npc.Center.X, (int)npc.Center.Y, 10, 10), Color.DarkRed, bleedDamage);
-
-                if (npc.life <= 0)
-                    npc.life = 1;
-                stack = 0;
-                stackList[index] = stack;
-            }
+            debuff.ReApplyBleed(ref stackList, npc, index, Main.player[Projectile.owner], 0.1f);
         }
     }
 }

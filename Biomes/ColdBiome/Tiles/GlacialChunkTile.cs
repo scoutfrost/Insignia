@@ -29,6 +29,10 @@ namespace Insignia.Biomes.ColdBiome.Tiles
     }
     public class GlacialChunkTile : ModTile
     {
+        //public override int HorizontalSheetCount => 3;
+
+        //public override int VerticalSheetCount => 3;
+
         public override void SetStaticDefaults()
         {
             Main.tileSolid[Type] = true;

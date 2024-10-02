@@ -21,7 +21,8 @@ namespace Insignia.Core.Common.Systems
         static string texturePath;
         int pointCount;
         Texture2D tex;
-
+        public List<Vector2> coordsForColorData;
+        public Vector2 rotationCenter;
         /// <param name="keyFrameInterpolationCurve">The method of interpolating new points between the provided points.</param>
         /// <param name="texPath">The path to the texture with the keypoints on it.</param>
         /// <param name="speed">The speed of the projectile. This could also be thought of as the total returned amount of points, but its little over.</param>
@@ -37,7 +38,7 @@ namespace Insignia.Core.Common.Systems
 
         /// <param name="radius">The radius of the interpolated circle. Only set this if youre using KeyFrameInterpolationCurve.Slerp.</param>
         /// <returns>The interpolated points.</returns>
-        public List<Vector2> GetPoints(float radius = default)
+        public List<Vector2> GetPoints(float radius = default, bool flipVertically = false, Color centerColor = default)
         {
             List<Vector2> returnPoints = new();
             int height = tex.Height;
@@ -45,21 +46,33 @@ namespace Insignia.Core.Common.Systems
 
             Color[] colorData = new Color[tex.Width * tex.Height];
             tex.GetData(colorData);
-            List<Vector2> coordsForColorData = new();
+            coordsForColorData = new();
+            rotationCenter = default;
 
-            for (int row = 0; row < height; row++)
+            for (int y = 0; y < height; y++)
             {
-                for (int column = 0; column < width; column++)
+                for (int x = 0; x < width; x++)
                 {
-                    Color currPixel = colorData[row * width + column];
+                    Color currPixel = colorData[y * width + x];
 
-                    if (currPixel.A != 0)
+                    if (currPixel.A != 0 && currPixel != centerColor)
                     {
-                        coordsForColorData.Add(new Vector2(column, row));
+                        coordsForColorData.Add(new Vector2(x, y));
+                    }
+                    else if (currPixel == centerColor)
+                    {
+                        rotationCenter = new Vector2(x, y);
                     }
                 }
             }
-
+            if (flipVertically)
+            {
+                for (int i = 0; i < coordsForColorData.Count; i++)
+                {
+                    coordsForColorData[i] = new Vector2(coordsForColorData[i].X, coordsForColorData[i].Y * -1);
+                }
+                rotationCenter = new Vector2(rotationCenter.X, rotationCenter.Y * -1);
+            }
             switch (keyFrameInterpolationCurve)
             {
                 //might implement lagrange polynomial later but nrn
@@ -91,11 +104,11 @@ namespace Insignia.Core.Common.Systems
                     {
                         for (int i = 0; i < coordsForColorData.Count - 1; i++)
                         {
+                            Vector2 center = centerColor == default ? new(coordsForColorData[0].X, (coordsForColorData[^1].Y + coordsForColorData[0].Y) / 2) : rotationCenter; //if no given center: average of the y value, but not the x - makes it more intuitive to use
+                            float maxRotation = center.AngleTo(coordsForColorData[i + 1]) - center.AngleTo(coordsForColorData[i]);
                             for (float k = 0; k <= pointCount / coordsForColorData.Count; k++)
                             {
-                                Vector2 center = new(coordsForColorData[0].X, (coordsForColorData[^1].Y + coordsForColorData[0].Y) / 2); //average of the y value, but not the x - makes it more intuitive to use
-                                float maxRotation = center.AngleTo(coordsForColorData[i + 1]) - center.AngleTo(coordsForColorData[i]);
-                                returnPoints.Add(EasingFunctions.Slerp(coordsForColorData[i], coordsForColorData[i + 1], k / (pointCount / coordsForColorData.Count) * maxRotation, center, radius));
+                                returnPoints.Add(EasingFunctions.RotateVector(coordsForColorData[i], k / (pointCount / coordsForColorData.Count) * maxRotation, center, radius));
                             }
                         }
                         return returnPoints;
@@ -153,34 +166,15 @@ namespace Insignia.Core.Common.Systems
             {
                 projOffset = Vector2.Zero;
             }
-            if (upswing)
-            {
-                rotOffset -= MathHelper.PiOver2 * owner.direction;
-            }
 
-            if ((owner.direction == 1 && !upswing) || owner.direction == -1 && upswing)
+            if (i < points.Count - 1)
             {
-                if (i < points.Count - 1)
-                {
-                    i++;
-                    projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + owner.Center.DirectionTo(vectorToMouse).ToRotation() + rotOffset + MathHelper.PiOver4;
-                }
-                else
-                {
-                    projectile.Kill();
-                }
+                i++;
+                projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + owner.Center.DirectionTo(vectorToMouse).ToRotation() + rotOffset + MathHelper.PiOver4;
             }
             else
             {
-                if (i > 0)
-                {
-                    i--;
-                    projectile.rotation = owner.Center.DirectionTo(owner.Center + points[i]).ToRotation() + owner.Center.DirectionTo(vectorToMouse).ToRotation() + rotOffset - MathHelper.PiOver4 + MathHelper.Pi;
-                }
-                else
-                {
-                    projectile.Kill();
-                }
+                projectile.Kill();
             }
 
             return owner.Center + points[i].RotatedBy(owner.Center.DirectionTo(vectorToMouse).ToRotation()) + projOffset;
@@ -209,6 +203,22 @@ namespace Insignia.Core.Common.Systems
             //owner.heldProj = projectile.whoAmI;
             owner.itemTime = 2;
             owner.itemAnimation = 2;
+        }
+        public List<float> CalculateRatios()
+        {
+            List<float> returnRatios = new();
+            for (int i = 0; i < coordsForColorData.Count - 1; i++)
+            {
+                float current = rotationCenter.AngleTo(coordsForColorData[i]);
+                float next = rotationCenter.AngleTo(coordsForColorData[i + 1]);
+                returnRatios.Add(next - current);
+            }
+            for (int i = 0; i < returnRatios.Count; i++)
+            {
+                float maxRotation = rotationCenter.AngleTo(coordsForColorData[^1]) - rotationCenter.AngleTo(coordsForColorData[0]);
+                returnRatios[i] = returnRatios[i] / maxRotation;
+            }
+            return returnRatios;
         }
     }
     public enum KeyFrameInterpolationCurve

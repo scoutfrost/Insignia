@@ -23,7 +23,8 @@ namespace Insignia.Core.Common.Systems
         static List<Particle> particles = new();
         static List<Particle> metaBalls = new();
         static List<Type> metaballTypes = new();
-        static readonly int maxParticles = 1000;
+        //static List<Particle>
+        static readonly int maxParticles = 3000;
         public static void GenerateParticle(params Particle[] p)
         {
             foreach (Particle particle in p)
@@ -76,7 +77,7 @@ namespace Insignia.Core.Common.Systems
                     }
                     else
                     {
-                        sB.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default,
+                        sB.Begin(SpriteSortMode.Deferred, particle.BlendState, SamplerState.PointClamp, DepthStencilState.Default,
                             RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
                         Main.EntitySpriteDraw(particle.Texture, particle.Position - Main.screenPosition, particle.Texture.Bounds, particle.Color * (1 - alpha / 255),

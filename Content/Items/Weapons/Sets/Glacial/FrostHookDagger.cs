@@ -12,6 +12,7 @@ using Insignia.Helpers;
 using System.Transactions;
 using Insignia.Core.ModPlayers;
 using Terraria.Graphics.Shaders;
+using System.Runtime.CompilerServices;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -98,9 +99,17 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         public override void OnSpawn(IEntitySource source)
         {
             hasEnemyHooked = Player.GetModPlayer<FrostHookDaggerPlayer>().hasEnemyHooked;
-            prim = new PrimTrail();
+            prim = PrimHandler.CreateTrail<PrimTrail>(false, default);
             primTexture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail");
             primPoints = Projectile.oldPos.ToList();
+
+            prim.Texture = primTexture;
+            prim.WidthFallOff = true;
+            prim.Width = 20;
+            prim.Color = Color.Coral;
+            prim.Points = primPoints.ToArray();
+            prim.Initialize();
+
             if (Projectile.ai[0] == 1)
                 upSwing = true;
 
@@ -153,20 +162,13 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 primPoints.RemoveAt(primPoints.Count - 1);
             }
 
-            prim.Width = 20;
             prim.Color = lightColor * 0.1f;
             if (hasEnemyHooked || Player.GetModPlayer<FrostHookDaggerPlayer>().hasBigEnemyHooked)
             {
                 prim.Width = 30;
                 prim.Color = Color.AliceBlue * 0.5f;
             }
-            prim.Texture = primTexture;
-            prim.WidthFallOff = true;
             prim.Points = primPoints.ToArray();
-            prim.Pixelated = false;
-            if (Projectile.timeLeft == timeleft - 1)
-                prim.Initialize();
-
             prim.Draw();
 
             return false;
@@ -228,9 +230,30 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         PrimTrail prim;
         int startingDirection = 0;
         NPC grabbedNPC;
+        Color lightColor;
+        public void SetShadersDelegate()
+        {
+            prim.Shader = GameShaders.Misc["TrailShader"].Shader;
+            var world = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
+            Matrix view = Main.GameViewMatrix.TransformationMatrix;
+            var projection = Matrix.CreateOrthographicOffCenter(0, Main.graphics.GraphicsDevice.PresentationParameters.BackBufferWidth, Main.graphics.GraphicsDevice.PresentationParameters.BackBufferHeight, 0, -1, 1);
+
+            prim.Shader.Parameters["wvp"].SetValue(world * view * projection);
+            prim.Shader.Parameters["trailTexture"].SetValue(prim.Texture);
+            prim.Shader.Parameters["colorMult"].SetValue(lightColor.ToVector4() + Color.White.ToVector4() * 0.3f);
+        }
         public override void OnSpawn(IEntitySource source)
         {
-            prim = new() { Shader = GameShaders.Misc["TrailShader"].Shader };
+            prim = PrimHandler.CreateTrail<PrimTrail>(false, default);
+            prim.Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Glacial/FrostHookTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad);
+            prim.Width = 3;
+            prim.Color = Color.White;
+            prim.Points = new Vector2[20];
+            prim.Pixelated = true;
+            prim.Shader = GameShaders.Misc["TrailShader"].Shader;
+            prim.SetShadersDelegate = SetShadersDelegate;
+            prim.Initialize();
+
             int maxDist = 300;
             float distance = MathHelper.Clamp(Vector2.Distance(Player.Center, Main.MouseWorld), 0, maxDist);
             targetPoint = Player.Center.DirectionTo(Main.MouseWorld) * distance;
@@ -278,6 +301,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             {
                 Player.Center += Player.DirectionTo(grabbedNPC.Center) * 15;
             }
+            Player.SetCompositeArmBack(true, Player.CompositeArmStretchAmount.Quarter, Player.Center.DirectionTo(Projectile.Center).ToRotation() - MathHelper.ToRadians(80));
         }
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -301,6 +325,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         }
         public override bool PreDraw(ref Color lightColor)
         {
+            this.lightColor = lightColor;
             List<Vector2> points = [];
             for (float i = 0; i < 20; i++)
             {
@@ -308,19 +333,9 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
                 Dust.QuickDust(controlPoint.ToPoint(), Color.Red);
                 points.Add(EasingFunctions.Bezier([Player.Center, controlPoint, Projectile.Center + Player.Center.DirectionTo(Projectile.Center) * 10], i / 20));
             }
-            var world = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
-            Matrix view = Main.GameViewMatrix.TransformationMatrix;
-            var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
-
-            prim.Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Glacial/FrostHookTrail");
-            prim.Shader.Parameters["wvp"].SetValue(world * view * projection);
-            prim.Shader.Parameters["trailTexture"].SetValue(prim.Texture);
-            prim.Shader.Parameters["colorMult"].SetValue(lightColor.ToVector4() + Color.White.ToVector4() * 0.3f);
-            prim.Width = 3;
-            prim.Color = Color.White;
             prim.Points = [.. points];
-            if (Projectile.timeLeft == 119)
-                prim.Initialize();
+
+            //prim.SetShadersDelegate = SetShadersDelegate;
             prim.Draw();
             ProjectileDrawHelper.QuickDrawProjectile(Projectile, null, null, Texture, new Color(lightColor.ToVector4() + Color.White.ToVector4() * 0.3f), Vector2.One, Player.direction == -1 ? SpriteEffects.FlipVertically : SpriteEffects.None);
 

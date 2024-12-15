@@ -110,7 +110,7 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         public override void OnSpawn(IEntitySource source)
         {
             oldpos = new Vector2[Projectile.oldPos.Length];
-            prim = new PrimTrail();
+            prim = PrimHandler.CreateTrail<PrimTrail>(false, default);
             if (Projectile.ai[0] == 1)
                 upSwing = true;
 

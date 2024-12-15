@@ -34,8 +34,11 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
 		}
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            //player.GetModPlayer<TestProjPlayer>().SwingCount++;
-            return true;
+            for (int i = 0; i < 1; i++)
+            {
+                Projectile.NewProjectile(source, position, velocity, type, damage, knockback);
+            }
+            return false;
         }
     }
 }

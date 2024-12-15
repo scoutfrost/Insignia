@@ -309,10 +309,10 @@ Player player)  {  return true
         }
         public override void OnSpawn(IEntitySource source)
         {
-            prim = new CirclePrim(Color.LightSkyBlue, Projectile.Center, 1, 10, 20, true, 0, 20)
-            {
-                Texture = primTexture
-            };
+            prim = (CirclePrim)PrimHandler.CreateTrail<CirclePrim>(false, default);
+            prim.Initialize();
+            prim.SetData(Color.LightSkyBlue, Projectile.Center, 1, 10, 20, false, 0, 20);
+            
             for (int i = 0; i < 50; i++)
             {
                 //GenericGlowParticle p = new(Projectile.Center, Main.rand.NextVector2CircularEdge(3, 3), Color.WhiteSmoke, 0.1f, 60);

@@ -245,6 +245,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         GenericPrimTrail primtrail;
         public override void OnSpawn(IEntitySource source)
         {
+            primtrail = (GenericPrimTrail)PrimHandler.CreateTrail<GenericPrimTrail>(false, default);
+            primtrail.Initialize();
             mouse = Main.MouseWorld;
         }
         public override Color? GetAlpha(Color lightColor) => Color.White;
@@ -252,6 +254,9 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
         {
             if (Projectile.ai[1] == 1) { // aka checking if its been through a portal
                 Projectile.velocity *= 1.03f;
+            }
+            else {
+                Projectile.tileCollide = true;
             }
             if (Projectile.velocity.Length() < 25) {
                 Projectile.velocity *= 0.97f;
@@ -278,8 +283,8 @@ namespace Insignia.Content.Items.Weapons.Sets.Torgustus
             List<Projectile> portals = player.GetModPlayer<TorgustusPortalPlayer>().portalsActive;
             if (Projectile.ai[1] == 1)
             {
-                primtrail = new(new(220, 110, 30, 150), Projectile.oldPos, 5);
-                //primtrail.Draw();
+                primtrail.SetData(new(220, 110, 30, 150), Projectile.oldPos, 5);
+                primtrail.Draw();
 
                 if (Projectile.velocity.Length() > 25)
                 {

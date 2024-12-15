@@ -34,18 +34,28 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Projectile.hostile = false;
             Projectile.DamageType = DamageClass.Melee;
             Projectile.light = 0.5f;
-            Projectile.timeLeft = 3600;
+            Projectile.timeLeft = 60 * 60;
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
         }
-        GenericPrimTrail primTrail2;
+        PrimTrail primTrail2;
+        Vector2 rand;
         public override void OnSpawn(IEntitySource source)
         {
-            primTrail2 = new(Color.White, Projectile.oldPos, 20, true, default, true)
+            /*primTrail2 = new(Color.White, Projectile.oldPos, 20, true, default, true)
             {
                 Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Glacial/FrostHookTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad),
                 //ShouldCustomDraw = true
-            };
+            };*/
+            primTrail2 = PrimHandler.CreateTrail<PrimTrail>(false, default);
+            primTrail2.Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad);
+            primTrail2.Color = Color.White;
+            primTrail2.Points = Projectile.oldPos;
+            primTrail2.Width = 40;
+            primTrail2.Pixelated = true;
+            primTrail2.WidthFallOff = false;
+            primTrail2.Initialize();
+            rand = Main.rand.NextVector2Circular(500, 500);
         }
         public override void AI()
         {
@@ -53,18 +63,19 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             {
                 Projectile.oldPos[i] = Projectile.Center + (Projectile.oldPos[i] - Projectile.Center);
             }
-            Projectile.Center = Main.MouseWorld;
+            Projectile.Center = Main.MouseWorld + rand;
         }
         public override bool PreDraw(ref Color lightColor)
         {
-            var world = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
+            //primTrail2.Width = Main.rand.Next(10, 20);
+            primTrail2.Draw();
+            /*var world = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
             Matrix view = Main.GameViewMatrix.TransformationMatrix;
-            var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
+            var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);*/
 
             //primTrail.Shader.Parameters["outlineColor"].SetValue(Color.WhiteSmoke.ToVector4());
 
 
-            primTrail2.Draw();
             return true;
         }
         public override void OnKill(int timeLeft)

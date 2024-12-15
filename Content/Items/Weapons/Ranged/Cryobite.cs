@@ -132,7 +132,7 @@ namespace Insignia.Content.Items.Weapons.Ranged
         }
         public override void SetDefaults()
         {
-            Projectile.Size = new Vector2(12);
+            Projectile.Size = new Vector2(17);
 
             Projectile.hostile = false;
             Projectile.friendly = true;
@@ -159,7 +159,7 @@ namespace Insignia.Content.Items.Weapons.Ranged
         {
             for (int i = 0; i < 2; i++)
             {
-                VelocityBasedParticle velParticle = new(3, Color.LightBlue, (Projectile.velocity / 4).RotatedBy(MathHelper.ToRadians(-10)).RotatedBy(MathHelper.ToRadians(10 * i)), Projectile.Center, Vector2.One, 150, 0.3f);
+                VelocityBasedParticle velParticle = new(3, new Color(color.ToVector4() + new Vector4(0.15f, 0.15f, 0.15f, 0)), (Projectile.velocity / 4).RotatedBy(MathHelper.ToRadians(-10)).RotatedBy(MathHelper.ToRadians(10 * i)), Projectile.Center, Vector2.One, 0, 0.3f);
                 SparkleParticle particle = new(Color.LightBlue, 0.7f, Projectile.Center, Projectile.velocity.RotatedByRandom(MathHelper.ToRadians(25)) * i / 10, 100);
                 ParticleSystem.GenerateParticle(particle, velParticle);
             }

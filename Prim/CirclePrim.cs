@@ -19,7 +19,7 @@ namespace Insignia.Prim
         public float radius;
         public float particleCount;
         public float rotation;
-        public CirclePrim(Color color, Vector2 center, float radius, float width, int pointCount, bool pixelated = false, float rotation = 0, float particleCount = 0)
+        public void SetData(Color color, Vector2 center, float radius, float width, int pointCount, bool pixelated = false, float rotation = 0, float particleCount = 0)
         {
             this.center = center;
             this.radius = radius;
@@ -29,15 +29,12 @@ namespace Insignia.Prim
             Pixelated = pixelated;
             this.rotation = rotation;
             this.particleCount = particleCount;
-            this.particleCount = particleCount;
             for (int i = 0; i < particleCount; i++)
             {
                 GenericGlowParticle p = new((Vector2.UnitX.RotatedBy(MathHelper.TwoPi / (Points.Length - 1.1f) * i) * radius).RotatedBy(rotation), Vector2.Zero, Color.AliceBlue, 1);
                 ParticleSystem.GenerateParticle(p);
             }
-            Initialize();
         }
-        public CirclePrim() { }
         protected override void Update()
         {
             for (int i = 0; i < Points.Length; i++)

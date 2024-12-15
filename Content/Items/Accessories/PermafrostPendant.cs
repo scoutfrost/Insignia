@@ -67,7 +67,7 @@ namespace Insignia.Content.Items.Accessories
         {
             if (hit.Crit && !target.active && !target.CountsAsACritter)
             {
-                Projectile.NewProjectile(player.GetSource_Accessory(Entity), target.Center, Vector2.Zero, ModContent.ProjectileType<PermafrostPendantExplosion>(), 90, 0, Main.player.ToList().IndexOf(player));
+                Projectile.NewProjectile(player.GetSource_Accessory(Entity), target.Center, Vector2.Zero, ModContent.ProjectileType<PermafrostPendantExplosion>(), 90, 0, player.whoAmI);
             }
         }
 
@@ -96,11 +96,14 @@ namespace Insignia.Content.Items.Accessories
             initialize = true;
             Projectile.netUpdate = true;
 
-            primTrail = new PrimTrail()
-            {
-                Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad)
-            };
+            primTrail = PrimHandler.CreateTrail<PrimTrail>(false, default);
 
+            primTrail.Color = new Color(100, 150, 170);
+            primTrail.Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad);
+            primTrail.Points = points;
+            primTrail.Width = 10;
+            primTrail.WidthFallOff = false;
+            primTrail.Initialize();
         }
         bool shouldDamage = false;
         int maxdist = 200;
@@ -133,6 +136,7 @@ namespace Insignia.Content.Items.Accessories
         bool explode;
         public override bool PreDraw(ref Color lightColor)
         {
+            if (Main.gameInactive) return false;
             timer++;
             float startingRadius = 180;
             float timeMult = 2;
@@ -187,13 +191,10 @@ namespace Insignia.Content.Items.Accessories
             {
                 primTrail.Width = trailWidthExplosion;
             }
-            primTrail.Points = points;
-            primTrail.Color = new Color(100, 150, 170);
             primTrail.Width = explode == true ? primTrail.Width - (trailWidthExplosion / time) : 40;
-            primTrail.Pixelated = true;
+            //primTrail.Pixelated = true;
             if (initialize)
             {
-                primTrail.Initialize();
                 initialize = false;
             }
             primTrail.Draw();
@@ -226,19 +227,23 @@ namespace Insignia.Content.Items.Accessories
             Projectile.idStaticNPCHitCooldown = 7;
             Projectile.damage = 7;
         }
-        //PrimTrail prim;
-        /*public override void OnSpawn(IEntitySource source)
+        /*PrimTrail prim;
+        public override void OnSpawn(IEntitySource source)
         {
-            prim = new(Projectile.oldPos, Color.Azure * 0.1f, 5)
-            {
-                WidthFallOff = true
-            };
+            prim = PrimHandler.CreateTrail<PrimTrail>(false, default);
+            prim.Color = Color.Azure * 0.1f;
+            prim.Points = Projectile.oldPos;
+            prim.Width = 5;
+            prim.WidthFallOff = true; 
+            prim.Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad);
+            prim.Initialize();
         }
         public override bool PreDraw(ref Color lightColor)
         {
+            prim.Points = Projectile.oldPos;
             prim.Draw();
             return true;
-        } commented because it lags for like a frame when the projectile spawns i have no clue why, nothing else does this*/
+        } //commented because it lags for like a frame when the projectile spawns i have no clue why, nothing else does this*/
         public override void AI()
         {
             Projectile.velocity *= 0.95f;

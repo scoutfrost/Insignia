@@ -18,9 +18,14 @@ namespace Insignia.Biomes.ColdBiome.Backgrounds
     {
         RenderTarget2D lightMap;
         RenderTarget2D screenRT;
+        Texture2D tex;
         //RenderTarget2D zoomRT;
         public override void Load()
         {
+            Main.QueueMainThreadAction(() => 
+            {
+                tex = ModContent.Request<Texture2D>("Insignia/Biomes/ColdBiome/Backgrounds/UndergroundBG", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            });
             On_Main.DrawBackgroundBlackFill += On_Main_DrawBackgroundBlackFill;
             Terraria.Graphics.Light.On_TileLightScanner.GetTileLight += On_TileLightScanner_GetTileLight;
             Main.OnResolutionChanged += Main_OnResolutionChanged;
@@ -53,7 +58,6 @@ namespace Insignia.Biomes.ColdBiome.Backgrounds
             orig(self);
 
             Color[] tileLightColors = new Color[lightMap.Width * lightMap.Height];
-            Texture2D tex = ModContent.Request<Texture2D>("Insignia/Biomes/ColdBiome/Backgrounds/UndergroundBG").Value;
 
             FastParallel.For(0, lightMap.Width * lightMap.Height, (from, to, context) =>
             {

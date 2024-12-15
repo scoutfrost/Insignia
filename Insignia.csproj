@@ -10,6 +10,7 @@
     <None Remove="Assets\Effects\TrailTextureFlames.png" />
     <None Remove="Assets\Misc\Ring.png" />
     <None Remove="Biomes\ColdBiome\Backgrounds\Empty.png" />
+    <None Remove="Biomes\ColdBiome\Tiles\GlacialChunkTile4.png" />
     <None Remove="Content\Items\Accessories\BloodSmokeAccessory.png" />
     <None Remove="Content\Items\Weapons\Sets\Glacial\SwingPoints.png" />
     <None Remove="Content\Items\Weapons\Sets\Glacial\TestProj.png" />
@@ -21,6 +22,7 @@
     <None Remove="Effects\BackgroundDrawing.fx" />
     <None Remove="Effects\Blur.fx" />
     <None Remove="Effects\OutlineShader.fx" />
+    <None Remove="Effects\Pixellation.fx" />
     <None Remove="Effects\TrailShader.fx" />
   </ItemGroup>
   <ItemGroup>

@@ -41,6 +41,7 @@ Projectiles: {
 	IceGrenadeProjectile.DisplayName: Ice Grenade Projectile
 	Explosion.DisplayName: Explosion
 	IceGrenadeLauncherExplosion.DisplayName: Ice Grenade Launcher Explosion
+	Shrapnel.DisplayName: Shrapnel
 }
 
 NPCs: {
@@ -161,7 +162,11 @@ Items: {
 
 	IceGrenadeLauncher: {
 		DisplayName: Ice Grenade Launcher
-		Tooltip: ""
+		Tooltip:
+			'''
+			Shoots cold-shrapnel covered grenades
+			Hit these grenades with another ranged projectile to detonate them early
+			'''
 	}
 }
 

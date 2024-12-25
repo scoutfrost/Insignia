@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 using Terraria.ModLoader;
 
 namespace Insignia.Core.ModPlayers
@@ -22,9 +23,15 @@ namespace Insignia.Core.ModPlayers
                 Player.immune = true;
                 immuneTimeAdd--;
             }
-            BleedProc = false;
             BleedBuildupMultiplier = 1;
             BleedDamageMultiplier = 1;
+        }
+    }
+    public class BleedReset : ModSystem
+    {
+        public override void PostUpdateEverything()
+        {
+            Main.LocalPlayer.GetModPlayer<InsigniaPlayer>().BleedProc = false;
         }
     }
 }

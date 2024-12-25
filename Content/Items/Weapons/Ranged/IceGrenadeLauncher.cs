@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Text;
+using Insignia.Biomes.ColdBiome.Tiles;
 using Insignia.Core.Common.Systems;
 using Insignia.Core.Particles;
 using Insignia.Helpers;
 using Insignia.Prim;
+using Microsoft.Build.Construction;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Steamworks;
@@ -93,6 +95,15 @@ public override bool
 CanConsumeAmmo(Item ammo,
 Player player)  {  return true
 ;}
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.IllegalGunParts, 1);
+            recipe.AddIngredient(ModContent.ItemType<GlacialChunkItem>(), 60);
+            recipe.AddIngredient(ModContent.ItemType<CrystalTileItem>(), 60);
+            recipe.Register();
+        }
     }
     public class IceGrenadeLauncherProj : ModProjectile
     {
@@ -111,7 +122,7 @@ Player player)  {  return true
         int shotTimer = 0;
         int recoilAnimTimer = 0;
         bool hasShot = false;
-        int holdDistance = 25;
+        int holdDistance = 20;
         float lerpSpeed = 0.5f;
         int shotInterval = 40;
         int recoilTime = 5;
@@ -201,8 +212,8 @@ Player player)  {  return true
     {
         public override void SetDefaults()
         {
-            Projectile.width = 30;
-            Projectile.height = 30;
+            Projectile.width = 20;
+            Projectile.height = 20;
             Projectile.friendly = true;
             Projectile.penetrate = -1;
             Projectile.damage = 1;
@@ -238,7 +249,7 @@ Player player)  {  return true
                 for (int i = 0; i < Main.npc.Length; i++)
                 {
                     NPC npc = Main.npc[i];
-                    if (npc.Hitbox.Intersects(Projectile.Hitbox) && npc.active && !npc.CountsAsACritter && !npc.friendly)
+                    if (npc.Hitbox.Intersects(Projectile.Hitbox) && npc.active && !npc.friendly)
                     {
                         stickedNPC = Main.npc[i];
                         dist = Projectile.Center - stickedNPC.Center;
@@ -251,16 +262,26 @@ Player player)  {  return true
             explosionTimer++;
             if (explosionTimer >= 300)
             {
-                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ModContent.ProjectileType<IceGrenadeLauncherExplosion>(), 10, 10);
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ModContent.ProjectileType<IceGrenadeLauncherExplosion>(), 25, 5);
                 Projectile.Kill();
             }
             for (int i = 0; i < Main.projectile.Length; i++)
             {
                 Projectile proj = Main.projectile[i];
-                if (proj.active && proj.Hitbox.Intersects(Projectile.Hitbox) && proj.type == ModContent.ProjectileType<IceGrenadeLauncherExplosion>())
+                if (proj.active && proj.Hitbox.Intersects(Projectile.Hitbox))
                 {
-                    explosionTimer = 280;
-                    break;
+                    if (proj.type == ModContent.ProjectileType<IceGrenadeLauncherExplosion>())
+                    {
+                        explosionTimer = 280;
+                        break;
+                    }
+                    else if (proj.velocity.LengthSquared() > 100 && proj.DamageType == DamageClass.Ranged)
+                    {
+                        for (int j = 0; j < 3; j++)
+                            Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, proj.velocity * 2, ModContent.ProjectileType<Shrapnel>(), 25, 5);
+                        explosionTimer = 300;
+                        break;
+                    }
                 }
             }
         }
@@ -310,20 +331,26 @@ Player player)  {  return true
         public override void OnSpawn(IEntitySource source)
         {
             prim = (CirclePrim)PrimHandler.CreateTrail<CirclePrim>(false, default);
-            prim.Initialize();
+            prim.Texture = primTexture;
             prim.SetData(Color.LightSkyBlue, Projectile.Center, 1, 10, 20, false, 0, 20);
-            
+            prim.Initialize();
+
             for (int i = 0; i < 50; i++)
             {
                 //GenericGlowParticle p = new(Projectile.Center, Main.rand.NextVector2CircularEdge(3, 3), Color.WhiteSmoke, 0.1f, 60);
-                GenericGlowParticle ringParticle = new(Projectile.Center, Vector2.Zero, Color.WhiteSmoke * 0.4f, 0.2f, 60, 1, 0.95f, 0.99f);
+                GenericGlowParticle ringParticle = new(Projectile.Center, Vector2.Zero, Color.WhiteSmoke * 0.5f, 0.2f, 60, 1, 0.95f, 0.99f);
                 ParticleSystem.GenerateParticle(ringParticle);
                 ringParticle.Texture = particleTexture;
                 ringParticle.BlendState = BlendState.Additive;
                 particles.Add(ringParticle);
             }
+
+            for (int i = 0; i < Main.rand.Next(3, 5); i++)
+            {
+                Projectile.NewProjectile(source, Projectile.Center, new Vector2(1, -0.5f).RotatedByRandom(MathHelper.Pi) * 50, ModContent.ProjectileType<Shrapnel>(), 10, 10);
+            }
         }
-        public override bool PreDraw(ref Color lightColor)
+        public override bool PreDraw(ref Color lightColor) 
         {
             startingRadiusTimer += MathHelper.Pi / timeLeft;
 
@@ -336,12 +363,63 @@ Player player)  {  return true
             prim.Draw();
             for (int i = 0; i < particles.Count; i++)
             {
-                particles[i].Position = Projectile.Center + (Vector2.UnitX.RotatedBy(MathHelper.TwoPi / particles.Count * i) * prim.radius).RotatedBy(MathF.Sin(startingRadiusTimer));
+                particles[i].Position = Projectile.Center + (Vector2.UnitX.RotatedBy(MathHelper.TwoPi / particles.Count * i) * prim.radius * Main.rand.NextFloat(1, 1.1f)).RotatedBy(MathF.Sin(startingRadiusTimer));
+                //particles[i].Velocity *= Projectile.Center.DirectionTo(particles[i].Position) * 1.1f;
             }
+            
             return true;
+        }
+    }
+    public class Shrapnel : ModProjectile
+    {
+        public override string Texture => "Insignia/Content/Items/Weapons/Ranged/IceShrapnelProjectile";
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 6;
+            ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
+        }
+        public override void SetDefaults()
+        {
+            Projectile.width = Projectile.height = 10;
+            Projectile.timeLeft = 60;
+            Projectile.penetrate = -1;
+            Projectile.damage = 12;
+            Projectile.friendly = true;
+        }
+        PrimTrail prim;
+        public override void OnSpawn(IEntitySource source)
+        {
+            prim = PrimHandler.CreateTrail<PrimTrail>(false, default);
+            prim.Points = Projectile.oldPos;
+            prim.Color = Color.LightBlue * 0.4f;
+            prim.Width = 10;
+            prim.WidthFallOff = true;
+            prim.ColorChangeDelegate = new((float progress, Color color) => 
+            { 
+                return Color.Lerp(color, Color.AliceBlue * 0.3f, progress) * progress * progress;
+            });
+            prim.Texture = Mod.Assets.Request<Texture2D>("Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value;
+            prim.Initialize();
         }
         public override void AI()
         {
+            prim.Points = Projectile.oldPos;
+            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.velocity.Y += 2;
+            MathHelper.Clamp(Projectile.velocity.Y, 0, 16);
+            Projectile.velocity *= 0.9f;
+        }
+        public override void OnKill(int timeLeft)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                Dust.NewDust(Projectile.Center, 7, 7, DustID.Adamantite, 0, 0, 0, Color.Aqua);
+            }
+        }
+        public override bool PreDraw(ref Color lightColor)
+        {
+            prim.Draw();
+            return true;
         }
     }
 }

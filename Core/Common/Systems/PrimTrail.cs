@@ -67,7 +67,7 @@ namespace Insignia.Core.Common.Systems
                 dynamicVertexBuffer = new(GD, typeof(VertexPositionColorTexture), maxVertices, BufferUsage.WriteOnly);
                 dynamicIndexBuffer = new(GD, typeof(short), maxVertices + maxTrails * 2, BufferUsage.WriteOnly);
 
-                pixellationTarget = new(GD, GD.PresentationParameters.BackBufferWidth / 1, GD.PresentationParameters.BackBufferHeight / 1);
+                pixellationTarget = new(GD, GD.PresentationParameters.BackBufferWidth, GD.PresentationParameters.BackBufferHeight);
             });
         }
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
@@ -81,7 +81,7 @@ namespace Insignia.Core.Common.Systems
                     return;
 
                 PrimTrail trail = activePool[i];
-                if (trail.kill || (!trail.isActive && activePool.Contains(trail)))
+                if (trail.kill || (!trail.isActive && activePool.Contains(trail)) || (vertices.Count >= maxVertices))
                 {
                     KillTrail(trail);
                     continue;
@@ -223,6 +223,11 @@ namespace Insignia.Core.Common.Systems
             trail.startVertexIndex = 0;
             trail.startIndex = 0;
             trail.kill = true;
+            trail.WidthFallOff = false;
+            trail.colorFallOff = false;
+            trail.SetShadersDelegate = null;
+            trail.basicEffect = null;
+            trail.ColorChangeDelegate = null;
             deadPool.Add(trail);
 
             for (int j = 0; j < trailTypes.Count; j++)
@@ -251,14 +256,22 @@ namespace Insignia.Core.Common.Systems
         /// <param name="p">Set this to default if you aren't using it.</param>
         /// <typeparam name="T">The type of the trail.</typeparam>
         /// <returns>The trail that got added.</returns>
-        public static PrimTrail CreateTrail<T>(bool usePrimData, PrimData p) where T : PrimTrail
+        public static PrimTrail CreateTrail<T>(bool usePrimData, PrimData p) where T : PrimTrail, new()
         {
             PrimTrail returnTrail;
             if (deadPool.Count == 0)
             {
                 KillTrail(activePool[0]);
             }
-            returnTrail = deadPool[0] as T;
+            Type type = typeof(T);
+            if (type != typeof(PrimTrail))
+            {
+                returnTrail = new T();
+            }
+            else
+            {
+                returnTrail = deadPool[0];
+            }
             deadPool.RemoveAt(0);
             
             if (usePrimData)
@@ -272,6 +285,7 @@ namespace Insignia.Core.Common.Systems
 
                 returnTrail.Initialize();
             }
+            returnTrail.basicEffect = new(GD);
             returnTrail.isActive = true;
             return returnTrail;
         }
@@ -313,7 +327,7 @@ namespace Insignia.Core.Common.Systems
     internal class PrimTrail
     {
         internal bool isActive;
-        public BasicEffect basicEffect = new(GD);
+        public BasicEffect basicEffect;
         static GraphicsDevice GD = Main.graphics.GraphicsDevice;
         public bool Pixelated = false;
         public VertexPositionColorTexture[] Vertices;
@@ -327,10 +341,12 @@ namespace Insignia.Core.Common.Systems
         public Vector2 texCoordBottomOffset;
         internal int startVertexIndex;
         internal int startIndex;
+        public bool colorFallOff = false;
         /// <summary>
         /// For when you want to set custom shader params without making a new trail type.
         /// </summary>
         public Action SetShadersDelegate;
+        public Func<float, Color, Color> ColorChangeDelegate;
         protected virtual void OnSpawn() { }
         protected virtual void Update() { }
         internal void SetShaders()
@@ -343,9 +359,10 @@ namespace Insignia.Core.Common.Systems
         protected virtual void CustomDraw(GraphicsDevice graphicsDevice) { }
         public bool ShouldCustomDraw = false;
         public bool WidthFallOff;
-        internal PrimTrail() { }
+        public PrimTrail() { }
         public void Initialize()
         {
+            kill = false;
             isActive = true;
             Vertices = new VertexPositionColorTexture[Points.Length * 2];
             CheckBasicEffect();
@@ -415,12 +432,8 @@ namespace Insignia.Core.Common.Systems
         }
         public void Draw()
         {
-            if (Points == null) return;
-            if (Points.Length < 2)
-            {
-                isActive = false;
-                return;
-            }
+            if (Points == null || Vertices == null) return;
+
             if (ShouldCustomDraw)
                 CustomDraw(GD);
 
@@ -428,7 +441,7 @@ namespace Insignia.Core.Common.Systems
 
             Update();
 
-            if (!ShouldCustomDraw && Vertices != null)
+            if(!ShouldCustomDraw && Vertices != null)
             {
                 GenerateVertices();
             }
@@ -439,6 +452,8 @@ namespace Insignia.Core.Common.Systems
         }
         private void CheckBasicEffect()
         {
+            if (basicEffect == null)
+                basicEffect = new(GD);
             if (Shader == default || Shader.GetType() == basicEffect.GetType())
             {
                 if (Texture != null)
@@ -446,13 +461,7 @@ namespace Insignia.Core.Common.Systems
                 basicEffect.VertexColorEnabled = true;
 
                 basicEffect.World = Matrix.CreateTranslation(-new Vector3(Main.screenPosition.X, Main.screenPosition.Y, 0));
-                basicEffect.View = Main.GameViewMatrix.TransformationMatrix;/*new
-                    Matrix(Main.GameViewMatrix.Zoom.X, 0, 0, 0,
-                    0, Main.GameViewMatrix.Zoom.Y, 0, 0,
-                    0, 0, 1, 0,
-                    0, 0, 0, 1
-                    );*/
-                //Main.NewText(Main.GameViewMatrix.Zoom);
+                basicEffect.View = Main.GameViewMatrix.TransformationMatrix;
                 basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, GD.PresentationParameters.BackBufferWidth, GD.PresentationParameters.BackBufferHeight, 0, -1, 1);
                 
                 basicEffect.Texture = Texture;
@@ -468,24 +477,33 @@ namespace Insignia.Core.Common.Systems
             {
                 if (Points[i].X <= 100)
                 {
-                    Points[i] = Points[i - 1];
-                    if (Points[i].X == 0)
-                        return;
+                    if (i != 0)
+                    {
+                        Points[i] = Points[i - 1];
+                    }    
                 }
-                Color.A = 0;
                 bool lastpoint = i == Points.Length - 1;
                 Vector2 current = Points[i];
                 Vector2 next = lastpoint ? Points[i - 1] : Points[i + 1];
                 float progress = 1 - ((float)i / Points.Length);
                 Vector3 normal = new(current.DirectionTo(next).RotatedBy(lastpoint ? MathHelper.PiOver2 : -MathHelper.PiOver2) * Width, 0);
+
                 if (WidthFallOff)
                     normal *= progress;
+
+                Color colorToUse = Color;
+                if (colorFallOff)
+                    colorToUse = Color * progress;
+
+                if (ColorChangeDelegate != null)
+                    colorToUse = ColorChangeDelegate.Invoke(progress, colorToUse);
+                colorToUse.A = 0;
 
                 Vector2 texCoordsTop = i % 2 == 0 ? texCoordTopOffset : new Vector2(1, 0) + texCoordTopOffset; //0,0 : 1,0
                 Vector2 texCoordsBottom = i % 2 == 0 ? new Vector2(0, 1) + texCoordBottomOffset : new Vector2(1, 1) + texCoordBottomOffset;//0,1 : 1,1
 
-                Vertices[i * 2] = new(new Vector3(current, 0) + normal, Color, texCoordsTop);
-                Vertices[i * 2 + 1] = new(new Vector3(current, 0) - normal, Color, texCoordsBottom);
+                Vertices[i * 2] = new(new Vector3(current, 0) + normal, colorToUse, texCoordsTop);
+                Vertices[i * 2 + 1] = new(new Vector3(current, 0) - normal, colorToUse, texCoordsBottom);
                
                 //for debugging
                 /*GenericGlowParticle p = new(new Vector2((int)Vertices[i * 2].Position.X, (int)Vertices[i * 2].Position.Y), Vector2.Zero, Color.BlanchedAlmond, 0.04f, 2);

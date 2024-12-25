@@ -15,6 +15,7 @@ using Insignia.Core.Common.Systems;
 using System.Runtime.CompilerServices;
 using Terraria.Graphics.Shaders;
 using System.Data.OleDb;
+using System.Transactions;
 
 namespace Insignia.Content.Items.Weapons.Sets.Glacial
 {
@@ -38,20 +39,32 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;
         }
-        PrimTrail primTrail2;
-        Vector2 rand;
+        GenericPrimTrail primTrail2;
+        Vector2 rand; 
+        List<Vector2> oldpos = new(10);
+        int i = 0;
         public override void OnSpawn(IEntitySource source)
         {
+            for (int i = 0; i < 10; i++)
+            {
+                oldpos.Add(Projectile.Center);
+            }
             /*primTrail2 = new(Color.White, Projectile.oldPos, 20, true, default, true)
             {
                 Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Content/Items/Weapons/Sets/Glacial/FrostHookTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad),
                 //ShouldCustomDraw = true
             };*/
-            primTrail2 = PrimHandler.CreateTrail<PrimTrail>(false, default);
+            primTrail2 = (GenericPrimTrail)PrimHandler.CreateTrail<GenericPrimTrail>(false, default);
             primTrail2.Texture = (Texture2D)ModContent.Request<Texture2D>("Insignia/Assets/Effects/GlowTrail", ReLogic.Content.AssetRequestMode.ImmediateLoad);
-            primTrail2.Color = Color.White;
+            primTrail2.Color = Color.HotPink;
             primTrail2.Points = Projectile.oldPos;
-            primTrail2.Width = 40;
+            primTrail2.WidthFallOff = true;
+            //primTrail2.colorFallOff = true;
+            primTrail2.ColorChangeDelegate = new((float progress, Color color) =>
+            {
+                return Color.Lerp(color, Color.White, progress) * progress * progress;
+            });
+            primTrail2.Width = 40;  
             primTrail2.Pixelated = true;
             primTrail2.WidthFallOff = false;
             primTrail2.Initialize();
@@ -59,9 +72,15 @@ namespace Insignia.Content.Items.Weapons.Sets.Glacial
         }
         public override void AI()
         {
+            if (i++ == 50)
+            {
+                //Main.NewText("w");
+            }
+            //oldpos.Insert(0, Projectile.Center);
+            //oldpos.RemoveAt(9);
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                Projectile.oldPos[i] = Projectile.Center + (Projectile.oldPos[i] - Projectile.Center);
+                //Projectile.oldPos[i] = Projectile.Center + (Projectile.oldPos[i] - Projectile.Center);
             }
             Projectile.Center = Main.MouseWorld + rand;
         }

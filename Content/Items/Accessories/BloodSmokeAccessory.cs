@@ -27,6 +27,7 @@ namespace Insignia.Content.Items.Accessories
         }
         bool hasSubscribed = false;
         Player player;
+        NPC npc;
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             if (!hasSubscribed)
@@ -35,24 +36,46 @@ namespace Insignia.Content.Items.Accessories
                 hasSubscribed = true;
             }
             this.player = player;
+            //Main.NewText(player.GetModPlayer<InsigniaPlayer>().BleedProc);
+            if (p == null || p.kill)
+                return;
+
+            if (time > 60)
+            {
+                p.kill = true;
+                npc = null;
+                time = 0;
+            }
+            else
+            {
+                time++;
+                for (int i = 0; i < p.Points.Length; i++)
+                {
+                    p.Points[i] = Helpers.EasingFunctions.Bezier([npc.Center, player.Center], (float)i / 10);
+                }
+                p.Draw();
+            }
         }
-        int i = 0;
+        int time = 0;
         PrimTrail p;
         private void BloodSmokeAccessory_OnHitNPCEvent(NPC npc, NPC.HitInfo arg2, int arg3, Player arg4)
         {
             if (player.GetModPlayer<InsigniaPlayer>().BleedProc)
             {
+                this.npc = npc;
                 List<Vector2> primPoints = [];
                 for (int i = 0; i < 10; i++)
                 {
-                    primPoints.Add(Helpers.EasingFunctions.Bezier([npc.Center, player.Center], i));
+                    primPoints.Add(Helpers.EasingFunctions.Bezier([npc.Center, player.Center], (float) i / 10));
                 }
-                /*p.Points = primPoints.ToArray();
-                p.Color = Color.AliceBlue;
+                p = PrimHandler.CreateTrail<PrimTrail>(false, default);
+
+                p.Points = primPoints.ToArray();
+                p.Color = Color.DarkRed;
                 p.Width = 10;
                 p.Initialize();
-                p.Draw();
-                player.statLife += 40;*/
+
+                player.statLife += 40;
             }
         }
     }

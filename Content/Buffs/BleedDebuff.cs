@@ -48,7 +48,7 @@ namespace Insignia.Content.Buffs
 
             int stack = stackList[index];
             //Main.NewText(stack);
-            int npcBleedHealth = npc.boss ? npc.lifeMax / 20 : 10 + npc.lifeMax / 6;
+            int npcBleedHealth = npc.boss ? npc.lifeMax / 10 : 10 + npc.lifeMax / 3;
             if (npcBleedHealth >= npcBleedHealth / 3)
             {
                 npc.lifeRegen -= 12;
@@ -64,7 +64,7 @@ namespace Insignia.Content.Buffs
                         dustSpeed.Y, default, default, 2f);
                 }
 
-                int bleedDamage = (int)(npc.lifeMax * 0.12 * player.GetModPlayer<InsigniaPlayer>().BleedDamageMultiplier);
+                int bleedDamage = (int)(npc.lifeMax * 0.09 * player.GetModPlayer<InsigniaPlayer>().BleedDamageMultiplier);
 
                 if (bleedDamage < 0)
                     bleedDamage = 0;
